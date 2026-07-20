@@ -211,4 +211,3 @@ npm run start
 * **GitHub Repository**: [https://github.com/aryan8434/startup-navigator](https://github.com/aryan8434/startup-navigator)
 * **Live App URL**: [https://startup-navigator-taupe.vercel.app/](https://startup-navigator-taupe.vercel.app/)
 * **Immediate Availability**: Yes (0 days notice)
-* **Previous Salary on Paper**: 6.5 LPA
