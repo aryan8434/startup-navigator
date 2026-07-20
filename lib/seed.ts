@@ -15,6 +15,40 @@ interface SeedResource {
   category: string;
 }
 
+export interface SeedIdea {
+  title: string;
+  slug: string;
+  tagline: string;
+  category: "Manufacturing" | "Hardware / Electronics" | "GreenTech / Sustainability" | "FMCG / Consumer Goods" | "BioTech / Healthcare" | "Industrial Automation" | "Micro-Manufacturing";
+  investmentTier: "< $10k" | "$10k - $50k" | "$50k - $250k" | "$250k+";
+  profitMargin: string;
+  difficulty: "Beginner" | "Intermediate" | "Advanced" | "Expert";
+  targetMarket: string;
+  tam: string;
+  sam: string;
+  som: string;
+  summary: string;
+  problemStatement: string;
+  proposedSolution: string;
+  manufacturingProcess: string[];
+  billOfMaterials: { item: string; costPerUnit: string; supplierType: string; essential: boolean }[];
+  machineryNeeded: { name: string; estimatedCost: string; purpose: string }[];
+  unitEconomics: {
+    rawMaterialCost: number;
+    laborCostPerUnit: number;
+    packagingCost: number;
+    wholesalePrice: number;
+    retailPrice: number;
+    grossMargin: number;
+  };
+  regulatoryRequirements: string[];
+  competitorLandscape: { name: string; weakness: string; differentiation: string }[];
+  growthPlaybook: string[];
+  tags: string[];
+  upvotes: number;
+  featured: boolean;
+}
+
 export const seedArticles: SeedArticle[] = [
   {
     title: "Understanding Company Registration: Choosing the Right Entity",
@@ -337,5 +371,475 @@ export const seedResources: SeedResource[] = [
     type: "Spreadsheet",
     fileUrl: "/templates/financial_model_sheet.xlsx",
     category: "Business Growth"
+  }
+];
+
+export const seedIdeas: SeedIdea[] = [
+  {
+    title: "Biodegradable Algae-Based Packaging Manufacturing",
+    slug: "biodegradable-algae-packaging",
+    tagline: "Eco-friendly marine algae ocean-safe bio-plastic wrap replacing single-use poly bags for e-commerce.",
+    category: "GreenTech / Sustainability",
+    investmentTier: "$50k - $250k",
+    profitMargin: "55 - 70%",
+    difficulty: "Intermediate",
+    targetMarket: "D2C E-commerce brands, Eco-retailers, Logistics companies",
+    tam: "$18.4 Billion global bio-plastics market",
+    sam: "$2.6 Billion regional sustainable packaging sector",
+    som: "$45 Million accessible D2C brand volume",
+    summary: "Produce high-tensile, water-soluble biopolymer film from harvested sea kelp and brown algae. Eliminates microplastic pollution with 100% home compostability in 30 days.",
+    problemStatement: "E-commerce logistics generates over 3.2 billion lbs of flexible plastic mailer waste annually. Traditional plastics take 400+ years to degrade and face increasing municipal bans.",
+    proposedSolution: "Establish a automated thermo-extrusion micro-mill converting processed sodium alginate powder into clear, heat-sealable packaging rolls for garment and food bags.",
+    manufacturingProcess: [
+      "Algae Raw Extract Preparation & Slurry Homogenization",
+      "Glycerol Plasticizer Additive & Natural Cross-Linking Reaction",
+      "Continuous Slot-Die Film Casting & Radiant Infrared Drying",
+      "Slitting, Heat-Sealing, & Automated Roll Winding",
+      "Quality Tensile Testing & ASTM D6400 Biodegradability Certification"
+    ],
+    billOfMaterials: [
+      { item: "Refined Sodium Alginate Extract (per metric ton)", costPerUnit: "$1,850", supplierType: "Ocean Extract Suppliers", essential: true },
+      { item: "Vegetable Glycerine Plasticizer", costPerUnit: "$320", supplierType: "Chemical Wholesalers", essential: true },
+      { item: "Natural Cellulose Fiber Reinforcement", costPerUnit: "$410", supplierType: "Pulp Mills", essential: false },
+      { item: "Biodegradable Soy-Based Flexographic Inks", costPerUnit: "$85/gal", supplierType: "Ink Specialty Co.", essential: true }
+    ],
+    machineryNeeded: [
+      { name: "Continuous Slot-Die Biopolymer Film Extruder", estimatedCost: "$42,000", purpose: "Precision casting of liquid algae slurry into uniform 45-micron films." },
+      { name: "Infrared Radiant Tunnel Dryer", estimatedCost: "$18,500", purpose: "Flash drying moisture out of biopolymer sheet at controlled humidity." },
+      { name: "Automated Bag Slitter & Heat Sealer", estimatedCost: "$12,000", purpose: "Cutting rolls into standard 10x13 mailer sizes with flap adhesive." }
+    ],
+    unitEconomics: {
+      rawMaterialCost: 0.18,
+      laborCostPerUnit: 0.06,
+      packagingCost: 0.03,
+      wholesalePrice: 0.85,
+      retailPrice: 1.45,
+      grossMargin: 68.2
+    },
+    regulatoryRequirements: [
+      "ASTM D6400 / EN 13432 Industrial & Home Compostability Certification",
+      "FDA 21 CFR 176.170 Direct Food Contact Clearance",
+      "ISO 14001 Environmental Management System Standard"
+    ],
+    competitorLandscape: [
+      { name: "Notpla", weakness: "High price point per unit and restricted UK supply chain.", differentiation: "Local scalable micro-mill deployment reduces shipping freight fees by 35%." },
+      { name: "Traditional Poly Bags", weakness: "Severe plastic penalty taxes and negative customer perception.", differentiation: "Zero environmental footprint with 30-day water dissolution." }
+    ],
+    growthPlaybook: [
+      "Offer free trial sample packs to top 500 Shopify Plus apparel brands.",
+      "Partner with sustainable fulfillment centers (3PLs) as exclusive eco-mailer supplier.",
+      "Obtain B-Corp and Climate Neutral Certified logos printed on every mailer."
+    ],
+    tags: ["packaging", "algae", "bioplastics", "sustainability", "e-commerce", "cleantech"],
+    upvotes: 342,
+    featured: true
+  },
+  {
+    title: "Micro-Factory Modular IoT Edge Controllers",
+    slug: "micro-factory-iot-edge-controllers",
+    tagline: "Industrial-grade open architecture Programmable Logic Controllers (PLCs) built for SMB smart factories.",
+    category: "Hardware / Electronics",
+    investmentTier: "$10k - $50k",
+    profitMargin: "60 - 75%",
+    difficulty: "Intermediate",
+    targetMarket: "SMB Machine Shop Operators, Automation Integrators, Agritech Facilities",
+    tam: "$34.2 Billion global industrial automation market",
+    sam: "$4.8 Billion SMB PLC & edge computing segment",
+    som: "$60 Million specialized open-source automation market",
+    summary: "Design and assemble modular DIN-rail IoT edge micro-controllers equipped with RS-485 Modbus, MQTT, and CAN-bus interfaces for retrofitting legacy machinery.",
+    problemStatement: "Legacy industrial PLCs (Siemens, Allen-Bradley) cost $2,000-$5,000 per node and lock small manufacturers into proprietary subscription ecosystems.",
+    proposedSolution: "A dual-core ESP32-S3 / STM32 industrial controller housed in an aluminum extrusion chassis with optically isolated I/O and open-source Node-RED software integration.",
+    manufacturingProcess: [
+      "Surface Mount Technology (SMT) PCB Pick-and-Place Assembly",
+      "Automated Optical Inspection (AOI) & Reflow Soldering",
+      "Conformal Coating Application for Dust and Humidity Protection",
+      "CNC Milling of Aluminum Heat-Sink Enclosures",
+      "Factory Firmware Flashing & Burn-in Stress Testing"
+    ],
+    billOfMaterials: [
+      { item: "Dual-Core Microcontroller System-on-Module", costPerUnit: "$4.20", supplierType: "Semiconductor Distributors", essential: true },
+      { item: "Optocoupler Digital Input Isolation ICs", costPerUnit: "$1.85", supplierType: "Electronic Component Wholesalers", essential: true },
+      { item: "Extruded Aluminum DIN-Rail Enclosure", costPerUnit: "$3.40", supplierType: "Enclosure Manufacturers", essential: true },
+      { item: "Industrial Phoenix Contact Terminal Blocks", costPerUnit: "$2.10", supplierType: "Connector Suppliers", essential: true }
+    ],
+    machineryNeeded: [
+      { name: "Desktop SMT Pick and Place Machine", estimatedCost: "$8,500", purpose: "Automated mounting of 0603 passive components and IC packages onto PCBs." },
+      { name: "4-Zone Lead-Free Reflow Oven", estimatedCost: "$4,200", purpose: "Controlled thermal profile soldering of surface mount electronics." },
+      { name: "Laser Marking & CNC PCB Router", estimatedCost: "$3,800", purpose: "Engraving logos and serial numbers onto anodized aluminum chassis." }
+    ],
+    unitEconomics: {
+      rawMaterialCost: 14.50,
+      laborCostPerUnit: 3.20,
+      packagingCost: 1.10,
+      wholesalePrice: 58.00,
+      retailPrice: 99.00,
+      grossMargin: 71.3
+    },
+    regulatoryRequirements: [
+      "FCC Part 15 Class A Unintentional Radiator Compliance",
+      "CE Mark EMC Directive 2014/30/EU",
+      "UL 61010-1 Electrical Equipment Safety Certification"
+    ],
+    competitorLandscape: [
+      { name: "Siemens S7-1200", weakness: "Expensive licenses, closed ecosystem, 26-week lead times.", differentiation: "Instant setup with web dashboard, $99 price tag, zero software license fee." },
+      { name: "Opto 22", weakness: "High unit cost and bulky physical form factor.", differentiation: "Compact DIN-rail footprint with native MQTT & REST APIs out of the box." }
+    ],
+    growthPlaybook: [
+      "Publish open-source PCB schematics and Node-RED templates on GitHub.",
+      "Attend local automation expos and offer free 30-day hardware evaluation kits.",
+      "Create YouTube tutorial series on retrofitting 1990s CNC mills into IoT connected nodes."
+    ],
+    tags: ["iot", "hardware", "plc", "automation", "micro-factory", "industry4.0"],
+    upvotes: 289,
+    featured: true
+  },
+  {
+    title: "Precision CNC Custom Orthotic Insoles Manufacturing",
+    slug: "precision-cnc-orthotic-insoles",
+    tagline: "Scan-to-sole custom ergonomic footwear insoles produced via high-speed EVA foam CNC carving.",
+    category: "BioTech / Healthcare",
+    investmentTier: "$10k - $50k",
+    profitMargin: "70 - 82%",
+    difficulty: "Beginner",
+    targetMarket: "Podiatrists, Chiropractors, Endurance Runners, Safety Boot Workers",
+    tam: "$5.1 Billion global orthotics market",
+    sam: "$820 Million custom scan-to-order insoles",
+    som: "$25 Million accessible podiatry clinic volume",
+    summary: "Utilize smartphone LiDAR 3D foot scanning to drive automated dual-spindle CNC carving of medical-grade EVA foam orthotics tailored to exact patient gait mechanics.",
+    problemStatement: "Traditional podiatry orthotics require plaster casting, cost $400-$600, and take 4 to 6 weeks to deliver from centralized laboratories.",
+    proposedSolution: "A decentralized micro-lab setup using a specialized high-RPM router that carves dual-density EVA foam blocks in under 8 minutes per pair at 90% lower cost.",
+    manufacturingProcess: [
+      "LiDAR/3D Scan File Ingestion & Foot Bed Surface Generation",
+      "Dual-Density EVA Foam Block Mounting on CNC Vacuum Table",
+      "Roughing Pass & High-Speed Finishing Rotary Carving",
+      "Automated Leather/Microfiber Top Sheet Lamination",
+      "Edge Buffing, Quality Inspection, & Direct-to-Consumer Packaging"
+    ],
+    billOfMaterials: [
+      { item: "Dual-Density Shore A35/A55 EVA Foam Blocks", costPerUnit: "$3.40", supplierType: "Foam Material Specialty Co.", essential: true },
+      { item: "Perforated Antimicrobial Microfiber Top Cover", costPerUnit: "$1.80", supplierType: "Textile Distributors", essential: true },
+      { item: "Medical Grade Acrylic Adhesive Film", costPerUnit: "$0.60", supplierType: "Adhesive Suppliers", essential: true }
+    ],
+    machineryNeeded: [
+      { name: "Dual-Spindle High-Speed Orthotic CNC Router", estimatedCost: "$14,500", purpose: "Carving top and bottom contours of EVA foam blocks in 8 minutes." },
+      { name: "Pneumatic Lamination Press & Vacuum Table", estimatedCost: "$2,800", purpose: "Bonding top antibacterial fabric to carved foam core under heat." },
+      { name: "Benchtop Orthotic Belt Grinder & Finisher", estimatedCost: "$1,400", purpose: "Trimming perimeter edges and beveling heel cups." }
+    ],
+    unitEconomics: {
+      rawMaterialCost: 6.20,
+      laborCostPerUnit: 4.50,
+      packagingCost: 1.80,
+      wholesalePrice: 45.00,
+      retailPrice: 120.00,
+      grossMargin: 80.0
+    },
+    regulatoryRequirements: [
+      "FDA Class I Medical Device Registration (510k Exempt)",
+      "CE Mark Medical Device Regulation (MDR 2017/745)",
+      "ISO 13485 Medical Devices Quality Management Standard"
+    ],
+    competitorLandscape: [
+      { name: "Upstep", weakness: "Requires cumbersome physical impression wax box mailed back and forth.", differentiation: "Instant 3D scan via iOS app, reducing fulfillment turnaround to 48 hours." },
+      { name: "Superfeet", weakness: "Generic off-the-shelf arch support, not true custom anatomical fit.", differentiation: "True custom 3D gait contouring at off-the-shelf price points." }
+    ],
+    growthPlaybook: [
+      "Distribute free 3D scanning iOS SDK to independent podiatry practices.",
+      "Target marathon training clubs and industrial safety boot footwear programs.",
+      "Implement a subscription plan for annual replacement pairs at 20% discount."
+    ],
+    tags: ["healthcare", "cnc", "orthotics", "3d-scanning", "biotech", "footwear"],
+    upvotes: 215,
+    featured: true
+  },
+  {
+    title: "Modular Automated Vertical Hydroponic Towers",
+    slug: "modular-vertical-hydroponic-towers",
+    tagline: "Aeroponic vertical growing columns with automated nutrient dosing for urban micro-farmers.",
+    category: "Manufacturing",
+    investmentTier: "< $10k",
+    profitMargin: "50 - 65%",
+    difficulty: "Beginner",
+    targetMarket: "Urban Agriculture Enthusiasts, High-End Restaurants, Educational STEM Labs",
+    tam: "$12.8 Billion global indoor farming market",
+    sam: "$1.9 Billion residential & micro-commercial vertical towers",
+    som: "$30 Million direct online D2C buyers",
+    summary: "Manufacture modular interlocking aeroponic tower sections using food-grade recycled HDPE injection molding. Features integrated full-spectrum LED grow light rings.",
+    problemStatement: "Urban dwellers lack yard space for fresh organic produce, while existing hydroponic systems are bulky, leak-prone, and visually unappealing.",
+    proposedSolution: "A stackable 32-plant vertical tower made from food-safe UV-stabilized polymer that uses 95% less water and yields 3x faster crop cycles.",
+    manufacturingProcess: [
+      "HDPE Resin Drying & Food-Grade Color Masterbatch Blending",
+      "Injection Molding of Tower Stacking Segments & Plant Net Pots",
+      "Extrusion of Central Water Distribution Column",
+      "Wiring Assembly of Submersible Pump & Smart WiFi Timer",
+      "Box Packaging with Starter Seed Pods & Organic Nutrient Packs"
+    ],
+    billOfMaterials: [
+      { item: "Food-Grade Recycled HDPE Resin (per tower set)", costPerUnit: "$18.50", supplierType: "Polymer Distributors", essential: true },
+      { item: "Quiet Submersible Water Pump (12V)", costPerUnit: "$8.20", supplierType: "Pump Manufacturers", essential: true },
+      { item: "Full-Spectrum LED Grow Ring Strip", costPerUnit: "$11.40", supplierType: "Lighting Wholesalers", essential: true },
+      { item: "32-Piece Rockwool Seedling Pod Kit", costPerUnit: "$3.90", supplierType: "Agri-Supply Co.", essential: false }
+    ],
+    machineryNeeded: [
+      { name: "Used 180-Ton Hydraulic Injection Molding Machine", estimatedCost: "$28,000", purpose: "Molding 4-port plant tower modular sections." },
+      { name: "Single-Cavity Steel Tower Module Mold", estimatedCost: "$16,000", purpose: "Precision mold tool for interlocking HDPE tower parts." },
+      { name: "Ultrasonic Plastic Welder", estimatedCost: "$4,500", purpose: "Sealing internal water distribution channels without chemical adhesives." }
+    ],
+    unitEconomics: {
+      rawMaterialCost: 42.00,
+      laborCostPerUnit: 12.00,
+      packagingCost: 5.00,
+      wholesalePrice: 135.00,
+      retailPrice: 249.00,
+      grossMargin: 56.3
+    },
+    regulatoryRequirements: [
+      "NSF/ANSI Standard 61 Drinking Water System Components",
+      "UL 778 Standard for Motor-Operated Water Pumps",
+      "RoHS Directive 2011/65/EU Hardware Compliance"
+    ],
+    competitorLandscape: [
+      { name: "Tower Garden", weakness: "High price ($700+) and expensive proprietary nutrient refills.", differentiation: "Modular $249 entry point with standard open-source nutrient compatibility." },
+      { name: "Rise Gardens", weakness: "Large furniture footprint requiring complex indoor assembly.", differentiation: "Vertical 18-inch diameter floor footprint ideal for small apartments." }
+    ],
+    growthPlaybook: [
+      "Partner with farm-to-table culinary schools and chefs for viral video demos.",
+      "Launch Kickstarter campaign with 40% early-bird tier to pre-fund mold tooling.",
+      "Offer quarterly organic seed and nutrient subscription refills ($19/mo)."
+    ],
+    tags: ["hydroponics", "agritech", "sustainability", "injection-molding", "urban-farming"],
+    upvotes: 198,
+    featured: false
+  },
+  {
+    title: "Industrial Acoustic Noise Reduction Panels (Recycled Felt)",
+    slug: "recycled-felt-acoustic-panels",
+    tagline: "Architectural sound-dampening wall panels crafted from 100% recycled PET plastic bottles.",
+    category: "Manufacturing",
+    investmentTier: "< $10k",
+    profitMargin: "65 - 80%",
+    difficulty: "Beginner",
+    targetMarket: "Commercial Office Designers, Podcast Studios, Remote Workers, Restaurants",
+    tam: "$8.7 Billion global acoustic insulation market",
+    sam: "$1.1 Billion architectural decorative soundproofing",
+    som: "$18 Million accessible design studio volume",
+    summary: "Convert post-consumer PET acoustic felt sheets into precision CNC bevel-cut geometric wall tiles. Combines high NRC (Noise Reduction Coefficient) ratings with eco-luxury aesthetics.",
+    problemStatement: "Modern open-plan offices and drywall residential rooms suffer from severe echo and reverb, while traditional foam panels look cheap and pose fire hazards.",
+    proposedSolution: "Class-A fire-rated, flame-retardant PET felt tiles in hex, slat, and geometric shapes with peel-and-stick magnetic mounting backing.",
+    manufacturingProcess: [
+      "PET Felt Board Stock Conditioning & Surface Dusting",
+      "Multi-Axis CNC Knife/V-Groove Bevel Cutting",
+      "Magnetic Rubber Adhesive Strip Lamination",
+      "Laser Etching Custom Architectural Wave Patterns",
+      "Shrink Wrap Packaging in Sets of 6 and 12 Tiles"
+    ],
+    billOfMaterials: [
+      { item: "12mm High-Density PET Acoustic Board (4x8ft)", costPerUnit: "$14.00", supplierType: "Non-Woven Textile Mills", essential: true },
+      { item: "Heavy-Duty 3M Adhesive Magnetic Strips", costPerUnit: "$1.80", supplierType: "Tape Manufacturers", essential: true },
+      { item: "Recycled Cardboard Packaging Box", costPerUnit: "$1.50", supplierType: "Box Suppliers", essential: true }
+    ],
+    machineryNeeded: [
+      { name: "CNC Digital Drag Knife & Router Table (4x8ft)", estimatedCost: "$9,200", purpose: "Clean, dust-free beveling and cutting of PET felt without burning edges." },
+      { name: "CO2 Laser Engraver (100W)", estimatedCost: "$4,500", purpose: "Etching custom corporate logos and fine acoustic patterns." }
+    ],
+    unitEconomics: {
+      rawMaterialCost: 4.10,
+      laborCostPerUnit: 2.20,
+      packagingCost: 1.50,
+      wholesalePrice: 28.00,
+      retailPrice: 59.00,
+      grossMargin: 72.1
+    },
+    regulatoryRequirements: [
+      "ASTM E84 Class A Surface Burning Flame Spread Certification",
+      "ISO 354 Sound Absorption / Noise Reduction Coefficient (NRC 0.85)",
+      "GREENGUARD Gold Indoor Air Quality Clearance"
+    ],
+    competitorLandscape: [
+      { name: "Baux Acoustics", weakness: "Imported from Europe with high shipping costs and 8-week lead times.", differentiation: "48-hour local manufacturing turnaround with custom laser branding." },
+      { name: "Cheap Polyurethane Foam", weakness: "Ugly, yellows under UV light, toxic off-gassing, non-fire-retardant.", differentiation: "Premium PET fabric finish with Class A fire safety compliance." }
+    ],
+    growthPlaybook: [
+      "Send free sample swatch boxes to top 200 interior design firms.",
+      "Run targeted LinkedIn ads aimed at Office Operations Managers and Podcast Hosts.",
+      "List on Wayfair Professional and Amazon Business with bulk commercial tiers."
+    ],
+    tags: ["acoustics", "interior-design", "pet-recycled", "cnc", "sustainability"],
+    upvotes: 176,
+    featured: false
+  },
+  {
+    title: "Automated Micro-Roastery & Specialty Cold Brew Bottling",
+    slug: "automated-cold-brew-bottling",
+    tagline: "Nitrogen-infused organic cold brew coffee brewed and canned in compact stainless steel micro-skids.",
+    category: "FMCG / Consumer Goods",
+    investmentTier: "$10k - $50k",
+    profitMargin: "55 - 68%",
+    difficulty: "Intermediate",
+    targetMarket: "Corporate Workspaces, Boutique Grocery Stores, Gyms, Farmers Markets",
+    tam: "$22.5 Billion global ready-to-drink coffee market",
+    sam: "$3.4 Billion specialty craft nitrogen cold brew",
+    som: "$40 Million regional office & grocery volume",
+    summary: "Establish a automated 500-liter recirculating cold brew skid that extracts specialty single-origin beans under vacuum pressure in 4 hours instead of 24 hours.",
+    problemStatement: "Traditional cold brewing takes 18-24 hours in open vats, leading to batch inconsistency, short shelf life (7 days), and oxidation.",
+    proposedSolution: "Vacuum-assisted closed-loop extraction combined with inline micro-filtration, liquid nitrogen dosing, and automated aluminum counter-pressure canning.",
+    manufacturingProcess: [
+      "Single-Origin Coffee Bean Precision Grinding",
+      "Vacuum Pulsed Stainless Vat Extraction (4-Hour Cycle)",
+      "0.2-Micron Dual Stage Filter Pressing",
+      "Inline Liquid Nitrogen Dosing & Counter-Pressure Canning",
+      "Pasteurization / UV Sterilization & Date Coding"
+    ],
+    billOfMaterials: [
+      { item: "Specialty Organic Single-Origin Beans (per 12oz can equivalent)", costPerUnit: "$0.32", supplierType: "Direct Trade Importers", essential: true },
+      { item: "Sleek 12oz Matte Black Aluminum Can & End", costPerUnit: "$0.24", supplierType: "Can Packaging Suppliers", essential: true },
+      { item: "Liquid Nitrogen Micro-Dose", costPerUnit: "$0.04", supplierType: "Industrial Gas Co.", essential: true },
+      { item: "Custom Pressure-Sensitive Vinyl Label", costPerUnit: "$0.10", supplierType: "Label Printers", essential: true }
+    ],
+    machineryNeeded: [
+      { name: "500L Vacuum Stainless Cold Brew Extractor Skid", estimatedCost: "$22,000", purpose: "Accelerated oxygen-free coffee extraction." },
+      { name: "Automated Single-Head Rotary Can Seamer & Doser", estimatedCost: "$12,500", purpose: "Dosing liquid nitrogen and hermetically sealing cans at 24 CPN." },
+      { name: "Inline Inkjet Batch Date Coder", estimatedCost: "$1,800", purpose: "Printing lot numbers and expiration dates onto bottom rim." }
+    ],
+    unitEconomics: {
+      rawMaterialCost: 0.85,
+      laborCostPerUnit: 0.35,
+      packagingCost: 0.40,
+      wholesalePrice: 3.50,
+      retailPrice: 5.99,
+      grossMargin: 54.3
+    },
+    regulatoryRequirements: [
+      "FDA Food Facility Registration & FSMA Preventative Controls",
+      "State Department of Agriculture Commercial Kitchen License",
+      "HAACP Sanitation Protocol Compliance"
+    ],
+    competitorLandscape: [
+      { name: "La Colombe Draft Latte", weakness: "Heavy milk/sugar additives and high corporate retail prices.", differentiation: "100% pure organic zero-sugar single-origin coffee with silky nitro head." },
+      { name: "Stumptown Stubby", weakness: "Glass bottle heavy shipping weight and fragile breakage.", differentiation: "Sleek lightweight 100% infinitely recyclable aluminum cans." }
+    ],
+    growthPlaybook: [
+      "Place branded kegerators and canned fridges in tech office breakrooms.",
+      "Sponsor local CrossFit competitions and marathon finish lines with free samples.",
+      "Get listed on regional Whole Foods, Sprouts, and independent gourmet delis."
+    ],
+    tags: ["fmcg", "coffee", "beverage", "canning", "cold-brew", "foodtech"],
+    upvotes: 264,
+    featured: false
+  },
+  {
+    title: "Solar-Powered Water Desalination & Purification Modules",
+    slug: "solar-water-desalination-modules",
+    tagline: "Off-grid containerized reverse osmosis purification systems for coastal and disaster relief zones.",
+    category: "GreenTech / Sustainability",
+    investmentTier: "$250k+",
+    profitMargin: "40 - 58%",
+    difficulty: "Advanced",
+    targetMarket: "Island Resorts, Disaster Relief Agencies, Remote Agricultural Stations, Coastal Municipalities",
+    tam: "$42.1 Billion global water desalination & treatment market",
+    sam: "$6.8 Billion decentralized off-grid water systems",
+    som: "$95 Million accessible resort & island market",
+    summary: "Engineered 20ft shipping container units integrating high-efficiency solar arrays, energy-recovery pumps, and seawater reverse osmosis (SWRO) producing 10,000 gallons of potable water daily.",
+    problemStatement: "Over 2 billion people face clean drinking water scarcity, while traditional RO plants require massive grid power plants and diesel generators.",
+    proposedSolution: "A self-contained solar micro-grid with PX pressure exchangers that reduce energy consumption per m3 of water by 60%, allowing 100% solar power operation.",
+    manufacturingProcess: [
+      "20ft ISO Shipping Container Structural Refitting & Insulation",
+      "High-Pressure Stainless Steel Manifold Welding & Piping Assembly",
+      "Duplex Stainless Steel Pump & Energy Recovery Unit Mounting",
+      "RO Membrane Pressure Vessel Installation & Sensor Wiring",
+      "PLC Control Cabinet Integration & Solar Inverter Testing"
+    ],
+    billOfMaterials: [
+      { item: "Seawater RO Membrane Pressure Vessels (x6)", costPerUnit: "$120.00", supplierType: "Membrane Manufacturers", essential: true },
+      { item: "PX Pressure Exchanger Energy Recovery Device", costPerUnit: "$180.00", supplierType: "Hydraulic Energy Co.", essential: true },
+      { item: "Bifacial Solar Panel Array (15kW Set)", costPerUnit: "$85.00", supplierType: "Solar Distributors", essential: true },
+      { item: "LiFePO4 Industrial Battery Energy Storage (30kWh)", costPerUnit: "$135.00", supplierType: "Battery Pack Assemblers", essential: true }
+    ],
+    machineryNeeded: [
+      { name: "TIG Pipe Welding Rig & Orbital Welder", estimatedCost: "$18,500", purpose: "Sanitary high-pressure 316L/Duplex stainless steel pipe welding." },
+      { name: "Container Overhead Crane Hoist", estimatedCost: "$14,000", purpose: "Heavy component positioning inside container chassis." }
+    ],
+    unitEconomics: {
+      rawMaterialCost: 420.00,
+      laborCostPerUnit: 110.00,
+      packagingCost: 35.00,
+      wholesalePrice: 1250.00,
+      retailPrice: 2100.00,
+      grossMargin: 54.8
+    },
+    regulatoryRequirements: [
+      "WHO Guidelines for Drinking-Water Quality Standards",
+      "NSF/ANSI 58 Reverse Osmosis Drinking Water Systems Certification",
+      "ISO 9001 Quality Management & CE Machinery Directive"
+    ],
+    competitorLandscape: [
+      { name: "GivePower", weakness: "Non-profit focus with slow custom engineering build times.", differentiation: "Standardized plug-and-play modular container shipping worldwide in 14 days." },
+      { name: "Diesel Desalination Generators", weakness: "Exorbitant fuel costs ($4/gal) and heavy carbon emissions.", differentiation: "Zero operational fuel cost powered 100% by solar micro-grid." }
+    ],
+    growthPlaybook: [
+      "Bid on UN, Red Cross, and USAID disaster relief emergency procurement contracts.",
+      "Target Caribbean and Pacific eco-resorts with high diesel electricity costs.",
+      "Offer Water-as-a-Service (WaaS) long-term metering contracts."
+    ],
+    tags: ["desalination", "solar", "water", "cleantech", "disaster-relief", "hardware"],
+    upvotes: 412,
+    featured: true
+  },
+  {
+    title: "AI-Guided Collaborative Robotic Welding Fixtures",
+    slug: "ai-robotic-welding-fixtures",
+    tagline: "Turnkey cobot welding cells equipped with vision AI for instant seam tracking in high-mix metal shops.",
+    category: "Industrial Automation",
+    investmentTier: "$250k+",
+    profitMargin: "45 - 60%",
+    difficulty: "Expert",
+    targetMarket: "Structural Steel Fabricators, Agricultural Equipment Builders, Trailer Manufacturers",
+    tam: "$56.0 Billion global industrial robotics market",
+    sam: "$8.5 Billion cobot welding & metal fabrication",
+    som: "$120 Million accessible SMB job shop volume",
+    summary: "Build turnkey mobile cobot welding carts featuring 3D stereo vision cameras and AI seam-tracking software that automatically adjusts torch angles for imperfect steel gap joints.",
+    problemStatement: "The manufacturing industry faces a deficit of over 375,000 certified welders in North America alone, while traditional robotic welders require complex programming.",
+    proposedSolution: "A drag-and-teach cobot cell with an intuitive touchscreen interface where machine operators set weld points in under 60 seconds without software coding.",
+    manufacturingProcess: [
+      "Mobile Heavy-Gauge Steel Cart CNC Plasma Cutting & Fabrication",
+      "Precision Modular Optical Fixture Table Grinding",
+      "6-Axis Industrial Cobot Arm & MIG Welder Power Source Mounting",
+      "3D Vision Camera Calibration & AI Seam Tracking Edge Computer Setup",
+      "Safety Interlock & CE Barrier Enclosure Assembly"
+    ],
+    billOfMaterials: [
+      { item: "6-Axis Industrial Cobot Arm (10kg Payload)", costPerUnit: "$1,850.00", supplierType: "Robotics OEMs", essential: true },
+      { item: "Pulse-MIG Digital Welding Power Source & Torch", costPerUnit: "$680.00", supplierType: "Welding Equipment Co.", essential: true },
+      { item: "3D Stereo Laser Vision Sensor", costPerUnit: "$450.00", supplierType: "Vision Sensor Suppliers", essential: true },
+      { item: "Industrial Edge AI Processing Unit (NVIDIA Jetson)", costPerUnit: "$220.00", supplierType: "Computer Hardware Wholesalers", essential: true }
+    ],
+    machineryNeeded: [
+      { name: "Precision Modular Welding Table & Fixture Tooling", estimatedCost: "$12,000", purpose: "Flat ground optical surface for repeatable frame assembly." },
+      { name: "Industrial Wire Feed & Calibration Workstation", estimatedCost: "$6,500", purpose: "Testing torch arc stability and gas shielding balance." }
+    ],
+    unitEconomics: {
+      rawMaterialCost: 3400.00,
+      laborCostPerUnit: 950.00,
+      packagingCost: 180.00,
+      wholesalePrice: 12500.00,
+      retailPrice: 18900.00,
+      grossMargin: 64.2
+    },
+    regulatoryRequirements: [
+      "ISO 10218-1 / RIA R15.06 Industrial Robots Safety Standard",
+      "ANSI/AWS D1.1 Structural Welding Code Compliance",
+      "CE Mark Machinery Directive 2006/42/EC"
+    ],
+    competitorLandscape: [
+      { name: "Universal Robots (Vectis)", weakness: "Complex software script setup for non-standard weld joints.", differentiation: "Vision AI auto-compensates for misaligned steel gaps in real time." },
+      { name: "Traditional FANUC Robotic Cells", weakness: "Requires $150k+ capital cost and dedicated robotic programmer.", differentiation: "$18.9k cart footprint setup in 15 minutes by any shop worker." }
+    ],
+    growthPlaybook: [
+      "Demonstrate live welding at FABTECH trade show with open visitor challenges.",
+      "Offer 24-month equipment leasing options ($850/mo) with guaranteed ROI payback.",
+      "Build a library of pre-trained weld profiles for stainless, aluminum, and carbon steel."
+    ],
+    tags: ["robotics", "ai", "welding", "automation", "manufacturing", "industry4.0"],
+    upvotes: 310,
+    featured: true
   }
 ];

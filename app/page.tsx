@@ -4,56 +4,51 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import ArticleCard from "@/components/ArticleCard";
+import IdeaCard, { IdeaCardProps } from "@/components/IdeaCard";
 import {
   Rocket,
   Search,
   BookOpen,
   Download,
   TrendingUp,
-  CheckCircle,
-  Users2,
   BrainCircuit,
   ArrowRight,
+  Boxes,
+  Calculator,
+  Plus,
+  Sparkles,
+  ShieldCheck,
+  Factory,
 } from "lucide-react";
 
 interface Stats {
   totalArticles: number;
   totalResources: number;
   totalSearches: number;
-  categoryBreakdown: Record<string, number>;
-}
-
-interface Article {
-  id: string;
-  title: string;
-  category: string;
-  summary: string;
-  tags: string[];
-  createdAt: string;
+  totalIdeas: number;
+  totalUpvotes: number;
 }
 
 export default function Home() {
   const [stats, setStats] = useState<Stats | null>(null);
-  const [featuredArticles, setFeaturedArticles] = useState<Article[]>([]);
+  const [featuredIdeas, setFeaturedIdeas] = useState<IdeaCardProps[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [statsRes, articlesRes] = await Promise.all([
+        const [statsRes, ideasRes] = await Promise.all([
           fetch("/api/stats"),
-          fetch("/api/articles"),
+          fetch("/api/ideas"),
         ]);
 
         if (statsRes.ok) {
           const statsData = await statsRes.json();
           setStats(statsData);
         }
-        if (articlesRes.ok) {
-          const articlesData = await articlesRes.json();
-          // Take the top 3 latest articles
-          setFeaturedArticles(articlesData.articles.slice(0, 3));
+        if (ideasRes.ok) {
+          const ideasData = await ideasRes.json();
+          setFeaturedIdeas(ideasData.ideas.slice(0, 3));
         }
       } catch (error) {
         console.error("Error loading home page data:", error);
@@ -64,303 +59,222 @@ export default function Home() {
     loadData();
   }, []);
 
-  const features = [
+  const featureCards = [
     {
-      icon: BrainCircuit,
-      title: "RAG AI Search",
-      desc: "Instant answers sourced directly from our curated knowledge base with inline page citations.",
+      icon: Boxes,
+      title: "Startup & Manufacturing Ideas Directory",
+      desc: "Comprehensive database of hardware, FMCG, and micro-factory ideas modeled after 10000ideas.com and ideabrowser.com.",
       color: "text-indigo-400",
-      href: "/search",
+      href: "/ideas",
+      badge: "Idea Catalog",
     },
     {
-      icon: BookOpen,
-      title: "Curated Guides",
-      desc: "10 core categories including company registration, compliance, taxation, and fundraising.",
+      icon: BrainCircuit,
+      title: "AI Feasibility & Risk Co-Founder",
+      desc: "Pitch custom manufacturing concepts and receive instant viability scoring, 4-vector risk assessments, and action plans.",
+      color: "text-purple-400",
+      href: "/feasibility",
+      badge: "AI Powered",
+    },
+    {
+      icon: Calculator,
+      title: "Unit Cost & ROI Calculator",
+      desc: "Simulate COGS, tooling mold payback schedules, gross margins, and monthly break-even unit volume.",
       color: "text-emerald-400",
-      href: "/explore",
+      href: "/calculator",
+      badge: "Interactive Tool",
     },
     {
       icon: Download,
-      title: "Ready-To-Use Resources",
-      desc: "Delaware incorporation packs, SAFE agreement drafts, financial models, and growth spreadsheets.",
+      title: "Legal & BOM Resource Hub",
+      desc: "Download contract manufacturing templates, patent NDAs, supplier quality checklists, and SAFE notes.",
       color: "text-pink-400",
       href: "/resources",
-    },
-  ];
-
-  const topTiles = [
-    {
-      icon: Rocket,
-      title: "Live on Vercel",
-      desc: "Open the deployed production experience.",
-      href: "https://startup-navigator-taupe.vercel.app/",
-      external: true,
-      accent: "from-indigo-500/20 via-slate-950 to-slate-900/80",
-      iconColor: "text-indigo-400",
-    },
-    {
-      icon: TrendingUp,
-      title: "Fast Founder Flow",
-      desc: "A focused path from research to launch.",
-      href: "/explore",
-      external: false,
-      accent: "from-emerald-500/10 via-slate-950 to-slate-900/80",
-      iconColor: "text-emerald-400",
-    },
-    {
-      icon: CheckCircle,
-      title: "Verified Guides",
-      desc: "Practical handbooks and vetted startup resources.",
-      href: "/resources",
-      external: false,
-      accent: "from-pink-500/10 via-slate-950 to-slate-900/80",
-      iconColor: "text-pink-400",
-    },
-    {
-      icon: Users2,
-      title: "Built for Founders",
-      desc: "Everything arranged for quick decisions and action.",
-      href: "/about",
-      external: false,
-      accent: "from-amber-500/10 via-slate-950 to-slate-900/80",
-      iconColor: "text-amber-400",
+      badge: "Free Downloads",
     },
   ];
 
   return (
-    <>
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
       <Navbar />
 
-      <main className="flex-grow">
-        {/* Top Tiles */}
-        <section className="border-b border-slate-900 bg-slate-950/70">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {topTiles.map((tile, i) => {
-                const Icon = tile.icon;
-                const TileTag = tile.external ? "a" : Link;
-                const tileProps = tile.external
-                  ? { href: tile.href, target: "_blank", rel: "noreferrer" }
-                  : { href: tile.href };
+      {/* Hero Section */}
+      <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-28 border-b border-slate-800 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-tr from-indigo-600/10 via-purple-600/10 to-pink-600/10 blur-3xl pointer-events-none" />
 
-                return (
-                  <TileTag
-                    key={tile.title}
-                    {...tileProps}
-                    className={`group relative overflow-hidden rounded-2xl border border-slate-800/80 bg-gradient-to-br ${tile.accent} p-5 text-left shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)] transition duration-300 hover:-translate-y-1 hover:border-indigo-500/30 hover:shadow-[0_25px_80px_-20px_rgba(99,102,241,0.22)] ${i === 0 ? "md:col-span-2" : ""}`}
-                  >
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.08),transparent_40%)] opacity-80" />
-                    <div className="relative z-10 flex items-start justify-between gap-4">
-                      <div>
-                        <div
-                          className={`flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-slate-950/70 ${tile.iconColor}`}
-                        >
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <h2 className="mt-4 text-lg font-semibold text-white group-hover:text-indigo-300 transition-colors">
-                          {tile.title}
-                        </h2>
-                        <p className="mt-2 text-sm leading-relaxed text-slate-400 max-w-sm">
-                          {tile.desc}
-                        </p>
-                      </div>
-                      <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-300">
-                        {tile.external ? "Open" : "View"}
-                      </span>
-                    </div>
-                  </TileTag>
-                );
-              })}
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="inline-flex items-center space-x-2 rounded-full bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold text-indigo-400 border border-indigo-500/20 mb-6 animate-pulse">
+            <Sparkles className="h-4 w-4" />
+            <span>Modeled on 10,000 Ideas & IdeaBrowser Standards</span>
+          </div>
+
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white font-display max-w-5xl mx-auto leading-tight">
+            Turn High-Yield <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Manufacturing & Startup Ideas</span> Into Production
+          </h1>
+
+          <p className="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-slate-300 leading-relaxed">
+            Discover vetted physical hardware blueprints, micro-factory plans, Unit Economics, Bill of Materials, and AI Feasibility Scoring built for modern entrepreneurs.
+          </p>
+
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href="/ideas"
+              className="inline-flex items-center space-x-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3.5 text-base font-bold text-white shadow-xl shadow-indigo-600/25 hover:opacity-95 transition-all duration-200"
+            >
+              <Boxes className="h-5 w-5" />
+              <span>Explore Ideas Directory</span>
+            </Link>
+
+            <Link
+              href="/feasibility"
+              className="inline-flex items-center space-x-2 rounded-xl bg-slate-900 px-6 py-3.5 text-base font-semibold text-slate-200 hover:bg-slate-800 border border-slate-700 transition-all duration-200"
+            >
+              <BrainCircuit className="h-5 w-5 text-indigo-400" />
+              <span>AI Feasibility Evaluator</span>
+            </Link>
+          </div>
+
+          {/* Quick Stats Grid */}
+          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5 backdrop-blur-md">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Manufacturing Ideas</span>
+              <p className="text-3xl font-black text-white mt-1">{stats?.totalIdeas || 8}+</p>
+            </div>
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5 backdrop-blur-md">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Community Upvotes</span>
+              <p className="text-3xl font-black text-indigo-400 mt-1">{stats?.totalUpvotes || 2200}+</p>
+            </div>
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5 backdrop-blur-md">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Execution Guides</span>
+              <p className="text-3xl font-black text-purple-400 mt-1">{stats?.totalArticles || 10}+</p>
+            </div>
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5 backdrop-blur-md">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Legal Templates</span>
+              <p className="text-3xl font-black text-emerald-400 mt-1">{stats?.totalResources || 6}+</p>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Hero Section */}
-        <section className="relative pt-20 pb-20 overflow-hidden">
-          {/* Background decorative glows */}
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-indigo-500/10 blur-[100px] pointer-events-none glow-indigo"></div>
-          <div className="absolute top-1/3 left-1/3 w-[300px] h-[300px] rounded-full bg-purple-500/10 blur-[80px] pointer-events-none glow-purple"></div>
+      {/* Feature Spotlights Grid */}
+      <section className="py-16 md:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl sm:text-4xl font-bold text-white font-display">
+            The Complete AI-Powered Founder Ecosystem
+          </h2>
+          <p className="mt-2 text-slate-400 text-base max-w-2xl mx-auto">
+            Everything required to validate, cost out, and launch physical hardware and startup ventures.
+          </p>
+        </div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            {/* Tagline pill */}
-            <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800/80 mb-8 animate-fade-in">
-              <span className="flex h-2 w-2 rounded-full bg-indigo-500 animate-ping"></span>
-              <span className="text-xs font-semibold text-indigo-400 tracking-wide uppercase">
-                Your Growth Playbook Awaits
-              </span>
-            </div>
-
-            {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold text-white leading-tight tracking-tight max-w-4xl mx-auto">
-              Navigate the Complexity of{" "}
-              <span className="text-gradient">Building Your Startup</span>
-            </h1>
-
-            {/* Sub-headline */}
-            <p className="mt-6 text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-              Unlock professional guides, download legal templates, and leverage
-              our Retrieval-Augmented AI assistant to search verified local
-              files.
-            </p>
-
-            {/* CTA Buttons */}
-            <div className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {featureCards.map((card, idx) => {
+            const Icon = card.icon;
+            return (
               <Link
-                href="/search"
-                className="w-full sm:w-auto flex items-center justify-center space-x-2 px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl btn-gradient shadow-lg"
+                key={idx}
+                href={card.href}
+                className="group relative rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md hover:border-slate-700 hover:-translate-y-1 transition-all duration-300"
               >
-                <Search className="h-4.5 w-4.5" />
-                <span>Ask AI Assistant</span>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="rounded-xl bg-slate-800/80 p-3 border border-slate-700">
+                    <Icon className={`h-6 w-6 ${card.color}`} />
+                  </div>
+                  <span className="text-[10px] font-bold text-indigo-300 bg-indigo-950 px-2.5 py-0.5 rounded-full border border-indigo-800/40">
+                    {card.badge}
+                  </span>
+                </div>
+                <h3 className="text-lg font-bold text-white group-hover:text-indigo-400 transition-colors">
+                  {card.title}
+                </h3>
+                <p className="mt-2 text-xs text-slate-400 leading-relaxed">
+                  {card.desc}
+                </p>
+                <div className="mt-4 inline-flex items-center space-x-1 text-xs font-semibold text-indigo-400 group-hover:translate-x-1 transition-transform">
+                  <span>Launch Tool</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </div>
               </Link>
+            );
+          })}
+        </div>
+      </section>
 
-              <Link
-                href="/explore"
-                className="w-full sm:w-auto flex items-center justify-center space-x-2 px-6 py-3.5 bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white font-semibold rounded-xl border border-slate-800 transition duration-200"
-              >
-                <span>Browse Guides</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+      {/* Featured Manufacturing Ideas Showcase */}
+      <section className="py-16 bg-slate-900/40 border-y border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10">
+            <div>
+              <div className="inline-flex items-center space-x-2 text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-1">
+                <Factory className="h-4 w-4" />
+                <span>Featured Spotlights</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white font-display">
+                Top Manufacturing & Hardware Blueprints
+              </h2>
             </div>
+            <Link
+              href="/ideas"
+              className="inline-flex items-center space-x-2 rounded-xl bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-700 border border-slate-700 transition-colors"
+            >
+              <span>View All Blueprints</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
           </div>
-        </section>
 
-        {/* Core Value Props */}
-        <section className="py-16 border-t border-slate-900 bg-slate-950/40">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {features.map((feature, i) => {
-                const Icon = feature.icon;
-                return (
-                  <Link
-                    key={i}
-                    href={feature.href}
-                    className="flex flex-col p-6 rounded-2xl glassmorphism-card bg-slate-950/20 text-left cursor-pointer group"
-                  >
-                    <div
-                      className={`p-3 w-fit rounded-xl bg-slate-900 border border-slate-800/80 mb-5 ${feature.color}`}
-                    >
-                      <Icon className="h-6 w-6" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-white group-hover:text-indigo-400 transition-colors duration-200">
-                      {feature.title}
-                    </h3>
-                    <p className="mt-2.5 text-sm text-slate-400 leading-relaxed">
-                      {feature.desc}
-                    </p>
-                  </Link>
-                );
-              })}
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="h-64 rounded-2xl bg-slate-900/60 border border-slate-800 animate-pulse" />
+              ))}
             </div>
-          </div>
-        </section>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {featuredIdeas.map((idea) => (
+                <IdeaCard key={idea.id} {...idea} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
 
-        {/* Dashboard Snapshot Section */}
-        <section className="py-16 border-t border-slate-900">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-2xl sm:text-3xl font-display font-bold text-white mb-2">
-              System Metrics & Analytics
+      {/* RAG Search & Co-founder Spotlight */}
+      <section className="py-16 md:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 p-8 md:p-12 backdrop-blur-md flex flex-col lg:flex-row items-center justify-between gap-8">
+          <div className="max-w-2xl">
+            <span className="inline-flex items-center space-x-2 rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-400 border border-indigo-500/20 mb-4">
+              <BrainCircuit className="h-3.5 w-3.5" />
+              <span>Pluggable RAG Search</span>
+            </span>
+            <h2 className="text-3xl font-extrabold text-white font-display">
+              Have Specific Questions About Incorporation, SAFEs, or Manufacturing Taxes?
             </h2>
-            <p className="text-sm text-slate-400 mb-12">
-              Real-time directory audit logs and user search query counters.
+            <p className="mt-4 text-slate-300 text-sm md:text-base leading-relaxed">
+              Our Vector Search RAG engine indexes internal handbooks to provide cited, reference-supported answers instantly. Uses Groq Llama 3.3 / OpenAI with extractive local fallback.
             </p>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {/* Stat Card 1 */}
-              <div className="p-6 rounded-2xl glassmorphism bg-slate-900/10 text-center border border-slate-800/50">
-                <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wider">
-                  Guides
-                </p>
-                <h3 className="mt-2 text-3xl sm:text-4xl font-extrabold text-white">
-                  {loading ? "..." : stats?.totalArticles || 0}
-                </h3>
-                <p className="mt-1 text-xs text-slate-500">10 core fields</p>
-              </div>
-
-              {/* Stat Card 2 */}
-              <div className="p-6 rounded-2xl glassmorphism bg-slate-900/10 text-center border border-slate-800/50">
-                <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">
-                  Resources
-                </p>
-                <h3 className="mt-2 text-3xl sm:text-4xl font-extrabold text-white">
-                  {loading ? "..." : stats?.totalResources || 0}
-                </h3>
-                <p className="mt-1 text-xs text-slate-500">Legal packages</p>
-              </div>
-
-              {/* Stat Card 3 */}
-              <div className="p-6 rounded-2xl glassmorphism bg-slate-900/10 text-center border border-slate-800/50">
-                <p className="text-xs font-semibold text-pink-400 uppercase tracking-wider">
-                  AI Queries
-                </p>
-                <h3 className="mt-2 text-3xl sm:text-4xl font-extrabold text-white">
-                  {loading ? "..." : stats?.totalSearches || 0}
-                </h3>
-                <p className="mt-1 text-xs text-slate-500">
-                  RAG searches resolved
-                </p>
-              </div>
-
-              {/* Stat Card 4 */}
-              <div className="p-6 rounded-2xl glassmorphism bg-slate-900/10 text-center border border-slate-800/50">
-                <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
-                  Platform Status
-                </p>
-                <h3 className="mt-2 text-3xl sm:text-4xl font-extrabold text-emerald-500 flex items-center justify-center">
-                  100%
-                </h3>
-                <p className="mt-1 text-xs text-slate-500">Fully Operational</p>
-              </div>
-            </div>
           </div>
-        </section>
 
-        {/* Featured Guides Section */}
-        <section className="py-16 border-t border-slate-900 bg-slate-950/20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 gap-4">
-              <div>
-                <h2 className="text-2xl sm:text-3xl font-display font-bold text-white">
-                  Latest Curated Handbooks
-                </h2>
-                <p className="text-sm text-slate-400 mt-1">
-                  Read comprehensive documentation compiled by industry
-                  specialists and legal professionals.
-                </p>
-              </div>
-              <Link
-                href="/explore"
-                className="flex items-center space-x-1.5 text-sm font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
-              >
-                <span>View all articles</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
+          <div className="shrink-0 flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+            <Link
+              href="/search"
+              className="inline-flex items-center justify-center space-x-2 rounded-xl bg-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/25 hover:bg-indigo-500 transition-colors"
+            >
+              <Search className="h-4 w-4" />
+              <span>Ask AI Search</span>
+            </Link>
 
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {[1, 2, 3].map((n) => (
-                  <div
-                    key={n}
-                    className="h-64 rounded-2xl bg-slate-900/30 border border-slate-800/50 animate-pulse"
-                  ></div>
-                ))}
-              </div>
-            ) : featuredArticles.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {featuredArticles.map((article) => (
-                  <ArticleCard key={article.id} article={article} />
-                ))}
-              </div>
-            ) : (
-              <p className="text-center text-slate-500 py-12">
-                No articles found in the database. Seeding may be running...
-              </p>
-            )}
+            <Link
+              href="/explore"
+              className="inline-flex items-center justify-center space-x-2 rounded-xl bg-slate-800 px-6 py-3.5 text-sm font-semibold text-slate-200 hover:bg-slate-700 border border-slate-700 transition-colors"
+            >
+              <BookOpen className="h-4 w-4" />
+              <span>Browse Guides</span>
+            </Link>
           </div>
-        </section>
-      </main>
+        </div>
+      </section>
 
       <Footer />
-    </>
+    </div>
   );
 }

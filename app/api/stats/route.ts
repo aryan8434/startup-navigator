@@ -11,15 +11,22 @@ export async function GET(req: NextRequest) {
     const resources = await db.resources.findMany();
     const searchHistory = await db.searchHistory.findMany();
     const users = await db.users.findMany();
+    const ideas = await db.ideas.findMany();
 
-    // 1. Compute Category Breakdown for Articles
+    const totalUpvotes = ideas.reduce((acc, i) => acc + (i.upvotes || 0), 0);
+
+    // 1. Compute Category Breakdown for Articles & Ideas
     const categoryBreakdown: Record<string, number> = {};
     articles.forEach((a) => {
       categoryBreakdown[a.category] = (categoryBreakdown[a.category] || 0) + 1;
     });
 
+    const ideaCategoryBreakdown: Record<string, number> = {};
+    ideas.forEach((i) => {
+      ideaCategoryBreakdown[i.category] = (ideaCategoryBreakdown[i.category] || 0) + 1;
+    });
+
     // 2. Extrapolate Popular Search Topics
-    // We group queries and count occurrences
     const queryCounts: Record<string, number> = {};
     searchHistory.forEach((log) => {
       const q = log.query.toLowerCase().trim();
@@ -32,7 +39,6 @@ export async function GET(req: NextRequest) {
       .slice(0, 5);
 
     // 3. Recent searches (limited to top 5)
-    // Resolve email if possible for admin view
     const userMap = new Map(users.map((u) => [u.id, u.name]));
     const recentSearches = searchHistory
       .slice()
@@ -50,7 +56,10 @@ export async function GET(req: NextRequest) {
       totalArticles: articles.length,
       totalResources: resources.length,
       totalSearches: searchHistory.length,
+      totalIdeas: ideas.length,
+      totalUpvotes,
       categoryBreakdown,
+      ideaCategoryBreakdown,
       popularSearchQueries,
       recentSearches
     };

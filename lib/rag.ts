@@ -293,9 +293,24 @@ ${query}`;
  */
 export async function executeRagSearch(query: string): Promise<{ answer: string; sources: string[] }> {
   const articles = await db.articles.findMany();
-  const ranked = rankArticles(query, articles);
+  const ideas = await db.ideas.findMany();
+
+  // Convert ideas to article format for RAG indexing
+  const ideaArticles: Article[] = ideas.map((idea) => ({
+    id: idea.id,
+    title: `[Manufacturing Idea] ${idea.title}`,
+    category: idea.category,
+    summary: idea.tagline,
+    content: `Idea: ${idea.title}\nCategory: ${idea.category}\nInvestment Tier: ${idea.investmentTier}\nMargin: ${idea.profitMargin}\nTAM: ${idea.tam}\nProblem: ${idea.problemStatement}\nSolution: ${idea.proposedSolution}\nBOM: ${idea.billOfMaterials.map(b => `${b.item} (${b.costPerUnit})`).join(", ")}\nProcess: ${idea.manufacturingProcess.join(" -> ")}`,
+    tags: idea.tags,
+    createdAt: idea.createdAt,
+    updatedAt: idea.updatedAt,
+  }));
+
+  const combined = [...articles, ...ideaArticles];
+  const ranked = rankArticles(query, combined);
   
-  // Get top 3 articles for context
+  // Get top 3 items for context
   const topMatches = ranked.filter(r => r.score > 0).slice(0, 3);
   const sources = topMatches.map(m => m.article.title);
 

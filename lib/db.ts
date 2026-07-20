@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { seedArticles, seedResources } from "./seed";
+import { seedArticles, seedResources, seedIdeas } from "./seed";
 
 // Types
 export interface User {
@@ -42,11 +42,70 @@ export interface Resource {
   createdAt: string;
 }
 
+export interface BillOfMaterialItem {
+  item: string;
+  costPerUnit: string;
+  supplierType: string;
+  essential: boolean;
+}
+
+export interface MachineRequirement {
+  name: string;
+  estimatedCost: string;
+  purpose: string;
+}
+
+export interface UnitEconomics {
+  rawMaterialCost: number;
+  laborCostPerUnit: number;
+  packagingCost: number;
+  wholesalePrice: number;
+  retailPrice: number;
+  grossMargin: number;
+}
+
+export interface Competitor {
+  name: string;
+  weakness: string;
+  differentiation: string;
+}
+
+export interface Idea {
+  id: string;
+  title: string;
+  slug: string;
+  tagline: string;
+  category: "Manufacturing" | "Hardware / Electronics" | "GreenTech / Sustainability" | "FMCG / Consumer Goods" | "BioTech / Healthcare" | "Industrial Automation" | "Micro-Manufacturing";
+  investmentTier: "< $10k" | "$10k - $50k" | "$50k - $250k" | "$250k+";
+  profitMargin: string;
+  difficulty: "Beginner" | "Intermediate" | "Advanced" | "Expert";
+  targetMarket: string;
+  tam: string;
+  sam: string;
+  som: string;
+  summary: string;
+  problemStatement: string;
+  proposedSolution: string;
+  manufacturingProcess: string[];
+  billOfMaterials: BillOfMaterialItem[];
+  machineryNeeded: MachineRequirement[];
+  unitEconomics: UnitEconomics;
+  regulatoryRequirements: string[];
+  competitorLandscape: Competitor[];
+  growthPlaybook: string[];
+  tags: string[];
+  upvotes: number;
+  featured: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Schema {
   users: User[];
   articles: Article[];
   searchHistory: SearchLog[];
   resources: Resource[];
+  ideas: Idea[];
 }
 
 const DB_DIR = path.join(process.cwd(), "data");
@@ -72,13 +131,38 @@ function initDb() {
       createdAt: new Date().toISOString(),
     }));
 
+    const ideasWithIds: Idea[] = seedIdeas.map((i) => ({
+      ...i,
+      id: Math.random().toString(36).substring(2, 11),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }));
+
     const initialData: Schema = {
       users: [],
       articles: articlesWithIds,
       searchHistory: [],
       resources: resourcesWithIds,
+      ideas: ideasWithIds,
     };
     fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), "utf-8");
+  } else {
+    // If DB exists but ideas property is missing, migration patch
+    try {
+      const raw = fs.readFileSync(DB_FILE, "utf-8");
+      const parsed = JSON.parse(raw);
+      if (!parsed.ideas || parsed.ideas.length === 0) {
+        parsed.ideas = seedIdeas.map((i) => ({
+          ...i,
+          id: Math.random().toString(36).substring(2, 11),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }));
+        fs.writeFileSync(DB_FILE, JSON.stringify(parsed, null, 2), "utf-8");
+      }
+    } catch {
+      // ignore
+    }
   }
 }
 
@@ -89,10 +173,12 @@ export async function readDb(): Promise<Schema> {
   initDb();
   try {
     const data = await fs.promises.readFile(DB_FILE, "utf-8");
-    return JSON.parse(data) as Schema;
+    const parsed = JSON.parse(data) as Schema;
+    if (!parsed.ideas) parsed.ideas = [];
+    return parsed;
   } catch (error) {
     console.error("Error reading database:", error);
-    return { users: [], articles: [], searchHistory: [], resources: [] };
+    return { users: [], articles: [], searchHistory: [], resources: [], ideas: [] };
   }
 }
 
@@ -249,6 +335,54 @@ export const db = {
       if (index === -1) return false;
 
       data.resources.splice(index, 1);
+      await writeDb(data);
+      return true;
+    },
+  },
+
+  ideas: {
+    findMany: async () => {
+      const data = await readDb();
+      return data.ideas || [];
+    },
+    findUnique: async (filter: { id?: string; slug?: string }) => {
+      const data = await readDb();
+      if (filter.id) {
+        return data.ideas.find((i) => i.id === filter.id) || null;
+      }
+      if (filter.slug) {
+        return data.ideas.find((i) => i.slug === filter.slug) || null;
+      }
+      return null;
+    },
+    create: async (idea: Omit<Idea, "id" | "createdAt" | "updatedAt" | "upvotes"> & { upvotes?: number }) => {
+      const data = await readDb();
+      const newIdea: Idea = {
+        ...idea,
+        id: Math.random().toString(36).substring(2, 11),
+        upvotes: idea.upvotes ?? 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      if (!data.ideas) data.ideas = [];
+      data.ideas.unshift(newIdea);
+      await writeDb(data);
+      return newIdea;
+    },
+    upvote: async (id: string) => {
+      const data = await readDb();
+      const index = data.ideas.findIndex((i) => i.id === id);
+      if (index === -1) return null;
+      data.ideas[index].upvotes += 1;
+      data.ideas[index].updatedAt = new Date().toISOString();
+      await writeDb(data);
+      return data.ideas[index];
+    },
+    delete: async (id: string) => {
+      const data = await readDb();
+      const index = data.ideas.findIndex((i) => i.id === id);
+      if (index === -1) return false;
+      data.ideas.splice(index, 1);
       await writeDb(data);
       return true;
     },

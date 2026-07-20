@@ -55,11 +55,12 @@ export default function Navbar() {
 
   const navLinks = [
     { name: "Home", href: "/" },
-    { name: "Explore Topics", href: "/explore" },
-    { name: "AI Search", href: "/search" },
+    { name: "Idea Explorer", href: "/ideas" },
+    { name: "AI Feasibility", href: "/feasibility" },
+    { name: "Cost Calculator", href: "/calculator" },
+    { name: "Guides", href: "/explore" },
     { name: "Resources", href: "/resources" },
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
+    { name: "AI Search", href: "/search" },
   ];
 
   return (
