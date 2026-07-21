@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu, X, Rocket, LogOut, LayoutDashboard, UserCheck, ShieldAlert } from "lucide-react";
+import { Menu, X, Rocket, LogOut, LayoutDashboard, UserCheck, ShieldAlert, Cpu } from "lucide-react";
 
 interface User {
   id: string;
@@ -58,7 +58,6 @@ export default function Navbar() {
     { name: "Idea Explorer", href: "/ideas" },
     { name: "AI Feasibility", href: "/feasibility" },
     { name: "Cost Calculator", href: "/calculator" },
-    { name: "Architecture & RAG Docs", href: "/architecture" },
     { name: "Guides", href: "/explore" },
     { name: "Resources", href: "/resources" },
     { name: "AI Search", href: "/search" },
@@ -79,23 +78,9 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-5">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
-              const isSpecial = link.href === "/architecture";
-              
-              if (isSpecial) {
-                return (
-                  <Link
-                    key={link.name}
-                    href={link.href}
-                    className="text-xs px-3 py-1.5 rounded-lg text-white flashy-pulse-btn shadow-lg transition flex items-center space-x-1"
-                  >
-                    <span>⚡ Architecture & Docs</span>
-                  </Link>
-                );
-              }
-
               return (
                 <Link
                   key={link.name}
@@ -110,12 +95,20 @@ export default function Navbar() {
             })}
           </div>
 
-          {/* User Auth Section with Flashy Red-Green Button */}
+          {/* Right Section: Architecture Button & User Auth */}
           <div className="hidden md:flex items-center space-x-3">
+            {/* Top Right Flashy Architecture & Docs Button */}
+            <Link
+              href="/architecture"
+              className="text-xs px-3.5 py-1.5 rounded-lg text-white flashy-pulse-btn shadow-xl transition flex items-center space-x-1.5 font-extrabold"
+            >
+              <span>⚡ Architecture & Docs</span>
+            </Link>
+
             {!loading && (
               <>
                 {user ? (
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2.5">
                     {user.role === "admin" && (
                       <Link
                         href="/admin"
@@ -132,10 +125,11 @@ export default function Navbar() {
                       <LayoutDashboard className="h-3.5 w-3.5 text-indigo-400" />
                       <span>Dashboard</span>
                     </Link>
+                    {/* Standard non-flashy Sign Out button */}
                     <button
                       onClick={handleLogout}
-                      className="flex items-center space-x-1.5 text-xs px-3.5 py-1.5 rounded-lg text-white flashy-auth-btn cursor-pointer shadow-lg transition"
-                      title="Click to Sign Out"
+                      className="flex items-center space-x-1 text-xs px-3 py-1.5 rounded-lg text-slate-300 hover:text-rose-400 border border-slate-800 hover:border-slate-700 transition cursor-pointer"
+                      title="Sign Out"
                     >
                       <LogOut className="h-3.5 w-3.5" />
                       <span>Sign Out</span>
@@ -151,9 +145,9 @@ export default function Navbar() {
                     </Link>
                     <Link
                       href="/register"
-                      className="text-xs px-4 py-2 rounded-lg text-white flashy-auth-btn shadow-lg transition duration-200 cursor-pointer flex items-center space-x-1"
+                      className="text-xs px-3.5 py-1.5 rounded-lg text-white bg-indigo-600 hover:bg-indigo-500 font-bold transition shadow-md"
                     >
-                      <span>Get Started / Register</span>
+                      <span>Get Started</span>
                     </Link>
                   </div>
                 )}
@@ -220,12 +214,20 @@ export default function Navbar() {
                       <LayoutDashboard className="h-4 w-4" />
                       <span>Dashboard</span>
                     </Link>
+                    <Link
+                      href="/architecture"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center space-x-2 py-2 text-indigo-400 font-bold"
+                    >
+                      <Cpu className="h-4 w-4" />
+                      <span>⚡ Architecture & Docs</span>
+                    </Link>
                     <button
                       onClick={() => {
                         setMobileMenuOpen(false);
                         handleLogout();
                       }}
-                      className="flex items-center justify-center space-x-2 py-2 px-4 rounded-md text-white flashy-auth-btn cursor-pointer w-full text-center"
+                      className="flex items-center justify-center space-x-2 py-2 px-4 rounded-md text-slate-300 hover:text-rose-400 border border-slate-800 cursor-pointer w-full text-center"
                     >
                       <LogOut className="h-4 w-4" />
                       <span>Sign Out</span>
@@ -233,6 +235,13 @@ export default function Navbar() {
                   </>
                 ) : (
                   <div className="flex flex-col space-y-2">
+                    <Link
+                      href="/architecture"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block text-center py-2 rounded-md text-white font-bold flashy-pulse-btn transition"
+                    >
+                      ⚡ Architecture & Docs
+                    </Link>
                     <Link
                       href="/login"
                       onClick={() => setMobileMenuOpen(false)}
@@ -243,7 +252,7 @@ export default function Navbar() {
                     <Link
                       href="/register"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="block text-center py-2 rounded-md text-white font-bold flashy-auth-btn transition"
+                      className="block text-center py-2 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition"
                     >
                       Get Started / Register
                     </Link>

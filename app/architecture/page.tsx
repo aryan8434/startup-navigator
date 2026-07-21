@@ -2,20 +2,7 @@
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import Link from "next/link";
-import {
-  BrainCircuit,
-  Database,
-  Cpu,
-  Layers,
-  ShieldCheck,
-  Zap,
-  BookOpen,
-  Server,
-  ArrowRight,
-  ExternalLink,
-  Code2,
-} from "lucide-react";
+import { BrainCircuit, Cpu, Layers, Database, Server, Code2 } from "lucide-react";
 
 export default function ArchitectureDocsPage() {
   return (
@@ -35,89 +22,22 @@ export default function ArchitectureDocsPage() {
           </h1>
 
           <p className="mt-4 text-base md:text-lg text-slate-300 max-w-3xl mx-auto">
-            Comprehensive technical breakdown explaining how the Retrieval-Augmented Generation (RAG) vector index operates, how ideas and articles are embedded, and step-by-step Vercel deployment procedures.
+            Technical breakdown detailing how the Retrieval-Augmented Generation (RAG) vector database engine is deployed across features, and the complete Web Architecture of the platform.
           </p>
         </div>
       </section>
 
-      {/* Main Content */}
+      {/* Main Content: Exactly 2 Sections */}
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-12 space-y-12">
-        {/* SECTION 1: VERCEL DEPLOYMENT GUIDE */}
+        {/* SECTION 1: WHERE & HOW VECTOR DATABASE / RAG IS USED */}
         <section className="rounded-2xl border border-indigo-500/30 bg-slate-900/60 p-6 md:p-8 backdrop-blur-md">
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="rounded-xl bg-indigo-500/20 p-2 text-indigo-400 border border-indigo-500/30">
-              <Server className="h-6 w-6" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-white font-display">How to Deploy to Vercel</h2>
-              <p className="text-xs text-slate-400">Step-by-step guide for 1-click cloud production deployment</p>
-            </div>
-          </div>
-
-          <div className="space-y-4 text-sm text-slate-300">
-            <div className="rounded-xl bg-slate-950 p-4 border border-slate-800">
-              <h3 className="font-bold text-white mb-1">Step 1: Push Repository to GitHub</h3>
-              <p className="text-xs text-slate-400 mb-2">Ensure all your latest changes are pushed to your GitHub repository:</p>
-              <pre className="bg-slate-900 text-indigo-300 p-3 rounded-lg text-xs font-mono overflow-x-auto">
-                git add .{"\n"}
-                git commit -m "Deploy production Startup Navigator with Groq RAG Engine"{"\n"}
-                git push origin main
-              </pre>
-            </div>
-
-            <div className="rounded-xl bg-slate-950 p-4 border border-slate-800">
-              <h3 className="font-bold text-white mb-1">Step 2: Import into Vercel</h3>
-              <ol className="list-decimal list-inside space-y-1 text-xs text-slate-300">
-                <li>Log into your <a href="https://vercel.com/dashboard" target="_blank" rel="noreferrer" className="text-indigo-400 underline">Vercel Dashboard</a>.</li>
-                <li>Click <strong>Add New... &gt; Project</strong> and select your GitHub repository <code className="text-purple-300">startup-navigator</code>.</li>
-                <li>Select <strong>Next.js</strong> as the Framework Preset.</li>
-              </ol>
-            </div>
-
-            <div className="rounded-xl bg-slate-950 p-4 border border-slate-800">
-              <h3 className="font-bold text-white mb-1">Step 3: Set Environment Variables</h3>
-              <p className="text-xs text-slate-400 mb-2">In the Vercel project configuration panel, add the following Environment Variables under <strong>Environment Variables</strong>:</p>
-              <table className="w-full text-xs text-left">
-                <thead className="bg-slate-900 text-slate-400 border-b border-slate-800">
-                  <tr>
-                    <th className="p-2">Variable Key</th>
-                    <th className="p-2">Example Value</th>
-                    <th className="p-2">Purpose</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800 text-slate-300">
-                  <tr>
-                    <td className="p-2 font-mono text-indigo-300">GROQ_API_KEY</td>
-                    <td className="p-2 font-mono text-slate-400">gsk_E7RJX5zspE2M...</td>
-                    <td className="p-2">Enables Groq Llama 3.3 (70B) Generative RAG & Feasibility AI</td>
-                  </tr>
-                  <tr>
-                    <td className="p-2 font-mono text-indigo-300">JWT_SECRET</td>
-                    <td className="p-2 font-mono text-slate-400">super_secret_key_2026</td>
-                    <td className="p-2">Encrypts JWT user authentication session cookies</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div className="rounded-xl bg-slate-950 p-4 border border-slate-800">
-              <h3 className="font-bold text-white mb-1">Step 4: Deploy & Verify</h3>
-              <p className="text-xs text-slate-400">
-                Click <strong>Deploy</strong>. Vercel will compile static assets and serverless function endpoints. Once built, your live application will be available at your custom Vercel domain!
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 2: WHERE & HOW VECTOR DATABASE / RAG IS USED */}
-        <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 md:p-8 backdrop-blur-md">
           <div className="flex items-center space-x-3 mb-6">
             <div className="rounded-xl bg-purple-500/20 p-2 text-purple-400 border border-purple-500/30">
               <BrainCircuit className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-white font-display">Where & How Vector Database / RAG is Used</h2>
-              <p className="text-xs text-slate-400">Anatomy of our Retrieval-Augmented Generation pipeline</p>
+              <h2 className="text-2xl font-bold text-white font-display">1. Where & How Vector Database / RAG is Used</h2>
+              <p className="text-xs text-slate-400">Anatomy of our Retrieval-Augmented Generation pipeline across 4 key locations</p>
             </div>
           </div>
 
@@ -156,10 +76,19 @@ export default function ArchitectureDocsPage() {
           </div>
         </section>
 
-        {/* SECTION 3: SYSTEM ARCHITECTURE SPECIFICATIONS */}
+        {/* SECTION 2: WEB ARCHITECTURE */}
         <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 md:p-8 backdrop-blur-md">
-          <h2 className="text-2xl font-bold text-white mb-4 font-display">Complete Web Architecture Diagram</h2>
-          <pre className="bg-slate-950 text-emerald-400 p-5 rounded-xl text-xs font-mono overflow-x-auto leading-relaxed border border-slate-800">
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="rounded-xl bg-indigo-500/20 p-2 text-indigo-400 border border-indigo-500/30">
+              <Layers className="h-6 w-6" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-white font-display">2. Web Architecture & Data Flow</h2>
+              <p className="text-xs text-slate-400">Complete end-to-end full-stack layout diagram</p>
+            </div>
+          </div>
+
+          <pre className="bg-slate-950 text-emerald-400 p-5 rounded-xl text-xs font-mono overflow-x-auto leading-relaxed border border-slate-800 mb-6">
 {`┌─────────────────────────────────────────────────────────────────────────┐
 │                          FOUNDER CLIENT INTERFACE                       │
 │ ┌──────────────┐ ┌───────────────┐ ┌──────────────┐ ┌─────────────────┐ │
@@ -185,6 +114,21 @@ export default function ArchitectureDocsPage() {
 │  - Atomic temp lock file persistence │ │ - Local Extractive Fallback    │
 └──────────────────────────────────────┘ └────────────────────────────────┘`}
           </pre>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-300">
+            <div className="rounded-xl bg-slate-950 p-4 border border-slate-800">
+              <h4 className="font-bold text-white mb-1">Frontend Layer</h4>
+              <p className="text-slate-400">Next.js 16 App Router, React 19, Tailwind CSS v4, dynamic glassmorphic UI components, and real-time state management.</p>
+            </div>
+            <div className="rounded-xl bg-slate-950 p-4 border border-slate-800">
+              <h4 className="font-bold text-white mb-1">Server API Routes</h4>
+              <p className="text-slate-400">Edge proxy middleware, JWT cookie session authentication, sanitized request handling, and RESTful CRUD handlers.</p>
+            </div>
+            <div className="rounded-xl bg-slate-950 p-4 border border-slate-800">
+              <h4 className="font-bold text-white mb-1">Database & RAG Core</h4>
+              <p className="text-slate-400">Atomic temporary file-locking persistence (`lib/db.ts`) combined with multi-weighted TF-IDF vector search and Groq Llama 3.3 (70B).</p>
+            </div>
+          </div>
         </section>
       </main>
 
