@@ -208,7 +208,7 @@ export default function IdeaDetailPage({ params }: { params: Promise<{ id: strin
             </button>
 
             <Link
-              href="/feasibility"
+              href={`/feasibility?title=${encodeURIComponent(idea.title)}&category=${encodeURIComponent(idea.category)}&tier=${encodeURIComponent(idea.investmentTier)}&targetMarket=${encodeURIComponent(idea.targetMarket)}&description=${encodeURIComponent(idea.proposedSolution || idea.summary || idea.tagline)}`}
               className="inline-flex items-center space-x-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 text-xs font-semibold text-white hover:from-indigo-500 hover:to-purple-500 shadow-md shadow-indigo-600/20 transition-all"
             >
               <BrainCircuit className="h-4 w-4" />
@@ -360,46 +360,46 @@ export default function IdeaDetailPage({ params }: { params: Promise<{ id: strin
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md text-center">
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Raw Material Cost</span>
-                <p className="text-3xl font-extrabold text-white mt-2">${idea.unitEconomics.rawMaterialCost.toFixed(2)}</p>
+                <p className="text-3xl font-extrabold text-white mt-2">₹{idea.unitEconomics.rawMaterialCost}</p>
                 <span className="text-xs text-slate-400 mt-1 block">per unit finished good</span>
               </div>
 
               <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md text-center">
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Wholesale Selling Price</span>
-                <p className="text-3xl font-extrabold text-indigo-400 mt-2">${idea.unitEconomics.wholesalePrice.toFixed(2)}</p>
+                <p className="text-3xl font-extrabold text-indigo-400 mt-2">₹{idea.unitEconomics.wholesalePrice}</p>
                 <span className="text-xs text-slate-400 mt-1 block">B2B distributor pricing</span>
               </div>
 
               <div className="rounded-2xl border border-emerald-900/50 bg-emerald-950/20 p-6 backdrop-blur-md text-center">
                 <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Gross Profit Margin</span>
                 <p className="text-3xl font-extrabold text-emerald-400 mt-2">{idea.unitEconomics.grossMargin}%</p>
-                <span className="text-xs text-emerald-300 mt-1 block">retail MSRP: ${idea.unitEconomics.retailPrice.toFixed(2)}</span>
+                <span className="text-xs text-emerald-300 mt-1 block">retail MSRP: ₹{idea.unitEconomics.retailPrice}</span>
               </div>
             </div>
 
             <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md">
-              <h2 className="text-xl font-bold text-white mb-4 font-display">Unit Cost Breakdown</h2>
+              <h2 className="text-xl font-bold text-white mb-4 font-display">Unit Cost Breakdown (₹ INR)</h2>
               <div className="space-y-4">
                 <div className="flex justify-between text-sm py-2 border-b border-slate-800">
                   <span className="text-slate-300">Raw Component Materials</span>
-                  <span className="font-semibold text-white">${idea.unitEconomics.rawMaterialCost.toFixed(2)}</span>
+                  <span className="font-semibold text-white">₹{idea.unitEconomics.rawMaterialCost}</span>
                 </div>
                 <div className="flex justify-between text-sm py-2 border-b border-slate-800">
                   <span className="text-slate-300">Direct Labor & Assembly per Unit</span>
-                  <span className="font-semibold text-white">${idea.unitEconomics.laborCostPerUnit.toFixed(2)}</span>
+                  <span className="font-semibold text-white">₹{idea.unitEconomics.laborCostPerUnit}</span>
                 </div>
                 <div className="flex justify-between text-sm py-2 border-b border-slate-800">
                   <span className="text-slate-300">Packaging & Shipping Buffer</span>
-                  <span className="font-semibold text-white">${idea.unitEconomics.packagingCost.toFixed(2)}</span>
+                  <span className="font-semibold text-white">₹{idea.unitEconomics.packagingCost}</span>
                 </div>
                 <div className="flex justify-between text-base font-bold py-3 text-emerald-400 bg-slate-950/80 px-4 rounded-xl">
                   <span>Total Cost of Goods Sold (COGS)</span>
                   <span>
-                    ${(
+                    ₹{(
                       idea.unitEconomics.rawMaterialCost +
                       idea.unitEconomics.laborCostPerUnit +
                       idea.unitEconomics.packagingCost
-                    ).toFixed(2)}
+                    )}
                   </span>
                 </div>
               </div>

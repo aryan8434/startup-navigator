@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import {
@@ -54,6 +54,29 @@ export default function FeasibilityPage() {
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState<AssessmentReport | null>(null);
   const [error, setError] = useState("");
+
+  // Parse query parameters when transferring data from idea detail page
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const title = params.get("title");
+      const category = params.get("category");
+      const tier = params.get("tier");
+      const targetMarket = params.get("targetMarket");
+      const description = params.get("description");
+
+      if (title || description) {
+        setFormData((prev) => ({
+          ...prev,
+          title: title || prev.title,
+          category: category || prev.category,
+          investmentTier: tier || prev.investmentTier,
+          targetMarket: targetMarket || prev.targetMarket,
+          description: description || prev.description,
+        }));
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

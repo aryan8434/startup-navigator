@@ -390,6 +390,1160 @@
   ],
   "ideas": [
     {
+      "title": "AyurCare Herbal Personal Care",
+      "slug": "gen-herbal-personal-care-3",
+      "tagline": "Nature's Remedies for a Healthier You",
+      "category": "FMCG / Consumer Goods",
+      "investmentTier": "₹1 Crore+",
+      "profitMargin": "55%",
+      "difficulty": "Beginner",
+      "targetMarket": "D2C Consumers & B2B Wholesalers",
+      "tam": "₹350 Cr",
+      "sam": "₹75 Cr",
+      "som": "₹15 Cr",
+      "summary": "Nature's Remedies for a Healthier You",
+      "problemStatement": "Growing demand for natural and herbal personal care products, with limited options available in the Indian market.",
+      "proposedSolution": "Developing a range of herbal personal care products, such as soaps, shampoos, and creams, using traditional Ayurvedic ingredients like turmeric, neem, and aloe vera.",
+      "manufacturingProcess": [
+        "Herb Sourcing and Extraction",
+        "Product Formulation and Testing",
+        "Manufacturing and Packaging",
+        "Quality Control and Certification"
+      ],
+      "billOfMaterials": [
+        {
+          "item": "Turmeric Powder",
+          "costPerUnit": "₹50/kg",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Neem Oil",
+          "costPerUnit": "₹100/liter",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Aloe Vera Gel",
+          "costPerUnit": "₹80/kg",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        }
+      ],
+      "machineryNeeded": [
+        {
+          "name": "CNC Milling Machine",
+          "estimatedCost": "₹4,50,000",
+          "purpose": "Precision component machining"
+        }
+      ],
+      "unitEconomics": {
+        "rawMaterialCost": 280,
+        "laborCostPerUnit": 120,
+        "packagingCost": 45,
+        "wholesalePrice": 999,
+        "retailPrice": 1499,
+        "grossMargin": 65
+      },
+      "regulatoryRequirements": [
+        "BIS Safety Standard",
+        "ISO 9001 Quality Certification"
+      ],
+      "competitorLandscape": [
+        {
+          "name": "Legacy Incumbent Corp",
+          "weakness": "High overhead and slow lead times",
+          "differentiation": "5x faster localized tooling turnaround"
+        }
+      ],
+      "growthPlaybook": [
+        "Build MVP prototype",
+        "Secure 100 pre-orders via D2C landing page"
+      ],
+      "tags": [
+        "AI Generated",
+        "Manufacturing",
+        "FMCG / Consumer Goods"
+      ],
+      "upvotes": 100,
+      "featured": false,
+      "isAiGenerated": true,
+      "id": "kfwfbphh1",
+      "createdAt": "2026-07-21T07:13:45.487Z",
+      "updatedAt": "2026-07-21T07:13:45.487Z"
+    },
+    {
+      "title": "GreenMilk Plant-Based Beverages",
+      "slug": "gen-plant-based-milk-2",
+      "tagline": "Nourishing the Planet, One Glass at a Time",
+      "category": "FMCG / Consumer Goods",
+      "investmentTier": "₹1 Crore+",
+      "profitMargin": "65%",
+      "difficulty": "Advanced",
+      "targetMarket": "D2C Consumers & B2B Wholesalers",
+      "tam": "₹550 Cr",
+      "sam": "₹75 Cr",
+      "som": "₹15 Cr",
+      "summary": "Nourishing the Planet, One Glass at a Time",
+      "problemStatement": "Increasing demand for plant-based milk alternatives, with limited options available in the Indian market.",
+      "proposedSolution": "Developing a range of plant-based milk products, such as almond, soy, and oat milk, with a focus on taste, nutrition, and sustainability.",
+      "manufacturingProcess": [
+        "Raw Material Sourcing",
+        "Flavor and Nutrient Formulation",
+        "UHT Processing and Packaging",
+        "Distribution and Marketing"
+      ],
+      "billOfMaterials": [
+        {
+          "item": "Almond Kernels",
+          "costPerUnit": "₹80/kg",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Soy Protein Isolate",
+          "costPerUnit": "₹120/kg",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Oat Flour",
+          "costPerUnit": "₹40/kg",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        }
+      ],
+      "machineryNeeded": [
+        {
+          "name": "CNC Milling Machine",
+          "estimatedCost": "₹4,50,000",
+          "purpose": "Precision component machining"
+        }
+      ],
+      "unitEconomics": {
+        "rawMaterialCost": 280,
+        "laborCostPerUnit": 120,
+        "packagingCost": 45,
+        "wholesalePrice": 999,
+        "retailPrice": 1499,
+        "grossMargin": 65
+      },
+      "regulatoryRequirements": [
+        "BIS Safety Standard",
+        "ISO 9001 Quality Certification"
+      ],
+      "competitorLandscape": [
+        {
+          "name": "Legacy Incumbent Corp",
+          "weakness": "High overhead and slow lead times",
+          "differentiation": "5x faster localized tooling turnaround"
+        }
+      ],
+      "growthPlaybook": [
+        "Build MVP prototype",
+        "Secure 100 pre-orders via D2C landing page"
+      ],
+      "tags": [
+        "AI Generated",
+        "Manufacturing",
+        "FMCG / Consumer Goods"
+      ],
+      "upvotes": 140,
+      "featured": false,
+      "isAiGenerated": true,
+      "id": "2b8or0vc5",
+      "createdAt": "2026-07-21T07:13:45.478Z",
+      "updatedAt": "2026-07-21T07:13:45.478Z"
+    },
+    {
+      "title": "EcoCycle Sanitary Products",
+      "slug": "gen-eco-friendly-sanitary-1",
+      "tagline": "Sustainable Sanitation for a Greener Tomorrow",
+      "category": "FMCG / Consumer Goods",
+      "investmentTier": "₹1 Crore+",
+      "profitMargin": "60%",
+      "difficulty": "Intermediate",
+      "targetMarket": "D2C Consumers & B2B Wholesalers",
+      "tam": "₹850 Cr",
+      "sam": "₹75 Cr",
+      "som": "₹15 Cr",
+      "summary": "Sustainable Sanitation for a Greener Tomorrow",
+      "problemStatement": "Lack of eco-friendly sanitary products in the Indian market, contributing to environmental pollution and health hazards.",
+      "proposedSolution": "Developing a range of biodegradable sanitary products, such as pads, diapers, and wipes, made from natural fibers like bamboo and cotton.",
+      "manufacturingProcess": [
+        "Material Sourcing",
+        "Product Design and Prototyping",
+        "Large-Scale Manufacturing",
+        "Quality Control and Packaging"
+      ],
+      "billOfMaterials": [
+        {
+          "item": "Bamboo Pulp",
+          "costPerUnit": "₹15/kg",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Cotton Fabric",
+          "costPerUnit": "₹20/meter",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Biodegradable Packaging",
+          "costPerUnit": "₹5/unit",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        }
+      ],
+      "machineryNeeded": [
+        {
+          "name": "CNC Milling Machine",
+          "estimatedCost": "₹4,50,000",
+          "purpose": "Precision component machining"
+        }
+      ],
+      "unitEconomics": {
+        "rawMaterialCost": 280,
+        "laborCostPerUnit": 120,
+        "packagingCost": 45,
+        "wholesalePrice": 999,
+        "retailPrice": 1499,
+        "grossMargin": 65
+      },
+      "regulatoryRequirements": [
+        "BIS Safety Standard",
+        "ISO 9001 Quality Certification"
+      ],
+      "competitorLandscape": [
+        {
+          "name": "Legacy Incumbent Corp",
+          "weakness": "High overhead and slow lead times",
+          "differentiation": "5x faster localized tooling turnaround"
+        }
+      ],
+      "growthPlaybook": [
+        "Build MVP prototype",
+        "Secure 100 pre-orders via D2C landing page"
+      ],
+      "tags": [
+        "AI Generated",
+        "Manufacturing",
+        "FMCG / Consumer Goods"
+      ],
+      "upvotes": 120,
+      "featured": false,
+      "isAiGenerated": true,
+      "id": "p0c27djtl",
+      "createdAt": "2026-07-21T07:13:45.468Z",
+      "updatedAt": "2026-07-21T07:13:45.468Z"
+    },
+    {
+      "title": "Biodegradable Mycelium Packaging Crates",
+      "slug": "gen-ai-1784617994241-2",
+      "tagline": "Eco-friendly alternative to expanded polystyrene (Styrofoam) crates.",
+      "category": "Manufacturing",
+      "investmentTier": "₹5 Lakhs - ₹25 Lakhs",
+      "profitMargin": "72%",
+      "difficulty": "Beginner",
+      "targetMarket": "D2C Consumers & B2B Wholesalers",
+      "tam": "₹600 Cr",
+      "sam": "₹75 Cr",
+      "som": "₹15 Cr",
+      "summary": "Eco-friendly alternative to expanded polystyrene (Styrofoam) crates.",
+      "problemStatement": "Single-use plastic packaging waste causing environmental damage.",
+      "proposedSolution": "Molded mushroom mycelium insulation packaging grown from agricultural waste.",
+      "manufacturingProcess": [
+        "Substrate Inoculation",
+        "Molding Chamber",
+        "Heat Desiccation"
+      ],
+      "billOfMaterials": [
+        {
+          "item": "Agri Crop Residue Substrate",
+          "costPerUnit": "₹25",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Mycelium Spore Inoculant",
+          "costPerUnit": "₹15",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Thermoformed Mold",
+          "costPerUnit": "₹40",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        }
+      ],
+      "machineryNeeded": [
+        {
+          "name": "CNC Milling Machine",
+          "estimatedCost": "₹4,50,000",
+          "purpose": "Precision component machining"
+        }
+      ],
+      "unitEconomics": {
+        "rawMaterialCost": 280,
+        "laborCostPerUnit": 120,
+        "packagingCost": 45,
+        "wholesalePrice": 999,
+        "retailPrice": 1499,
+        "grossMargin": 65
+      },
+      "regulatoryRequirements": [
+        "BIS Safety Standard",
+        "ISO 9001 Quality Certification"
+      ],
+      "competitorLandscape": [
+        {
+          "name": "Legacy Incumbent Corp",
+          "weakness": "High overhead and slow lead times",
+          "differentiation": "5x faster localized tooling turnaround"
+        }
+      ],
+      "growthPlaybook": [
+        "Build MVP prototype",
+        "Secure 100 pre-orders via D2C landing page"
+      ],
+      "tags": [
+        "AI Generated",
+        "Manufacturing",
+        "Manufacturing"
+      ],
+      "upvotes": 113,
+      "featured": false,
+      "isAiGenerated": true,
+      "id": "s5ywzj2yy",
+      "createdAt": "2026-07-21T07:13:14.250Z",
+      "updatedAt": "2026-07-21T07:14:16.152Z"
+    },
+    {
+      "title": "Autonomous Micro-Solar Water Purifier",
+      "slug": "gen-ai-1784617994241-1",
+      "tagline": "Off-grid UV LED filtration unit for rural households and eco-resorts.",
+      "category": "Manufacturing",
+      "investmentTier": "₹5 Lakhs - ₹25 Lakhs",
+      "profitMargin": "68%",
+      "difficulty": "Intermediate",
+      "targetMarket": "D2C Consumers & B2B Wholesalers",
+      "tam": "₹350 Cr",
+      "sam": "₹75 Cr",
+      "som": "₹15 Cr",
+      "summary": "Off-grid UV LED filtration unit for rural households and eco-resorts.",
+      "problemStatement": "Lack of clean drinking water in off-grid rural areas.",
+      "proposedSolution": "Solar-powered automated UV filtration with IoT quality monitor.",
+      "manufacturingProcess": [
+        "Rotational Molding",
+        "PCB SMT Assembly",
+        "Pressure Leak Test"
+      ],
+      "billOfMaterials": [
+        {
+          "item": "UV LED Module",
+          "costPerUnit": "₹280",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Micro Solar Panel 10W",
+          "costPerUnit": "₹350",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Filter Vessel",
+          "costPerUnit": "₹180",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        }
+      ],
+      "machineryNeeded": [
+        {
+          "name": "CNC Milling Machine",
+          "estimatedCost": "₹4,50,000",
+          "purpose": "Precision component machining"
+        }
+      ],
+      "unitEconomics": {
+        "rawMaterialCost": 280,
+        "laborCostPerUnit": 120,
+        "packagingCost": 45,
+        "wholesalePrice": 999,
+        "retailPrice": 1499,
+        "grossMargin": 65
+      },
+      "regulatoryRequirements": [
+        "BIS Safety Standard",
+        "ISO 9001 Quality Certification"
+      ],
+      "competitorLandscape": [
+        {
+          "name": "Legacy Incumbent Corp",
+          "weakness": "High overhead and slow lead times",
+          "differentiation": "5x faster localized tooling turnaround"
+        }
+      ],
+      "growthPlaybook": [
+        "Build MVP prototype",
+        "Secure 100 pre-orders via D2C landing page"
+      ],
+      "tags": [
+        "AI Generated",
+        "Manufacturing",
+        "Manufacturing"
+      ],
+      "upvotes": 94,
+      "featured": false,
+      "isAiGenerated": true,
+      "id": "gsln0mvkl",
+      "createdAt": "2026-07-21T07:13:14.243Z",
+      "updatedAt": "2026-07-21T07:13:14.243Z"
+    },
+    {
+      "title": "Biodegradable Mycelium Packaging Crates",
+      "slug": "gen-ai-1784617993477-2",
+      "tagline": "Eco-friendly alternative to expanded polystyrene (Styrofoam) crates.",
+      "category": "Manufacturing",
+      "investmentTier": "₹5 Lakhs - ₹25 Lakhs",
+      "profitMargin": "72%",
+      "difficulty": "Beginner",
+      "targetMarket": "D2C Consumers & B2B Wholesalers",
+      "tam": "₹600 Cr",
+      "sam": "₹75 Cr",
+      "som": "₹15 Cr",
+      "summary": "Eco-friendly alternative to expanded polystyrene (Styrofoam) crates.",
+      "problemStatement": "Single-use plastic packaging waste causing environmental damage.",
+      "proposedSolution": "Molded mushroom mycelium insulation packaging grown from agricultural waste.",
+      "manufacturingProcess": [
+        "Substrate Inoculation",
+        "Molding Chamber",
+        "Heat Desiccation"
+      ],
+      "billOfMaterials": [
+        {
+          "item": "Agri Crop Residue Substrate",
+          "costPerUnit": "₹25",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Mycelium Spore Inoculant",
+          "costPerUnit": "₹15",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Thermoformed Mold",
+          "costPerUnit": "₹40",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        }
+      ],
+      "machineryNeeded": [
+        {
+          "name": "CNC Milling Machine",
+          "estimatedCost": "₹4,50,000",
+          "purpose": "Precision component machining"
+        }
+      ],
+      "unitEconomics": {
+        "rawMaterialCost": 280,
+        "laborCostPerUnit": 120,
+        "packagingCost": 45,
+        "wholesalePrice": 999,
+        "retailPrice": 1499,
+        "grossMargin": 65
+      },
+      "regulatoryRequirements": [
+        "BIS Safety Standard",
+        "ISO 9001 Quality Certification"
+      ],
+      "competitorLandscape": [
+        {
+          "name": "Legacy Incumbent Corp",
+          "weakness": "High overhead and slow lead times",
+          "differentiation": "5x faster localized tooling turnaround"
+        }
+      ],
+      "growthPlaybook": [
+        "Build MVP prototype",
+        "Secure 100 pre-orders via D2C landing page"
+      ],
+      "tags": [
+        "AI Generated",
+        "Manufacturing",
+        "Manufacturing"
+      ],
+      "upvotes": 112,
+      "featured": false,
+      "isAiGenerated": true,
+      "id": "k04gkq8kw",
+      "createdAt": "2026-07-21T07:13:13.486Z",
+      "updatedAt": "2026-07-21T07:13:13.486Z"
+    },
+    {
+      "title": "Autonomous Micro-Solar Water Purifier",
+      "slug": "gen-ai-1784617993477-1",
+      "tagline": "Off-grid UV LED filtration unit for rural households and eco-resorts.",
+      "category": "Manufacturing",
+      "investmentTier": "₹5 Lakhs - ₹25 Lakhs",
+      "profitMargin": "68%",
+      "difficulty": "Intermediate",
+      "targetMarket": "D2C Consumers & B2B Wholesalers",
+      "tam": "₹350 Cr",
+      "sam": "₹75 Cr",
+      "som": "₹15 Cr",
+      "summary": "Off-grid UV LED filtration unit for rural households and eco-resorts.",
+      "problemStatement": "Lack of clean drinking water in off-grid rural areas.",
+      "proposedSolution": "Solar-powered automated UV filtration with IoT quality monitor.",
+      "manufacturingProcess": [
+        "Rotational Molding",
+        "PCB SMT Assembly",
+        "Pressure Leak Test"
+      ],
+      "billOfMaterials": [
+        {
+          "item": "UV LED Module",
+          "costPerUnit": "₹280",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Micro Solar Panel 10W",
+          "costPerUnit": "₹350",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Filter Vessel",
+          "costPerUnit": "₹180",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        }
+      ],
+      "machineryNeeded": [
+        {
+          "name": "CNC Milling Machine",
+          "estimatedCost": "₹4,50,000",
+          "purpose": "Precision component machining"
+        }
+      ],
+      "unitEconomics": {
+        "rawMaterialCost": 280,
+        "laborCostPerUnit": 120,
+        "packagingCost": 45,
+        "wholesalePrice": 999,
+        "retailPrice": 1499,
+        "grossMargin": 65
+      },
+      "regulatoryRequirements": [
+        "BIS Safety Standard",
+        "ISO 9001 Quality Certification"
+      ],
+      "competitorLandscape": [
+        {
+          "name": "Legacy Incumbent Corp",
+          "weakness": "High overhead and slow lead times",
+          "differentiation": "5x faster localized tooling turnaround"
+        }
+      ],
+      "growthPlaybook": [
+        "Build MVP prototype",
+        "Secure 100 pre-orders via D2C landing page"
+      ],
+      "tags": [
+        "AI Generated",
+        "Manufacturing",
+        "Manufacturing"
+      ],
+      "upvotes": 94,
+      "featured": false,
+      "isAiGenerated": true,
+      "id": "qvrapogbb",
+      "createdAt": "2026-07-21T07:13:13.479Z",
+      "updatedAt": "2026-07-21T07:13:13.479Z"
+    },
+    {
+      "title": "Biodegradable Mycelium Packaging Crates",
+      "slug": "gen-ai-1784617992674-2",
+      "tagline": "Eco-friendly alternative to expanded polystyrene (Styrofoam) crates.",
+      "category": "Manufacturing",
+      "investmentTier": "₹5 Lakhs - ₹25 Lakhs",
+      "profitMargin": "72%",
+      "difficulty": "Beginner",
+      "targetMarket": "D2C Consumers & B2B Wholesalers",
+      "tam": "₹600 Cr",
+      "sam": "₹75 Cr",
+      "som": "₹15 Cr",
+      "summary": "Eco-friendly alternative to expanded polystyrene (Styrofoam) crates.",
+      "problemStatement": "Single-use plastic packaging waste causing environmental damage.",
+      "proposedSolution": "Molded mushroom mycelium insulation packaging grown from agricultural waste.",
+      "manufacturingProcess": [
+        "Substrate Inoculation",
+        "Molding Chamber",
+        "Heat Desiccation"
+      ],
+      "billOfMaterials": [
+        {
+          "item": "Agri Crop Residue Substrate",
+          "costPerUnit": "₹25",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Mycelium Spore Inoculant",
+          "costPerUnit": "₹15",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Thermoformed Mold",
+          "costPerUnit": "₹40",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        }
+      ],
+      "machineryNeeded": [
+        {
+          "name": "CNC Milling Machine",
+          "estimatedCost": "₹4,50,000",
+          "purpose": "Precision component machining"
+        }
+      ],
+      "unitEconomics": {
+        "rawMaterialCost": 280,
+        "laborCostPerUnit": 120,
+        "packagingCost": 45,
+        "wholesalePrice": 999,
+        "retailPrice": 1499,
+        "grossMargin": 65
+      },
+      "regulatoryRequirements": [
+        "BIS Safety Standard",
+        "ISO 9001 Quality Certification"
+      ],
+      "competitorLandscape": [
+        {
+          "name": "Legacy Incumbent Corp",
+          "weakness": "High overhead and slow lead times",
+          "differentiation": "5x faster localized tooling turnaround"
+        }
+      ],
+      "growthPlaybook": [
+        "Build MVP prototype",
+        "Secure 100 pre-orders via D2C landing page"
+      ],
+      "tags": [
+        "AI Generated",
+        "Manufacturing",
+        "Manufacturing"
+      ],
+      "upvotes": 112,
+      "featured": false,
+      "isAiGenerated": true,
+      "id": "xxgem9nz5",
+      "createdAt": "2026-07-21T07:13:12.686Z",
+      "updatedAt": "2026-07-21T07:13:12.686Z"
+    },
+    {
+      "title": "Autonomous Micro-Solar Water Purifier",
+      "slug": "gen-ai-1784617992674-1",
+      "tagline": "Off-grid UV LED filtration unit for rural households and eco-resorts.",
+      "category": "Manufacturing",
+      "investmentTier": "₹5 Lakhs - ₹25 Lakhs",
+      "profitMargin": "68%",
+      "difficulty": "Intermediate",
+      "targetMarket": "D2C Consumers & B2B Wholesalers",
+      "tam": "₹350 Cr",
+      "sam": "₹75 Cr",
+      "som": "₹15 Cr",
+      "summary": "Off-grid UV LED filtration unit for rural households and eco-resorts.",
+      "problemStatement": "Lack of clean drinking water in off-grid rural areas.",
+      "proposedSolution": "Solar-powered automated UV filtration with IoT quality monitor.",
+      "manufacturingProcess": [
+        "Rotational Molding",
+        "PCB SMT Assembly",
+        "Pressure Leak Test"
+      ],
+      "billOfMaterials": [
+        {
+          "item": "UV LED Module",
+          "costPerUnit": "₹280",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Micro Solar Panel 10W",
+          "costPerUnit": "₹350",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Filter Vessel",
+          "costPerUnit": "₹180",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        }
+      ],
+      "machineryNeeded": [
+        {
+          "name": "CNC Milling Machine",
+          "estimatedCost": "₹4,50,000",
+          "purpose": "Precision component machining"
+        }
+      ],
+      "unitEconomics": {
+        "rawMaterialCost": 280,
+        "laborCostPerUnit": 120,
+        "packagingCost": 45,
+        "wholesalePrice": 999,
+        "retailPrice": 1499,
+        "grossMargin": 65
+      },
+      "regulatoryRequirements": [
+        "BIS Safety Standard",
+        "ISO 9001 Quality Certification"
+      ],
+      "competitorLandscape": [
+        {
+          "name": "Legacy Incumbent Corp",
+          "weakness": "High overhead and slow lead times",
+          "differentiation": "5x faster localized tooling turnaround"
+        }
+      ],
+      "growthPlaybook": [
+        "Build MVP prototype",
+        "Secure 100 pre-orders via D2C landing page"
+      ],
+      "tags": [
+        "AI Generated",
+        "Manufacturing",
+        "Manufacturing"
+      ],
+      "upvotes": 94,
+      "featured": false,
+      "isAiGenerated": true,
+      "id": "vd8w6r7ey",
+      "createdAt": "2026-07-21T07:13:12.678Z",
+      "updatedAt": "2026-07-21T07:13:12.678Z"
+    },
+    {
+      "title": "Biodegradable Mycelium Packaging Crates",
+      "slug": "gen-ai-1784617991644-2",
+      "tagline": "Eco-friendly alternative to expanded polystyrene (Styrofoam) crates.",
+      "category": "Manufacturing",
+      "investmentTier": "₹5 Lakhs - ₹25 Lakhs",
+      "profitMargin": "72%",
+      "difficulty": "Beginner",
+      "targetMarket": "D2C Consumers & B2B Wholesalers",
+      "tam": "₹600 Cr",
+      "sam": "₹75 Cr",
+      "som": "₹15 Cr",
+      "summary": "Eco-friendly alternative to expanded polystyrene (Styrofoam) crates.",
+      "problemStatement": "Single-use plastic packaging waste causing environmental damage.",
+      "proposedSolution": "Molded mushroom mycelium insulation packaging grown from agricultural waste.",
+      "manufacturingProcess": [
+        "Substrate Inoculation",
+        "Molding Chamber",
+        "Heat Desiccation"
+      ],
+      "billOfMaterials": [
+        {
+          "item": "Agri Crop Residue Substrate",
+          "costPerUnit": "₹25",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Mycelium Spore Inoculant",
+          "costPerUnit": "₹15",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Thermoformed Mold",
+          "costPerUnit": "₹40",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        }
+      ],
+      "machineryNeeded": [
+        {
+          "name": "CNC Milling Machine",
+          "estimatedCost": "₹4,50,000",
+          "purpose": "Precision component machining"
+        }
+      ],
+      "unitEconomics": {
+        "rawMaterialCost": 280,
+        "laborCostPerUnit": 120,
+        "packagingCost": 45,
+        "wholesalePrice": 999,
+        "retailPrice": 1499,
+        "grossMargin": 65
+      },
+      "regulatoryRequirements": [
+        "BIS Safety Standard",
+        "ISO 9001 Quality Certification"
+      ],
+      "competitorLandscape": [
+        {
+          "name": "Legacy Incumbent Corp",
+          "weakness": "High overhead and slow lead times",
+          "differentiation": "5x faster localized tooling turnaround"
+        }
+      ],
+      "growthPlaybook": [
+        "Build MVP prototype",
+        "Secure 100 pre-orders via D2C landing page"
+      ],
+      "tags": [
+        "AI Generated",
+        "Manufacturing",
+        "Manufacturing"
+      ],
+      "upvotes": 112,
+      "featured": false,
+      "isAiGenerated": true,
+      "id": "s0zqb3p76",
+      "createdAt": "2026-07-21T07:13:11.655Z",
+      "updatedAt": "2026-07-21T07:13:11.655Z"
+    },
+    {
+      "title": "Autonomous Micro-Solar Water Purifier",
+      "slug": "gen-ai-1784617991644-1",
+      "tagline": "Off-grid UV LED filtration unit for rural households and eco-resorts.",
+      "category": "Manufacturing",
+      "investmentTier": "₹5 Lakhs - ₹25 Lakhs",
+      "profitMargin": "68%",
+      "difficulty": "Intermediate",
+      "targetMarket": "D2C Consumers & B2B Wholesalers",
+      "tam": "₹350 Cr",
+      "sam": "₹75 Cr",
+      "som": "₹15 Cr",
+      "summary": "Off-grid UV LED filtration unit for rural households and eco-resorts.",
+      "problemStatement": "Lack of clean drinking water in off-grid rural areas.",
+      "proposedSolution": "Solar-powered automated UV filtration with IoT quality monitor.",
+      "manufacturingProcess": [
+        "Rotational Molding",
+        "PCB SMT Assembly",
+        "Pressure Leak Test"
+      ],
+      "billOfMaterials": [
+        {
+          "item": "UV LED Module",
+          "costPerUnit": "₹280",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Micro Solar Panel 10W",
+          "costPerUnit": "₹350",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Filter Vessel",
+          "costPerUnit": "₹180",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        }
+      ],
+      "machineryNeeded": [
+        {
+          "name": "CNC Milling Machine",
+          "estimatedCost": "₹4,50,000",
+          "purpose": "Precision component machining"
+        }
+      ],
+      "unitEconomics": {
+        "rawMaterialCost": 280,
+        "laborCostPerUnit": 120,
+        "packagingCost": 45,
+        "wholesalePrice": 999,
+        "retailPrice": 1499,
+        "grossMargin": 65
+      },
+      "regulatoryRequirements": [
+        "BIS Safety Standard",
+        "ISO 9001 Quality Certification"
+      ],
+      "competitorLandscape": [
+        {
+          "name": "Legacy Incumbent Corp",
+          "weakness": "High overhead and slow lead times",
+          "differentiation": "5x faster localized tooling turnaround"
+        }
+      ],
+      "growthPlaybook": [
+        "Build MVP prototype",
+        "Secure 100 pre-orders via D2C landing page"
+      ],
+      "tags": [
+        "AI Generated",
+        "Manufacturing",
+        "Manufacturing"
+      ],
+      "upvotes": 94,
+      "featured": false,
+      "isAiGenerated": true,
+      "id": "phoi0a7cl",
+      "createdAt": "2026-07-21T07:13:11.648Z",
+      "updatedAt": "2026-07-21T07:13:11.648Z"
+    },
+    {
+      "title": "Solar Dryer for Fruits and Vegetables",
+      "slug": "gen-solar-dryer-1",
+      "tagline": "Preserving freshness, naturally",
+      "category": "Manufacturing",
+      "investmentTier": "₹5 Lakhs - ₹25 Lakhs",
+      "profitMargin": "75%",
+      "difficulty": "Advanced",
+      "targetMarket": "D2C Consumers & B2B Wholesalers",
+      "tam": "₹400 Cr",
+      "sam": "₹75 Cr",
+      "som": "₹15 Cr",
+      "summary": "Preserving freshness, naturally",
+      "problemStatement": "Lack of efficient drying solutions for farmers in India",
+      "proposedSolution": "Designing and manufacturing solar dryers for fruits and vegetables",
+      "manufacturingProcess": [
+        "Designing and prototyping",
+        "Manufacturing of dryer components",
+        "Assembly and testing",
+        "Quality control and packaging"
+      ],
+      "billOfMaterials": [
+        {
+          "item": "Solar Dryer Unit",
+          "costPerUnit": "₹3,00,000",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Drying Trays",
+          "costPerUnit": "₹1,500/pcs",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Thermometer",
+          "costPerUnit": "₹500/pcs",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        }
+      ],
+      "machineryNeeded": [
+        {
+          "name": "CNC Milling Machine",
+          "estimatedCost": "₹4,50,000",
+          "purpose": "Precision component machining"
+        }
+      ],
+      "unitEconomics": {
+        "rawMaterialCost": 280,
+        "laborCostPerUnit": 120,
+        "packagingCost": 45,
+        "wholesalePrice": 999,
+        "retailPrice": 1499,
+        "grossMargin": 65
+      },
+      "regulatoryRequirements": [
+        "BIS Safety Standard",
+        "ISO 9001 Quality Certification"
+      ],
+      "competitorLandscape": [
+        {
+          "name": "Legacy Incumbent Corp",
+          "weakness": "High overhead and slow lead times",
+          "differentiation": "5x faster localized tooling turnaround"
+        }
+      ],
+      "growthPlaybook": [
+        "Build MVP prototype",
+        "Secure 100 pre-orders via D2C landing page"
+      ],
+      "tags": [
+        "AI Generated",
+        "Manufacturing",
+        "Manufacturing"
+      ],
+      "upvotes": 140,
+      "featured": false,
+      "isAiGenerated": true,
+      "id": "decdwz0cs",
+      "createdAt": "2026-07-21T07:13:05.199Z",
+      "updatedAt": "2026-07-21T07:13:05.199Z"
+    },
+    {
+      "title": "Smart Composting Machine",
+      "slug": "gen-smart-compost-1",
+      "tagline": "Turning waste into wealth",
+      "category": "Manufacturing",
+      "investmentTier": "₹5 Lakhs - ₹25 Lakhs",
+      "profitMargin": "60%",
+      "difficulty": "Beginner",
+      "targetMarket": "D2C Consumers & B2B Wholesalers",
+      "tam": "₹200 Cr",
+      "sam": "₹75 Cr",
+      "som": "₹15 Cr",
+      "summary": "Turning waste into wealth",
+      "problemStatement": "Lack of efficient composting solutions in India",
+      "proposedSolution": "Designing and manufacturing smart composting machines for households and institutions",
+      "manufacturingProcess": [
+        "Designing and prototyping",
+        "Manufacturing of machine components",
+        "Assembly and testing",
+        "Quality control and packaging"
+      ],
+      "billOfMaterials": [
+        {
+          "item": "Composting Machine",
+          "costPerUnit": "₹2,00,000",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Microbes",
+          "costPerUnit": "₹500/pcs",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Sensors",
+          "costPerUnit": "₹1,000/pcs",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        }
+      ],
+      "machineryNeeded": [
+        {
+          "name": "CNC Milling Machine",
+          "estimatedCost": "₹4,50,000",
+          "purpose": "Precision component machining"
+        }
+      ],
+      "unitEconomics": {
+        "rawMaterialCost": 280,
+        "laborCostPerUnit": 120,
+        "packagingCost": 45,
+        "wholesalePrice": 999,
+        "retailPrice": 1499,
+        "grossMargin": 65
+      },
+      "regulatoryRequirements": [
+        "BIS Safety Standard",
+        "ISO 9001 Quality Certification"
+      ],
+      "competitorLandscape": [
+        {
+          "name": "Legacy Incumbent Corp",
+          "weakness": "High overhead and slow lead times",
+          "differentiation": "5x faster localized tooling turnaround"
+        }
+      ],
+      "growthPlaybook": [
+        "Build MVP prototype",
+        "Secure 100 pre-orders via D2C landing page"
+      ],
+      "tags": [
+        "AI Generated",
+        "Manufacturing",
+        "Manufacturing"
+      ],
+      "upvotes": 100,
+      "featured": false,
+      "isAiGenerated": true,
+      "id": "vk2z1rmc4",
+      "createdAt": "2026-07-21T07:13:05.189Z",
+      "updatedAt": "2026-07-21T07:13:05.189Z"
+    },
+    {
+      "title": "Automated Mask Manufacturing Unit",
+      "slug": "gen-auto-mask-1",
+      "tagline": "Protecting India, one mask at a time",
+      "category": "Manufacturing",
+      "investmentTier": "₹5 Lakhs - ₹25 Lakhs",
+      "profitMargin": "70%",
+      "difficulty": "Intermediate",
+      "targetMarket": "D2C Consumers & B2B Wholesalers",
+      "tam": "₹300 Cr",
+      "sam": "₹75 Cr",
+      "som": "₹15 Cr",
+      "summary": "Protecting India, one mask at a time",
+      "problemStatement": "Shortage of high-quality masks in India",
+      "proposedSolution": "Setting up an automated mask manufacturing unit to produce high-quality masks at affordable prices",
+      "manufacturingProcess": [
+        "Cutting of filter material",
+        "Printing of mask designs",
+        "Assembling of masks",
+        "Quality control and packaging"
+      ],
+      "billOfMaterials": [
+        {
+          "item": "Mask Making Machine",
+          "costPerUnit": "₹1,50,000",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Filter Material",
+          "costPerUnit": "₹50/pcs",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        },
+        {
+          "item": "Elastic Strings",
+          "costPerUnit": "₹20/pcs",
+          "supplierType": "Domestic Distributor",
+          "essential": true
+        }
+      ],
+      "machineryNeeded": [
+        {
+          "name": "CNC Milling Machine",
+          "estimatedCost": "₹4,50,000",
+          "purpose": "Precision component machining"
+        }
+      ],
+      "unitEconomics": {
+        "rawMaterialCost": 280,
+        "laborCostPerUnit": 120,
+        "packagingCost": 45,
+        "wholesalePrice": 999,
+        "retailPrice": 1499,
+        "grossMargin": 65
+      },
+      "regulatoryRequirements": [
+        "BIS Safety Standard",
+        "ISO 9001 Quality Certification"
+      ],
+      "competitorLandscape": [
+        {
+          "name": "Legacy Incumbent Corp",
+          "weakness": "High overhead and slow lead times",
+          "differentiation": "5x faster localized tooling turnaround"
+        }
+      ],
+      "growthPlaybook": [
+        "Build MVP prototype",
+        "Secure 100 pre-orders via D2C landing page"
+      ],
+      "tags": [
+        "AI Generated",
+        "Manufacturing",
+        "Manufacturing"
+      ],
+      "upvotes": 120,
+      "featured": false,
+      "isAiGenerated": true,
+      "id": "y8xh0nkah",
+      "createdAt": "2026-07-21T07:13:05.178Z",
+      "updatedAt": "2026-07-21T07:13:05.178Z"
+    },
+    {
       "title": "Solar-Powered Smart Compost Dehydrator",
       "slug": "solar-powered-smart-compost-dehydrator",
       "tagline": "GreenTech / Sustainability (or Manufacturing)",
