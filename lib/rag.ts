@@ -305,7 +305,10 @@ ${query}`;
 /**
  * Core RAG execution function with sequential multi-provider fallback.
  */
-export async function executeRagSearch(query: string): Promise<{ answer: string; sources: string[] }> {
+export async function executeRagSearch(
+  query: string,
+  preferredModel: string = "groq"
+): Promise<{ answer: string; sources: string[] }> {
   const articles = await db.articles.findMany();
   const ideas = await db.ideas.findMany();
 
@@ -339,14 +342,19 @@ export async function executeRagSearch(query: string): Promise<{ answer: string;
 
   let answer: string | null = null;
 
-  // Provider 1: Groq Cloud Llama 3.3 (70B) High-Speed
-  if (groqKey) {
-    answer = await callGroq(query, context, groqKey);
-  }
-
-  // Provider 2: Google Gemini 2.5 / 1.5 Flash (Free Tier)
-  if (!answer && geminiKey) {
+  if (preferredModel === "gemini" && geminiKey) {
     answer = await callGemini(query, context, geminiKey);
+    if (!answer && groqKey) {
+      answer = await callGroq(query, context, groqKey);
+    }
+  } else {
+    // Default: Prefer Groq Llama 3.3 (70B)
+    if (groqKey) {
+      answer = await callGroq(query, context, groqKey);
+    }
+    if (!answer && geminiKey) {
+      answer = await callGemini(query, context, geminiKey);
+    }
   }
 
   // Provider 3: OpenAI GPT-4o-mini

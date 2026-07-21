@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import CurrencyConverter from "@/components/CurrencyConverter";
 import {
   Calculator,
   IndianRupee,
@@ -68,10 +67,7 @@ export default function CostCalculatorPage() {
       </section>
 
       {/* Calculator Main Grid */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-10 space-y-8">
-        {/* Currency Converter */}
-        <CurrencyConverter />
-
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Inputs Column */}
           <div className="lg:col-span-5 rounded-2xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-md space-y-5">

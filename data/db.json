@@ -238,6 +238,62 @@
       ],
       "id": "rm7ggctzd",
       "timestamp": "2026-07-21T06:21:08.872Z"
+    },
+    {
+      "userId": null,
+      "query": "Feasibility Audit: Solar-Powered Smart Compost Dehydrator (Groq Llama 3.3 (70B) — High-Speed Engine)",
+      "answer": "The Solar-Powered Smart Compost Dehydrator has a potential market size of ₹50 Crores by 2025, with an estimated initial investment of ₹15 Lakhs to ₹20 Lakhs",
+      "sources": [
+        "Score: 85/100",
+        "Highly Viable"
+      ],
+      "id": "362fx5b61",
+      "timestamp": "2026-07-21T06:55:54.403Z"
+    },
+    {
+      "userId": "y7tpdd1pr",
+      "query": "How should I split founder equity and structure vesting?",
+      "answer": "### Founder Equity Split and Vesting Structure\nWhen it comes to splitting founder equity and structuring vesting, it's essential to consider a few key factors to ensure a fair and motivating arrangement for all founders. \n\nAccording to our [Essential Legal Compliance Checklist for New Startups](#), **never split equity 50/50 without a vesting schedule**. This is because an equal split without vesting can lead to unfair outcomes if one founder leaves the company early or doesn't pull their weight.\n\n#### Standard Vesting Schedule\nThe standard vesting schedule is a **4-year vesting schedule with a 1-year cliff**. Here's how it works:\n* If a founder leaves before 12 months, they get **0%** of their equity.\n* After 1 year, **25%** of their equity vests.\n* The remaining equity vests **monthly over the next 3 years**.\n\n#### IP Assignment\nIn addition to vesting, it's crucial to ensure all founders sign a **technology assignment agreement**, transferring all code, designs, and patents they create to the corporation, not their personal possession. This protects the company's intellectual property and prevents potential disputes.\n\nBy following this standard vesting schedule and including an IP assignment agreement, you can create a fair and motivating equity structure for your founders, aligning everyone's interests with the long-term success of the company.\n\n*Source Model: Groq Llama 3.3 (70B) (High-Speed Engine)*",
+      "sources": [
+        "7okquap29",
+        "2725a21l9",
+        "btgi3dtjb"
+      ],
+      "id": "cqbb91lw4",
+      "timestamp": "2026-07-21T06:57:07.742Z"
+    },
+    {
+      "userId": null,
+      "query": "Feasibility Audit: Solar-Powered Smart Compost Dehydrator (Offline Heuristic Rule Engine)",
+      "answer": "The concept \"Solar-Powered Smart Compost Dehydrator\" shows favorable capital-efficiency metrics in ₹ INR.",
+      "sources": [
+        "Score: 84/100",
+        "Highly Viable"
+      ],
+      "id": "99jip10i2",
+      "timestamp": "2026-07-21T06:58:48.371Z"
+    },
+    {
+      "userId": null,
+      "query": "Feasibility Audit: Solar-Powered Smart Compost Dehydrator (Groq Llama 3.3 (70B) — High-Speed Engine)",
+      "answer": "The Solar-Powered Smart Compost Dehydrator has a high potential for success, with an estimated break-even period of 6 to 9 months and a projected margin of 62% - 75%, with a recommended retail price of ₹1,49,000 - ₹2,49,000",
+      "sources": [
+        "Score: 85/100",
+        "Highly Viable"
+      ],
+      "id": "zd0kiwla0",
+      "timestamp": "2026-07-21T06:59:02.437Z"
+    },
+    {
+      "userId": null,
+      "query": "Feasibility Audit: Solar-Powered Smart Compost Dehydrator (Offline Heuristic Rule Engine)",
+      "answer": "The concept \"Solar-Powered Smart Compost Dehydrator\" shows favorable capital-efficiency metrics in ₹ INR.",
+      "sources": [
+        "Score: 84/100",
+        "Highly Viable"
+      ],
+      "id": "lbjlz6clj",
+      "timestamp": "2026-07-21T07:00:06.789Z"
     }
   ],
   "resources": [

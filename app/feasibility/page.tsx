@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import CurrencyConverter from "@/components/CurrencyConverter";
 import {
   BrainCircuit,
   Sparkles,
@@ -15,7 +14,7 @@ import {
   Zap,
   Clock,
   FileText,
-  IndianRupee,
+  Download,
 } from "lucide-react";
 
 interface AssessmentReport {
@@ -48,7 +47,7 @@ export default function FeasibilityPage() {
     description: "",
     category: "Manufacturing",
     investmentTier: "₹5 Lakhs - ₹25 Lakhs",
-    targetMarket: "D2C Consumers & Local Indian Retailers",
+    targetMarket: "", // Placeholder only
     aiModel: "groq", // "groq" (fast) or "gemini" (slower free tier)
   });
 
@@ -70,7 +69,10 @@ export default function FeasibilityPage() {
       const res = await fetch("/api/feasibility", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          targetMarket: formData.targetMarket || "D2C & B2B Customers",
+        }),
       });
 
       if (!res.ok) throw new Error("Assessment failed");
@@ -90,24 +92,21 @@ export default function FeasibilityPage() {
     return (
       <div className="space-y-4">
         {lines.map((line, idx) => {
-          // Parse point number if present (e.g., "1. ", "2. ")
           const match = line.match(/^(\d+[\.\)])\s*(.*)/);
           const num = match ? match[1] : `${idx + 1}.`;
           const content = match ? match[2] : line;
 
-          // Highlight bold text **text** with colored spans
           const parts = content.split(/(\*\*.*?\*\*)/);
 
           return (
-            <div key={idx} className="flex items-start space-x-3 rounded-xl border border-slate-800/80 bg-slate-950/80 p-4 shadow-sm hover:border-slate-700 transition">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/20 text-xs font-black text-indigo-400 border border-indigo-500/30">
+            <div key={idx} className="flex items-start space-x-3 rounded-xl border border-slate-800/80 bg-slate-950/80 p-4 shadow-sm hover:border-slate-700 transition print-card">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/20 text-xs font-black text-indigo-400 border border-indigo-500/30 print-badge">
                 {num}
               </span>
               <div className="text-xs text-slate-300 leading-relaxed pt-0.5 font-sans">
                 {parts.map((part, pIdx) => {
                   if (part.startsWith("**") && part.endsWith("**")) {
                     const cleanText = part.slice(2, -2);
-                    // Color key financial numbers in emerald, titles in purple/amber
                     const isCurrency = cleanText.includes("₹") || cleanText.includes("RS") || cleanText.includes("INR");
                     const isMetric = cleanText.includes("%") || cleanText.includes("Months");
 
@@ -153,16 +152,13 @@ export default function FeasibilityPage() {
           </h1>
 
           <p className="mt-4 text-base md:text-lg text-slate-300">
-            Pitch your hardware concept. Receive an extensive AI Report in Indian Rupees (₹) with numbered point-by-point analysis, colored metrics, and risk projections.
+            Pitch your hardware concept. Receive an extensive AI Report in Indian Rupees (₹) with numbered point-by-point analysis, colored metrics, and PDF download options.
           </p>
         </div>
       </section>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-10 space-y-8">
-        {/* Currency Converter Widget */}
-        <CurrencyConverter />
-
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-10">
         {!report ? (
           <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 md:p-8 backdrop-blur-md space-y-6">
             {error && (
@@ -317,10 +313,10 @@ export default function FeasibilityPage() {
             </button>
           </form>
         ) : (
-          /* Report View */
-          <div className="space-y-8">
-            {/* Header Score Card */}
-            <div className="rounded-2xl border border-indigo-500/40 bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 p-6 md:p-8 backdrop-blur-md flex flex-col md:flex-row items-center justify-between gap-6">
+          /* Report View - Printable Container */
+          <div className="space-y-8 print-container">
+            {/* Header Score Card & Download PDF Button */}
+            <div className="rounded-2xl border border-indigo-500/40 bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 p-6 md:p-8 backdrop-blur-md flex flex-col md:flex-row items-center justify-between gap-6 print-card">
               <div>
                 <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wider block mb-1">
                   {report.aiProviderUsed || "AI Evaluator"}
@@ -329,17 +325,27 @@ export default function FeasibilityPage() {
                 <p className="text-xs text-slate-400 mt-1">Sector: {report.category}</p>
               </div>
 
-              <div className="flex items-center space-x-4">
-                <div className="text-center">
+              <div className="flex items-center space-x-3">
+                <div className="text-center mr-2">
                   <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-indigo-600/20 text-3xl font-extrabold text-indigo-400 border border-indigo-500/40 shadow-inner">
                     {report.feasibilityScore}
                   </div>
                   <span className="block text-xs font-semibold text-emerald-400 mt-1">{report.ratingLabel}</span>
                 </div>
 
+                {/* PDF Download Button */}
+                <button
+                  onClick={() => window.print()}
+                  className="no-print flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-xs shadow-lg hover:opacity-95 transition cursor-pointer"
+                  title="Download Clean PDF Report"
+                >
+                  <Download className="h-4 w-4" />
+                  <span>Download AI Report (PDF)</span>
+                </button>
+
                 <button
                   onClick={() => setReport(null)}
-                  className="rounded-xl bg-slate-800 p-2.5 text-slate-400 hover:text-white border border-slate-700 transition-colors cursor-pointer"
+                  className="no-print rounded-xl bg-slate-800 p-2.5 text-slate-400 hover:text-white border border-slate-700 transition-colors cursor-pointer"
                   title="Run Another Audit"
                 >
                   <RotateCcw className="h-5 w-5" />
@@ -348,11 +354,11 @@ export default function FeasibilityPage() {
             </div>
 
             {/* AI REPORT SECTION */}
-            <div className="rounded-2xl border border-indigo-500/30 bg-slate-900/60 p-6 md:p-8 backdrop-blur-md space-y-6">
+            <div className="rounded-2xl border border-indigo-500/30 bg-slate-900/60 p-6 md:p-8 backdrop-blur-md space-y-6 print-card">
               <div className="flex items-center space-x-2 text-indigo-400 border-b border-slate-800 pb-4">
                 <FileText className="h-5 w-5" />
                 <h3 className="text-xl font-bold text-white font-display">AI Report</h3>
-                <span className="text-xs text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-semibold ml-auto">
+                <span className="text-xs text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-semibold ml-auto no-print">
                   ₹ INR Formatted
                 </span>
               </div>
@@ -362,13 +368,13 @@ export default function FeasibilityPage() {
             </div>
 
             {/* Verdict Summary */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md print-card">
               <h3 className="text-base font-bold text-white mb-2">Executive Summary Verdict</h3>
               <p className="text-sm text-slate-300 leading-relaxed font-medium">{report.verdict}</p>
             </div>
 
             {/* Risk Matrix */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md print-card">
               <h3 className="text-base font-bold text-white mb-4 flex items-center space-x-2">
                 <ShieldAlert className="h-4 w-4 text-amber-400" />
                 <span>4-Vector Risk Assessment</span>
@@ -394,7 +400,7 @@ export default function FeasibilityPage() {
             </div>
 
             {/* Financial Viability */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md print-card">
               <h3 className="text-base font-bold text-white mb-4 flex items-center space-x-2">
                 <TrendingUp className="h-4 w-4 text-emerald-400" />
                 <span>Financial Viability & Projections (₹ INR)</span>
@@ -421,7 +427,7 @@ export default function FeasibilityPage() {
 
             {/* Suggested BOM & Action Plan */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md">
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md print-card">
                 <h3 className="text-base font-bold text-white mb-3 flex items-center space-x-2">
                   <Boxes className="h-4 w-4 text-indigo-400" />
                   <span>Bill of Materials Outline (₹ INR)</span>
@@ -436,7 +442,7 @@ export default function FeasibilityPage() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md">
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md print-card">
                 <h3 className="text-base font-bold text-white mb-3 flex items-center space-x-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                   <span>Recommended Action Plan</span>

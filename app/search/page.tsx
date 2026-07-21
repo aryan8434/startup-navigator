@@ -42,6 +42,7 @@ export default function AISearch() {
   const [historyLoading, setHistoryLoading] = useState(true);
   const [hasSearched, setHasSearched] = useState(false);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+  const [aiModel, setAiModel] = useState<"groq" | "gemini">("groq");
 
   // Load search history if logged in
   const loadHistory = async () => {
@@ -75,7 +76,7 @@ export default function AISearch() {
       const res = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: searchQuery })
+        body: JSON.stringify({ query: searchQuery, aiModel })
       });
 
       if (res.ok) {
@@ -83,7 +84,6 @@ export default function AISearch() {
         setAnswer(data.answer);
         
         // Resolve sources details
-        // The API returns source IDs. We can resolve them dynamically.
         const articlesRes = await fetch("/api/articles");
         if (articlesRes.ok) {
           const articlesData = await articlesRes.json();
@@ -186,47 +186,77 @@ export default function AISearch() {
                 Startup Navigator RAG AI
               </h1>
               <p className="text-slate-400 text-sm mt-1.5 leading-relaxed">
-                Query our entire database of startup guides, legal documents, templates and guides. The AI searches our local files first and answers with specific articles linked as references.
+                Query our entire database of startup guides, legal documents, templates and manufacturing blueprints. Choose your AI Engine (Groq or Gemini).
               </p>
             </div>
 
-            {/* Search Input Box */}
-            <form 
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSearch(query);
-              }}
-              className="relative"
-            >
-              <div className="relative flex items-center bg-slate-900 border border-slate-800 rounded-2xl focus-within:border-indigo-500 overflow-hidden transition pr-2">
-                <Search className="absolute left-4 h-5 w-5 text-slate-500" />
-                <input
-                  type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Ask a question (e.g. 'How do I set up equity vesting for early employees?')..."
-                  className="w-full bg-transparent pl-12 pr-4 py-4 text-slate-100 placeholder-slate-500 focus:outline-none text-sm"
-                  disabled={loading}
-                />
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-medium text-xs transition flex items-center space-x-1 cursor-pointer disabled:opacity-50 btn-gradient"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      <span>Thinking...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Search</span>
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </>
-                  )}
-                </button>
+            {/* AI Model Selector & Search Input Box */}
+            <div className="space-y-3">
+              <div className="flex items-center space-x-4 text-xs">
+                <span className="text-slate-400 font-semibold">AI Model Engine:</span>
+                <label className="flex items-center space-x-1.5 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="searchAiModel"
+                    checked={aiModel === "groq"}
+                    onChange={() => setAiModel("groq")}
+                    className="accent-indigo-500"
+                  />
+                  <span className={aiModel === "groq" ? "text-amber-400 font-bold" : "text-slate-400"}>
+                    ⚡ Groq Llama 3.3 (70B) — Fast (~0.3s)
+                  </span>
+                </label>
+                <label className="flex items-center space-x-1.5 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="searchAiModel"
+                    checked={aiModel === "gemini"}
+                    onChange={() => setAiModel("gemini")}
+                    className="accent-indigo-500"
+                  />
+                  <span className={aiModel === "gemini" ? "text-purple-400 font-bold" : "text-slate-400"}>
+                    🐢 Google Gemini 2.5 Flash — Free Tier (~2s)
+                  </span>
+                </label>
               </div>
-            </form>
+
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSearch(query);
+                }}
+                className="relative"
+              >
+                <div className="relative flex items-center bg-slate-900 border border-slate-800 rounded-2xl focus-within:border-indigo-500 overflow-hidden transition pr-2">
+                  <Search className="absolute left-4 h-5 w-5 text-slate-500" />
+                  <input
+                    type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Ask a question (e.g. 'How do I set up equity vesting for early employees?')..."
+                    className="w-full bg-transparent pl-12 pr-4 py-4 text-slate-100 placeholder-slate-500 focus:outline-none text-sm"
+                    disabled={loading}
+                  />
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-medium text-xs transition flex items-center space-x-1 cursor-pointer disabled:opacity-50 btn-gradient"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        <span>Thinking...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Search</span>
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
 
             {/* Answer Display */}
             {hasSearched ? (

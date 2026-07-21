@@ -5,13 +5,13 @@ import { getAuthenticatedUser } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    const { query } = await req.json();
+    const { query, aiModel = "groq" } = await req.json();
 
     if (!query || typeof query !== "string" || query.trim() === "") {
       return NextResponse.json({ error: "Search query is required" }, { status: 400 });
     }
 
-    const { answer, sources } = await executeRagSearch(query);
+    const { answer, sources } = await executeRagSearch(query, aiModel);
 
     // Logging search history safely (non-blocking so filesystem locks never crash search)
     try {
