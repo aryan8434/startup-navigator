@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ThumbsUp, DollarSign, TrendingUp, Layers, ArrowRight, Zap, CheckCircle2 } from "lucide-react";
+import { ThumbsUp, DollarSign, TrendingUp, Layers, ArrowRight, Zap, Sparkles } from "lucide-react";
 
 export interface IdeaCardProps {
   id: string;
   title: string;
-  slug: string;
+  slug?: string;
   tagline: string;
   category: string;
   investmentTier: string;
@@ -16,6 +16,7 @@ export interface IdeaCardProps {
   tam: string;
   upvotes: number;
   featured?: boolean;
+  isAiGenerated?: boolean;
 }
 
 export default function IdeaCard({
@@ -30,10 +31,13 @@ export default function IdeaCard({
   tam,
   upvotes: initialUpvotes,
   featured = false,
+  isAiGenerated = false,
 }: IdeaCardProps) {
   const [upvotes, setUpvotes] = useState(initialUpvotes);
   const [upvoted, setUpvoted] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const checkIsAiGenerated = isAiGenerated || id.startsWith("gen-") || (slug && slug.startsWith("gen-"));
 
   const handleUpvote = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -83,9 +87,18 @@ export default function IdeaCard({
 
       {/* Category & Badges Header */}
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-        <span className="inline-flex items-center rounded-lg bg-indigo-950/80 px-2.5 py-1 text-xs font-medium text-indigo-300 border border-indigo-800/40">
-          {category}
-        </span>
+        <div className="flex items-center space-x-2">
+          <span className="inline-flex items-center rounded-lg bg-indigo-950/80 px-2.5 py-1 text-xs font-medium text-indigo-300 border border-indigo-800/40">
+            {category}
+          </span>
+          {checkIsAiGenerated && (
+            <span className="inline-flex items-center space-x-1 rounded-full bg-red-600 px-2.5 py-1 text-xs font-bold text-white shadow-md border border-red-500">
+              <Sparkles className="h-3 w-3 fill-current" />
+              <span>AI Generated Idea</span>
+            </span>
+          )}
+        </div>
+
         <span className={`inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-medium border ${getDifficultyColor(difficulty)}`}>
           {difficulty}
         </span>

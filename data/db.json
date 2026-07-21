@@ -294,6 +294,42 @@
       ],
       "id": "lbjlz6clj",
       "timestamp": "2026-07-21T07:00:06.789Z"
+    },
+    {
+      "userId": "y7tpdd1pr",
+      "query": "What is the Delaware S-Corp tax exemption criteria?",
+      "answer": "### Delaware S-Corp Tax Exemption Criteria\nI couldn't find a direct answer in our startup guide database that specifically mentions \"Delaware S-Corp tax exemption criteria.\" However, based on general knowledge and the information provided in the context articles, I can offer some insights.\n\nAccording to the **Understanding Company Registration: Choosing the Right Entity** article, an S-Corp is a special tax status available to corporations (and LLCs) that meet specific IRS requirements. The pros of an S-Corp include pass-through taxation and potential self-employment tax savings. However, there are strict limitations, such as:\n\n* A maximum of 100 shareholders\n* Only US citizens or permanent residents can own shares\n* Only one class of stock is allowed\n\nWhile the article does not specifically mention Delaware, it provides general information about S-Corps. If you're considering registering your startup as an S-Corp in Delaware, it's essential to consult with a tax professional or attorney to ensure you meet the necessary criteria and comply with all applicable laws and regulations.\n\nIn general, Delaware is a popular choice for C-Corps due to its business-friendly court systems and familiar corporate laws, as mentioned in the **Understanding Company Registration: Choosing the Right Entity** article. However, for S-Corps, the tax exemption criteria and benefits may vary depending on your specific situation and the state's laws.\n\n*Source Model: Groq Llama 3.3 (70B) (High-Speed Engine)*",
+      "sources": [
+        "a1mki7qs9",
+        "btgi3dtjb",
+        "l3f1l9oc5"
+      ],
+      "id": "x28h6gtlb",
+      "timestamp": "2026-07-21T07:04:33.031Z"
+    },
+    {
+      "userId": "y7tpdd1pr",
+      "query": "What is the Delaware S-Corp tax exemption criteria?",
+      "answer": "### Delaware S-Corp Tax Exemption Criteria\nI couldn't find a direct answer in our startup guide database regarding the specific \"Delaware S-Corp tax exemption criteria.\" However, based on general knowledge and the information provided in the context articles, I can offer some insights.\n\nAccording to the [Understanding Company Registration: Choosing the Right Entity](#) article, an **S-Corp** is a special tax status available to corporations (and LLCs) that meet specific IRS requirements. The pros of an S-Corp include **pass-through taxation** and **potential self-employment tax savings**. However, there are strict limitations, such as:\n* A maximum of **100 shareholders**\n* Only **US citizens or permanent residents** can own shares\n* Only **one class of stock** is allowed\n\nWhile the context articles do not specifically mention \"Delaware S-Corp tax exemption criteria,\" it's essential to note that S-Corp status is a federal tax designation, and the criteria for eligibility are set by the IRS, not by individual states like Delaware.\n\nIf you're considering an S-Corp for your tech startup, it's crucial to consult with a tax professional or attorney to ensure you meet the IRS requirements and understand the implications of this tax status on your business.\n\n*Source Model: Groq Llama 3.3 (70B) (High-Speed Engine)*",
+      "sources": [
+        "a1mki7qs9",
+        "btgi3dtjb",
+        "l3f1l9oc5"
+      ],
+      "id": "wy50plr5w",
+      "timestamp": "2026-07-21T07:04:38.980Z"
+    },
+    {
+      "userId": "y7tpdd1pr",
+      "query": "What is the Delaware S-Corp tax exemption criteria?",
+      "answer": "### Delaware S-Corp Tax Exemption Criteria\nUnfortunately, the provided context articles do not specifically mention \"Delaware S-Corp tax exemption criteria.\" However, we can find information about the general criteria for S-Corp status in the [Understanding Company Registration: Choosing the Right Entity](#) article.\n\nAccording to the article, an **S-Corp** is a special tax status available to corporations (and LLCs) that meet specific IRS requirements. The pros of an S-Corp include **pass-through taxation** and **potential self-employment tax savings**. However, there are strict limitations, such as:\n* A maximum of **100 shareholders**\n* Only **US citizens or permanent residents** can own shares\n* Only **one class of stock** is allowed\n\nWhile the article does not specifically mention Delaware, it provides general information about the S-Corp status. If you're looking for information about Delaware-specific S-Corp tax exemption criteria, I recommend consulting the official Delaware government website or a tax professional for more detailed information. \n\nI couldn't find a direct answer in our startup guide database, but based on general knowledge, it's essential to consult with a tax professional to ensure you meet the specific requirements for S-Corp status in Delaware.\n\n*Source Model: Groq Llama 3.3 (70B) (High-Speed Engine)*",
+      "sources": [
+        "a1mki7qs9",
+        "btgi3dtjb",
+        "l3f1l9oc5"
+      ],
+      "id": "31hhusazx",
+      "timestamp": "2026-07-21T07:04:44.851Z"
     }
   ],
   "resources": [

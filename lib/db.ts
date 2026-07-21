@@ -96,6 +96,7 @@ export interface Idea {
   tags: string[];
   upvotes: number;
   featured: boolean;
+  isAiGenerated?: boolean;
   createdAt: string;
   updatedAt: string;
 }

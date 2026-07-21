@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
 
 export async function POST(request: Request) {
   try {
@@ -146,7 +147,63 @@ Do NOT wrap in markdown or extra text. Output strictly valid JSON.`;
       ];
     }
 
-    return NextResponse.json({ success: true, ideas: generatedIdeas, providerUsed });
+    // Mark generated ideas as isAiGenerated and save to database
+    const savedIdeas = [];
+    for (const idea of generatedIdeas) {
+      const formattedIdea = {
+        title: idea.title,
+        slug: idea.id || `gen-${Math.random().toString(36).substring(2, 9)}`,
+        tagline: idea.tagline || "AI Generated manufacturing innovation",
+        category: (idea.category as any) || category || "Manufacturing",
+        investmentTier: (idea.investmentTier as any) || investmentTier || "₹5 Lakhs - ₹25 Lakhs",
+        profitMargin: idea.profitMargin || "65%",
+        difficulty: (idea.difficulty as any) || "Intermediate",
+        targetMarket: "D2C Consumers & B2B Wholesalers",
+        tam: idea.tam || "₹250 Cr",
+        sam: "₹75 Cr",
+        som: "₹15 Cr",
+        summary: idea.tagline || idea.title,
+        problemStatement: idea.problemStatement || "High cost and inefficiency in traditional hardware production.",
+        proposedSolution: idea.proposedSolution || "Modular digital manufacturing process with localized supply chain.",
+        manufacturingProcess: idea.manufacturingProcess || ["CAD Modeling", "Tooling Assembly", "Quality Inspection"],
+        billOfMaterials: (idea.billOfMaterials || [{ item: "Main Chassis", costPerUnit: "₹250" }]).map((b: any) => ({
+          item: b.item,
+          costPerUnit: b.costPerUnit,
+          supplierType: "Domestic Distributor",
+          essential: true,
+        })),
+        machineryNeeded: [
+          { name: "CNC Milling Machine", estimatedCost: "₹4,50,000", purpose: "Precision component machining" },
+        ],
+        unitEconomics: {
+          rawMaterialCost: 280,
+          laborCostPerUnit: 120,
+          packagingCost: 45,
+          wholesalePrice: 999,
+          retailPrice: 1499,
+          grossMargin: 65,
+        },
+        regulatoryRequirements: ["BIS Safety Standard", "ISO 9001 Quality Certification"],
+        competitorLandscape: [
+          { name: "Legacy Incumbent Corp", weakness: "High overhead and slow lead times", differentiation: "5x faster localized tooling turnaround" },
+        ],
+        growthPlaybook: ["Build MVP prototype", "Secure 100 pre-orders via D2C landing page"],
+        tags: ["AI Generated", "Manufacturing", category],
+        upvotes: idea.upvotes || Math.floor(Math.random() * 60) + 40,
+        featured: false,
+        isAiGenerated: true,
+      };
+
+      try {
+        const saved = await db.ideas.create(formattedIdea);
+        savedIdeas.push({ ...saved, isAiGenerated: true });
+      } catch (err) {
+        console.warn("Failed to persist AI idea:", err);
+        savedIdeas.push({ ...formattedIdea, id: formattedIdea.slug });
+      }
+    }
+
+    return NextResponse.json({ success: true, ideas: savedIdeas, providerUsed });
   } catch (error) {
     console.error("Error generating ideas:", error);
     return NextResponse.json({ error: "Failed to generate AI ideas" }, { status: 500 });
