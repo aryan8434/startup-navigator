@@ -79,9 +79,23 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center space-x-5">
+          <div className="hidden md:flex items-center space-x-4">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
+              const isSpecial = link.href === "/architecture";
+              
+              if (isSpecial) {
+                return (
+                  <Link
+                    key={link.name}
+                    href={link.href}
+                    className="text-xs px-3 py-1.5 rounded-lg text-white flashy-pulse-btn shadow-lg transition flex items-center space-x-1"
+                  >
+                    <span>⚡ Architecture & Docs</span>
+                  </Link>
+                );
+              }
+
               return (
                 <Link
                   key={link.name}
@@ -211,7 +225,7 @@ export default function Navbar() {
                         setMobileMenuOpen(false);
                         handleLogout();
                       }}
-                      className="flex items-center space-x-2 py-2 text-rose-400 hover:text-rose-300 cursor-pointer w-full text-left"
+                      className="flex items-center justify-center space-x-2 py-2 px-4 rounded-md text-white flashy-auth-btn cursor-pointer w-full text-center"
                     >
                       <LogOut className="h-4 w-4" />
                       <span>Sign Out</span>
@@ -229,9 +243,9 @@ export default function Navbar() {
                     <Link
                       href="/register"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="block text-center py-2 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white font-medium btn-gradient transition"
+                      className="block text-center py-2 rounded-md text-white font-bold flashy-auth-btn transition"
                     >
-                      Get Started
+                      Get Started / Register
                     </Link>
                   </div>
                 )}

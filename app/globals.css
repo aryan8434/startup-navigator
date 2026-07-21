@@ -130,3 +130,44 @@ body {
   animation-duration: 0.25s;
   transform: scale(1.06);
 }
+
+/* Multi-Color Flashy Glow Effect for High-Conversion CTA Buttons (0.5s cycle) */
+@keyframes multiColorFlash {
+  0% {
+    background-color: #6366f1;
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.9), 0 0 35px rgba(99, 102, 241, 0.5);
+    border-color: #a5b4fc;
+    color: #ffffff;
+  }
+  33% {
+    background-color: #10b981;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.9), 0 0 35px rgba(16, 185, 129, 0.5);
+    border-color: #6ee7b7;
+    color: #ffffff;
+  }
+  66% {
+    background-color: #ec4899;
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.9), 0 0 35px rgba(236, 72, 153, 0.5);
+    border-color: #fbcfe8;
+    color: #ffffff;
+  }
+  100% {
+    background-color: #6366f1;
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.9), 0 0 35px rgba(99, 102, 241, 0.5);
+    border-color: #a5b4fc;
+    color: #ffffff;
+  }
+}
+
+.flashy-pulse-btn {
+  animation: multiColorFlash 0.5s infinite ease-in-out;
+  font-weight: 800;
+  letter-spacing: 0.025em;
+  border-width: 2px;
+  cursor: pointer;
+}
+
+.flashy-pulse-btn:hover {
+  animation-duration: 0.25s;
+  transform: scale(1.08);
+}

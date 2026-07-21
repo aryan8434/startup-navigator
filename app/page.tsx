@@ -119,7 +119,7 @@ export default function Home() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/ideas"
-              className="inline-flex items-center space-x-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3.5 text-base font-bold text-white shadow-xl shadow-indigo-600/25 hover:opacity-95 transition-all duration-200"
+              className="inline-flex items-center space-x-2 rounded-xl text-base font-bold text-white flashy-pulse-btn px-7 py-4 shadow-2xl transition-all duration-200"
             >
               <Boxes className="h-5 w-5" />
               <span>Explore Ideas Directory</span>
@@ -127,9 +127,9 @@ export default function Home() {
 
             <Link
               href="/feasibility"
-              className="inline-flex items-center space-x-2 rounded-xl bg-slate-900 px-6 py-3.5 text-base font-semibold text-slate-200 hover:bg-slate-800 border border-slate-700 transition-all duration-200"
+              className="inline-flex items-center space-x-2 rounded-xl text-base font-bold text-white flashy-auth-btn px-7 py-4 shadow-2xl transition-all duration-200"
             >
-              <BrainCircuit className="h-5 w-5 text-indigo-400" />
+              <BrainCircuit className="h-5 w-5" />
               <span>AI Feasibility Evaluator</span>
             </Link>
           </div>
