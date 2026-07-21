@@ -95,16 +95,8 @@ export default function Navbar() {
             })}
           </div>
 
-          {/* Right Section: Architecture Button & User Auth */}
+          {/* Right Section: User Auth & Architecture Button on top right of Sign Out */}
           <div className="hidden md:flex items-center space-x-3">
-            {/* Top Right Flashy Architecture & Docs Button */}
-            <Link
-              href="/architecture"
-              className="text-xs px-3.5 py-1.5 rounded-lg text-white flashy-pulse-btn shadow-xl transition flex items-center space-x-1.5 font-extrabold"
-            >
-              <span>⚡ Architecture & Docs</span>
-            </Link>
-
             {!loading && (
               <>
                 {user ? (
@@ -153,6 +145,14 @@ export default function Navbar() {
                 )}
               </>
             )}
+
+            {/* Top Right Flashy Architecture & Docs Button (To the right of Sign Out) */}
+            <Link
+              href="/architecture"
+              className="text-xs px-3.5 py-1.5 rounded-lg text-white flashy-pulse-btn shadow-xl transition flex items-center space-x-1.5 font-extrabold"
+            >
+              <span>⚡ Architecture & Docs</span>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}

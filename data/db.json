@@ -179,6 +179,21 @@
       "id": "dfrnnx2yl",
       "createdAt": "2026-07-16T12:27:45.703Z",
       "updatedAt": "2026-07-16T12:27:45.703Z"
+    },
+    {
+      "title": "Delaware C-Corp vs. LLC for Tech Startups",
+      "content": "### Delaware C-Corp Overview\nMost institutional venture capital firms require portfolio companies to be structured as **Delaware C-Corporations**.\n\n### Key Advantages\n* Preferred stock support for investors.\n* Well-established corporate legal precedent in Delaware.\n* Easy integration for stock option issuance.",
+      "category": "Legal Compliance",
+      "summary": "A quick comparison to help founders choose the right legal structure for institutional venture funding.",
+      "tags": [
+        "legal",
+        "incorporation",
+        "delaware",
+        "venture-capital"
+      ],
+      "id": "l3f1l9oc5",
+      "createdAt": "2026-07-21T06:15:13.801Z",
+      "updatedAt": "2026-07-21T06:15:13.801Z"
     }
   ],
   "searchHistory": [
@@ -201,6 +216,17 @@
       "sources": [],
       "id": "w4lpxz26d",
       "timestamp": "2026-07-16T12:26:42.757Z"
+    },
+    {
+      "userId": null,
+      "query": "Feasibility Audit: Delaware C-Corp vs. LLC for Tech Startups",
+      "answer": "Not a viable product-based startup concept",
+      "sources": [
+        "Score: 20/100",
+        "Low"
+      ],
+      "id": "kiblcle2b",
+      "timestamp": "2026-07-21T06:16:42.515Z"
     }
   ],
   "resources": [
@@ -258,5 +284,6 @@
       "id": "epyacjnv6",
       "createdAt": "2026-07-16T12:26:06.983Z"
     }
-  ]
+  ],
+  "ideas": []
 }

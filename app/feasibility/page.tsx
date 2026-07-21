@@ -11,8 +11,10 @@ import {
   Boxes,
   TrendingUp,
   ShieldAlert,
-  ArrowRight,
   RotateCcw,
+  Zap,
+  Clock,
+  FileText,
 } from "lucide-react";
 
 interface AssessmentReport {
@@ -20,6 +22,9 @@ interface AssessmentReport {
   category: string;
   feasibilityScore: number;
   ratingLabel: string;
+  verdict: string;
+  detailedAnalysis?: string;
+  aiProviderUsed?: string;
   riskMatrix: {
     technicalComplexity: string;
     supplyChainRisk: string;
@@ -34,7 +39,6 @@ interface AssessmentReport {
   };
   billOfMaterials: { item: string; estimatedCost: string }[];
   actionPlan: string[];
-  verdict: string;
 }
 
 export default function FeasibilityPage() {
@@ -44,6 +48,7 @@ export default function FeasibilityPage() {
     category: "Manufacturing",
     investmentTier: "$10k - $50k",
     targetMarket: "D2C Consumers & Local Retailers",
+    aiModel: "groq", // "groq" (fast) or "gemini" (slower free tier)
   });
 
   const [loading, setLoading] = useState(false);
@@ -94,7 +99,7 @@ export default function FeasibilityPage() {
           </h1>
 
           <p className="mt-4 text-base md:text-lg text-slate-300">
-            Pitch your custom manufacturing or hardware concept. Our RAG & reasoning engine will evaluate technical complexity, supply chain risks, unit cost projections, and action plans.
+            Pitch your custom manufacturing or hardware concept. Choose your AI Engine and receive an extensive 200-400 word strategic analysis report alongside feasibility scores.
           </p>
         </div>
       </section>
@@ -108,6 +113,66 @@ export default function FeasibilityPage() {
                 {error}
               </div>
             )}
+
+            {/* AI Model Provider Choice */}
+            <div>
+              <label className="block text-sm font-semibold text-white mb-2">Select AI Model Engine *</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label
+                  onClick={() => setFormData({ ...formData, aiModel: "groq" })}
+                  className={`flex items-start space-x-3 rounded-xl border p-4 cursor-pointer transition ${
+                    formData.aiModel === "groq"
+                      ? "bg-indigo-950/40 border-indigo-500 text-white"
+                      : "bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="aiModel"
+                    value="groq"
+                    checked={formData.aiModel === "groq"}
+                    onChange={() => setFormData({ ...formData, aiModel: "groq" })}
+                    className="mt-1 accent-indigo-500"
+                  />
+                  <div>
+                    <div className="flex items-center space-x-1.5 text-sm font-bold text-white">
+                      <Zap className="h-4 w-4 text-amber-400" />
+                      <span>Groq Llama 3.3 (70B)</span>
+                    </div>
+                    <span className="inline-block mt-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                      High Speed (~0.3s) Recommended
+                    </span>
+                  </div>
+                </label>
+
+                <label
+                  onClick={() => setFormData({ ...formData, aiModel: "gemini" })}
+                  className={`flex items-start space-x-3 rounded-xl border p-4 cursor-pointer transition ${
+                    formData.aiModel === "gemini"
+                      ? "bg-indigo-950/40 border-indigo-500 text-white"
+                      : "bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="aiModel"
+                    value="gemini"
+                    checked={formData.aiModel === "gemini"}
+                    onChange={() => setFormData({ ...formData, aiModel: "gemini" })}
+                    className="mt-1 accent-indigo-500"
+                  />
+                  <div>
+                    <div className="flex items-center space-x-1.5 text-sm font-bold text-white">
+                      <Clock className="h-4 w-4 text-purple-400" />
+                      <span>Google Gemini 2.5 Flash</span>
+                    </div>
+                    <span className="inline-block mt-1 text-[11px] font-semibold text-indigo-300 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">
+                      Free Tier (~2s Slower)
+                    </span>
+                  </div>
+                </label>
+              </div>
+            </div>
 
             <div>
               <label className="block text-sm font-semibold text-white mb-2">Startup or Product Title *</label>
@@ -184,12 +249,12 @@ export default function FeasibilityPage() {
               {loading ? (
                 <>
                   <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                  <span>Analyzing Supply Chains & Financial Models...</span>
+                  <span>Running {formData.aiModel === "groq" ? "Groq Llama 3.3" : "Gemini 2.5"} Evaluation...</span>
                 </>
               ) : (
                 <>
                   <Sparkles className="h-4 w-4" />
-                  <span>Generate AI Feasibility Audit</span>
+                  <span>Generate 200-400 Word AI Audit & Scores</span>
                 </>
               )}
             </button>
@@ -200,8 +265,10 @@ export default function FeasibilityPage() {
             {/* Header Score Card */}
             <div className="rounded-2xl border border-indigo-500/40 bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 p-6 md:p-8 backdrop-blur-md flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
-                <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wider">Feasibility Score</span>
-                <h2 className="text-3xl font-bold text-white mt-1">{report.title}</h2>
+                <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wider block mb-1">
+                  {report.aiProviderUsed || "AI Evaluator"}
+                </span>
+                <h2 className="text-3xl font-bold text-white">{report.title}</h2>
                 <p className="text-xs text-slate-400 mt-1">Sector: {report.category}</p>
               </div>
 
@@ -215,7 +282,7 @@ export default function FeasibilityPage() {
 
                 <button
                   onClick={() => setReport(null)}
-                  className="rounded-xl bg-slate-800 p-2 text-slate-400 hover:text-white border border-slate-700 transition-colors"
+                  className="rounded-xl bg-slate-800 p-2.5 text-slate-400 hover:text-white border border-slate-700 transition-colors cursor-pointer"
                   title="Run Another Audit"
                 >
                   <RotateCcw className="h-5 w-5" />
@@ -223,11 +290,24 @@ export default function FeasibilityPage() {
               </div>
             </div>
 
-            {/* Verdict */}
+            {/* Verdict Summary */}
             <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md">
-              <h3 className="text-base font-bold text-white mb-2">Executive AI Co-Founder Verdict</h3>
-              <p className="text-sm text-slate-300 leading-relaxed">{report.verdict}</p>
+              <h3 className="text-base font-bold text-white mb-2">Executive Summary Verdict</h3>
+              <p className="text-sm text-slate-300 leading-relaxed font-medium">{report.verdict}</p>
             </div>
+
+            {/* 200-400 WORD DETAILED ANALYSIS REPORT */}
+            {report.detailedAnalysis && (
+              <div className="rounded-2xl border border-indigo-500/30 bg-slate-900/60 p-6 md:p-8 backdrop-blur-md space-y-4">
+                <div className="flex items-center space-x-2 text-indigo-400 border-b border-slate-800 pb-3">
+                  <FileText className="h-5 w-5" />
+                  <h3 className="text-lg font-bold text-white font-display">200-400 Word Comprehensive Strategic AI Report</h3>
+                </div>
+                <div className="text-sm text-slate-300 leading-relaxed space-y-3 whitespace-pre-line">
+                  {report.detailedAnalysis}
+                </div>
+              </div>
+            )}
 
             {/* Risk Matrix */}
             <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md">

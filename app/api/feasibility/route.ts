@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, description, category, investmentTier, targetMarket } = body;
+    const { title, description, category, investmentTier, targetMarket, aiModel = "groq" } = body;
 
     if (!title || !description) {
       return NextResponse.json(
@@ -17,33 +17,53 @@ export async function POST(request: Request) {
     const geminiApiKey = process.env.GEMINI_API_KEY;
 
     let report = null;
+    let usedProviderName = "Offline Rule Engine";
 
-    // Provider 1: Groq Llama 3.3 (70B)
-    if (groqApiKey) {
+    const promptInstructions = `You are an expert manufacturing co-founder, venture capitalist, and hardware engineer. 
+Analyze the startup idea thoroughly. You MUST return strictly valid JSON matching this schema:
+{
+  "feasibilityScore": number (0-100),
+  "ratingLabel": string ("Highly Viable" | "Moderately Viable" | "High Friction"),
+  "verdict": string (short summary verdict),
+  "detailedAnalysis": string (a comprehensive 200 to 400 word detailed strategic report analyzing market viability, manufacturing risks, unit economics, supply chain bottlenecks, and competitive moats),
+  "riskMatrix": {
+    "technicalComplexity": string,
+    "supplyChainRisk": string,
+    "capitalIntensity": string,
+    "regulatoryBarrier": string
+  },
+  "financialViability": {
+    "estimatedCogs": string,
+    "projectedMargin": string,
+    "breakEvenMonths": string,
+    "recommendedRetailPrice": string
+  },
+  "billOfMaterials": [ { "item": string, "estimatedCost": string } ],
+  "actionPlan": [ string ]
+}
+Do NOT include markdown code blocks or text outside the JSON object. Write a rich, detailed 200-400 word analysis in the "detailedAnalysis" field.`;
+
+    const userPrompt = `Assess this startup concept:
+Title: ${title}
+Category: ${category}
+Capex Tier: ${investmentTier}
+Target Market: ${targetMarket}
+Description: ${description}`;
+
+    // Provider Choice 1: Groq Llama 3.3 (70B) (High-Speed ~0.3s)
+    if (aiModel === "groq" && groqApiKey) {
       try {
         const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${groqApiKey}`,
+            Authorization: `Bearer ${groqApiKey}`,
           },
           body: JSON.stringify({
             model: "llama-3.3-70b-versatile",
             messages: [
-              {
-                role: "system",
-                content:
-                  "You are an expert manufacturing co-founder, venture capitalist, and hardware engineer. Analyze startup ideas and return strictly JSON containing: feasibilityScore (number 0-100), ratingLabel (string), verdict (string), riskMatrix ({technicalComplexity, supplyChainRisk, capitalIntensity, regulatoryBarrier}), financialViability ({estimatedCogs, projectedMargin, breakEvenMonths, recommendedRetailPrice}), billOfMaterials ([{item, estimatedCost}]), actionPlan ([string]). Do NOT include markdown code fences or outside text.",
-              },
-              {
-                role: "user",
-                content: `Assess this startup concept:
-Title: ${title}
-Category: ${category}
-Capex Tier: ${investmentTier}
-Target Market: ${targetMarket}
-Description: ${description}`,
-              },
+              { role: "system", content: promptInstructions },
+              { role: "user", content: userPrompt },
             ],
             temperature: 0.3,
             response_format: { type: "json_object" },
@@ -55,144 +75,122 @@ Description: ${description}`,
           const rawJson = data.choices?.[0]?.message?.content;
           if (rawJson) {
             const parsed = JSON.parse(rawJson);
+            usedProviderName = "Groq Llama 3.3 (70B) — High-Speed Engine";
             report = {
               title,
               category: category || "Manufacturing",
-              feasibilityScore: parsed.feasibilityScore ?? 82,
-              ratingLabel: parsed.ratingLabel || (parsed.feasibilityScore >= 80 ? "Highly Viable" : "Moderately Viable"),
-              riskMatrix: parsed.riskMatrix || {
-                technicalComplexity: "Medium",
-                supplyChainRisk: "Moderate",
-                capitalIntensity: "Low",
-                regulatoryBarrier: "Standard",
-              },
-              financialViability: parsed.financialViability || {
-                estimatedCogs: "$15 - $28",
-                projectedMargin: "60% - 75%",
-                breakEvenMonths: "6 to 9 Months",
-                recommendedRetailPrice: "$59 - $99",
-              },
-              billOfMaterials: parsed.billOfMaterials || [
-                { item: "Primary Structural Material", estimatedCost: "$5.00" },
-                { item: "Control Board / Sensor Array", estimatedCost: "$4.50" },
-              ],
-              actionPlan: parsed.actionPlan || [
-                "Build initial 3D printed functional prototype.",
-                "Source low-volume batch supplier quotes.",
-              ],
-              verdict: parsed.verdict || `The concept "${title}" shows strong market feasibility.`,
-              timestamp: new Date().toISOString(),
-            };
-          }
-        }
-      } catch (llmErr) {
-        console.error("Groq AI evaluation failed, attempting Gemini fallback:", llmErr);
-      }
-    }
-
-    // Provider 2: Google Gemini 2.5 / 1.5 Flash (Free Tier)
-    if (!report && geminiApiKey) {
-      try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
-        const prompt = `Analyze startup concept and output valid JSON: { "feasibilityScore": 82, "ratingLabel": "Highly Viable", "verdict": "string", "riskMatrix": { "technicalComplexity": "Medium", "supplyChainRisk": "Moderate", "capitalIntensity": "Low", "regulatoryBarrier": "Standard" }, "financialViability": { "estimatedCogs": "$15-$25", "projectedMargin": "60%", "breakEvenMonths": "6 Months", "recommendedRetailPrice": "$69" }, "billOfMaterials": [{"item": "Part 1", "estimatedCost": "$5"}], "actionPlan": ["Step 1"] }. Title: ${title}, Description: ${description}`;
-
-        const geminiRes = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
-        });
-
-        if (geminiRes.ok) {
-          const gData = await geminiRes.json();
-          const rawText = gData.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (rawText) {
-            const cleanJson = rawText.replace(/```json|```/g, "").trim();
-            const parsed = JSON.parse(cleanJson);
-            report = {
-              title,
-              category: category || "Manufacturing",
-              feasibilityScore: parsed.feasibilityScore ?? 80,
-              ratingLabel: parsed.ratingLabel || "Moderately Viable",
+              feasibilityScore: parsed.feasibilityScore ?? 85,
+              ratingLabel: parsed.ratingLabel || "Highly Viable",
+              verdict: parsed.verdict || `The concept "${title}" demonstrates strong hardware viability.`,
+              detailedAnalysis: parsed.detailedAnalysis || `The proposed concept "${title}" addresses a significant market opportunity within the ${category || "Manufacturing"} sector. Initial unit economics suggest an achievable gross margin with manageable prototype tooling capital. Key technical focus areas include component sourcing lead times and thermal assembly verification. By establishing modular Bill of Materials sourcing early and securing pre-orders prior to injection mold investments, the founder can minimize capex exposure while establishing defensive IP positioning against incumbent solutions.`,
               riskMatrix: parsed.riskMatrix || { technicalComplexity: "Medium", supplyChainRisk: "Moderate", capitalIntensity: "Low", regulatoryBarrier: "Standard" },
-              financialViability: parsed.financialViability || { estimatedCogs: "$15 - $25", projectedMargin: "65%", breakEvenMonths: "6 to 8 Months", recommendedRetailPrice: "$59" },
-              billOfMaterials: parsed.billOfMaterials || [{ item: "Structural Core", estimatedCost: "$4.00" }],
-              actionPlan: parsed.actionPlan || ["Create 3D prototype", "Perform cost analysis"],
-              verdict: parsed.verdict || `The concept "${title}" was analyzed via Gemini 2.5 Flash.`,
+              financialViability: parsed.financialViability || { estimatedCogs: "$18 - $28", projectedMargin: "62% - 75%", breakEvenMonths: "6 to 8 Months", recommendedRetailPrice: "$69 - $99" },
+              billOfMaterials: parsed.billOfMaterials || [{ item: "Main Component", estimatedCost: "$5.00" }],
+              actionPlan: parsed.actionPlan || ["Build prototype", "Obtain supplier quotes"],
+              aiProviderUsed: usedProviderName,
               timestamp: new Date().toISOString(),
             };
           }
         }
-      } catch (geminiErr) {
-        console.error("Gemini AI evaluation failed:", geminiErr);
+      } catch (err) {
+        console.warn("Groq execution failed, trying Gemini fallback:", err);
       }
     }
 
-    // Fallback algorithmic scoring if LLM calls are unconfigured or fail
+    // Provider Choice 2: Google Gemini 2.5 / 1.5 Flash (Free Tier Slower)
+    if (!report && (aiModel === "gemini" || geminiApiKey)) {
+      if (geminiApiKey) {
+        try {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
+          const geminiRes = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: `${promptInstructions}\n\n${userPrompt}` }] }],
+            }),
+          });
+
+          if (geminiRes.ok) {
+            const gData = await geminiRes.json();
+            const rawText = gData.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (rawText) {
+              const cleanJson = rawText.replace(/```json|```/g, "").trim();
+              const parsed = JSON.parse(cleanJson);
+              usedProviderName = "Google Gemini 2.5 Flash — Free Tier Engine (Slower)";
+              report = {
+                title,
+                category: category || "Manufacturing",
+                feasibilityScore: parsed.feasibilityScore ?? 80,
+                ratingLabel: parsed.ratingLabel || "Moderately Viable",
+                verdict: parsed.verdict || `The concept "${title}" demonstrates solid potential.`,
+                detailedAnalysis: parsed.detailedAnalysis || `Comprehensive strategic evaluation conducted via Gemini 2.5 Flash reveals that "${title}" addresses a clear founder opportunity in ${targetMarket || "B2B/B2C markets"}. The initial capital requirements fall within standard seed parameters, though component supply chain volatility requires early supplier agreements. Developing functional CAD prototypes prior to low-volume injection molding will reduce risk. Gross margins of over 60% are achievable provided packaging and assembly overhead remain disciplined.`,
+                riskMatrix: parsed.riskMatrix || { technicalComplexity: "Medium", supplyChainRisk: "Moderate", capitalIntensity: "Low", regulatoryBarrier: "Standard" },
+                financialViability: parsed.financialViability || { estimatedCogs: "$16 - $26", projectedMargin: "65%", breakEvenMonths: "6 to 9 Months", recommendedRetailPrice: "$65 - $89" },
+                billOfMaterials: parsed.billOfMaterials || [{ item: "Polymer Enclosure", estimatedCost: "$4.50" }],
+                actionPlan: parsed.actionPlan || ["Build CAD model", "Perform market validation"],
+                aiProviderUsed: usedProviderName,
+                timestamp: new Date().toISOString(),
+              };
+            }
+          }
+        } catch (err) {
+          console.warn("Gemini execution failed:", err);
+        }
+      }
+    }
+
+    // Fallback if LLMs fail or unconfigured
     if (!report) {
       const descLength = description.length;
-      let feasibilityScore = 75;
-      if (descLength > 150) feasibilityScore += 8;
-      if (investmentTier === "< $10k") feasibilityScore += 7;
-      if (investmentTier === "$250k+") feasibilityScore -= 6;
-      feasibilityScore = Math.min(96, Math.max(45, feasibilityScore));
+      let feasibilityScore = 78;
+      if (descLength > 150) feasibilityScore += 6;
+      if (investmentTier === "< $10k") feasibilityScore += 6;
 
-      const technicalComplexity =
-        category === "Hardware / Electronics" || category === "Industrial Automation" ? "High" : "Medium";
-      const supplyChainRisk =
-        category === "BioTech / Healthcare" || category === "GreenTech / Sustainability" ? "Medium-High" : "Moderate";
-      const capitalIntensity =
-        investmentTier === "$250k+" ? "High" : investmentTier === "$50k - $250k" ? "Moderate" : "Low";
-      const regulatoryBarrier =
-        category === "BioTech / Healthcare" || category === "FMCG / Consumer Goods" ? "High (FDA/ISO)" : "Standard";
-
+      usedProviderName = "Offline Heuristic Rule Engine";
       report = {
         title,
         category: category || "Manufacturing",
         feasibilityScore,
-        ratingLabel: feasibilityScore >= 80 ? "Highly Viable" : feasibilityScore >= 65 ? "Moderately Viable" : "High Friction",
+        ratingLabel: feasibilityScore >= 80 ? "Highly Viable" : "Moderately Viable",
+        verdict: `The concept "${title}" shows favorable capital-efficiency metrics.`,
+        detailedAnalysis: `Detailed analytical evaluation of "${title}" indicates strong viability within the ${category || "Hardware"} sector. Operating under the ${investmentTier || "< $50k"} investment tier allows for agile prototyping and rapid iteration. Key technical milestones must focus on BOM cost reduction, supplier vendor audits, and securing preliminary pre-orders to validate consumer demand before tooling investments.`,
         riskMatrix: {
-          technicalComplexity,
-          supplyChainRisk,
-          capitalIntensity,
-          regulatoryBarrier,
+          technicalComplexity: category === "Hardware / Electronics" ? "High" : "Medium",
+          supplyChainRisk: "Moderate",
+          capitalIntensity: investmentTier === "$250k+" ? "High" : "Low",
+          regulatoryBarrier: "Standard",
         },
         financialViability: {
-          estimatedCogs: "$12 - $24 per unit",
-          projectedMargin: "58% - 72%",
+          estimatedCogs: "$14 - $24 per unit",
+          projectedMargin: "60% - 72%",
           breakEvenMonths: "6 to 9 Months",
           recommendedRetailPrice: "$49 - $89",
         },
         billOfMaterials: [
-          { item: "Primary Structural Component / Polymer Stock", estimatedCost: "$4.50" },
-          { item: "Electronic Micro-Controller / Modular Sensor", estimatedCost: "$3.20" },
-          { item: "Precision Fasteners & Seal Gaskets", estimatedCost: "$1.10" },
-          { item: "Custom Eco-Branded Packaging & User Guide", estimatedCost: "$0.90" },
+          { item: "Primary Structural Material", estimatedCost: "$4.50" },
+          { item: "Control Board Array", estimatedCost: "$3.20" },
+          { item: "Fasteners & Gaskets", estimatedCost: "$1.10" },
         ],
         actionPlan: [
-          "Create initial CAD assembly and 3D print a functional prototype.",
-          "Obtain supplier quotes for mold tooling and low-volume batch production (100 units).",
-          "Perform regulatory compliance audit (FCC/CE/ISO certifications).",
-          "Set up a high-converting landing page to collect 100 pre-orders before mass production.",
+          "3D print functional MVP prototype.",
+          "Obtain quotes for batch tooling.",
+          "Launch pre-order pre-launch landing page.",
         ],
-        verdict: `The concept "${title}" shows strong potential with a feasibility score of ${feasibilityScore}/100. Target market (${
-          targetMarket || "General SMBs"
-        }) has growing demand, and initial capital requirement is well within the ${
-          investmentTier || "$10k-$50k"
-        } tier. Focus heavily on securing component suppliers early to mitigate lead-time risks.`,
+        aiProviderUsed: usedProviderName,
         timestamp: new Date().toISOString(),
       };
     }
 
-    // Safely log the audit into search history (non-blocking)
+    // Log the audit into search history safely (non-blocking)
     try {
       await db.searchHistory.create({
         userId: null,
-        query: `Feasibility Audit: ${title}`,
+        query: `Feasibility Audit: ${title} (${usedProviderName})`,
         answer: report.verdict,
         sources: [`Score: ${report.feasibilityScore}/100`, report.ratingLabel],
       });
-    } catch (logErr) {
-      console.warn("Feasibility log save failed non-fatally:", logErr);
+    } catch {
+      // non-fatal
     }
 
     return NextResponse.json({ success: true, report });
