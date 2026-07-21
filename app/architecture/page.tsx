@@ -59,10 +59,10 @@ export default function ArchitectureDocsPage() {
             </div>
 
             <div className="rounded-xl border border-slate-800 bg-slate-950 p-5">
-              <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block mb-1">Location 3: AI Feasibility Audit</span>
-              <h3 className="text-base font-bold text-white">/feasibility & /api/feasibility</h3>
+              <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block mb-1">Location 3: Market Cap & Feasibility Grounding</span>
+              <h3 className="text-base font-bold text-white">/feasibility & RAG Financial Benchmark Engine</h3>
               <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                Evaluates founder product pitches against manufacturing sector parameters, computing 4-vector risk matrices, unit cost estimates, BOM outlines, and action items using Groq LLM JSON output.
+                RAG retrieves sector benchmarks for TAM/SAM/SOM market caps, BOM component rates, and payback horizons in ₹ INR. This grounds LLM feasibility scores in verified industrial data, preventing hallucinations.
               </p>
             </div>
 

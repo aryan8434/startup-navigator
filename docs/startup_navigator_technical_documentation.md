@@ -30,9 +30,28 @@ NxtVenture bridges the gap between abstract hardware ideas and physical manufact
 
 ---
 
-## 2. System Architecture & Workflow
+## 2. System Architecture & Workflow: How & Where RAG is Used
 
-### 2.1 End-to-End Data Flow Diagram
+### 2.1 Where & How RAG (Retrieval-Augmented Generation) is Deployed
+
+RAG is used across 4 primary components in NxtVenture:
+
+1. **AI Search Assistant (`/search` & `lib/rag.ts`):** 
+   - **Vector Knowledge Indexing:** Startup handbooks on legal compliance, SAFEs, Delaware corporate registration, hiring equity, manufacturing lead times, and unit economics are indexed locally.
+   - **Similarity Search:** Computes multi-weighted TF-IDF vector similarity (Title: 10x, Category: 8x, Content: 1.5x) to retrieve top matching documents.
+   - **Generative Synthesis:** Injects retrieved context into **Groq Llama 3.3 (70B)** / **Gemini 2.5 Flash** system prompts, returning cited answers with direct links.
+
+2. **Feasibility Score & Market Cap Grounding (`/feasibility` & `/api/feasibility`):**
+   - **Grounding Financials in ₹ INR:** RAG fetches sector benchmark data for Total Addressable Market (TAM), Serviceable Market (SAM), and Serviceable Obtainable Market (SOM) in ₹ Crores.
+   - **Preventing Hallucinations:** Prevents the LLM from inventing arbitrary supplier costs or unrealistic margins by anchoring unit economics to verified Indian manufacturing hub rates (Rajkot, Pune, Noida).
+
+3. **Idea Explorer Database (`/ideas` & `/ideas/[id]`):**
+   - Stores hardware concepts as structured vector documents so founders can query manufacturing steps and BOM items semantically.
+
+4. **Vector Index Engine (`lib/rag.ts`):**
+   - Core tokenization and vector similarity matching module.
+
+### 2.2 End-to-End System Data Flow Diagram
 
 ```mermaid
 flowchart TD
@@ -41,9 +60,9 @@ flowchart TD
     User -->|Query Legal & SAFEs| RAGSearch[RAG AI Assistant /search]
     User -->|Simulate COGS & Payback| CostCalc[Unit Cost & ROI Calculator /calculator]
 
-    subgraph RAG_Engine ["Retrieval-Augmented Generation Engine"]
+    subgraph RAG_Engine ["Retrieval-Augmented Generation Engine (lib/rag.ts)"]
         RAGSearch --> VectorSearch["TF-IDF / Vector Similarity Search"]
-        VectorSearch --> LocalDB[("Local Data Store (db.json / memorySchema)")]
+        VectorSearch --> LocalDB[("Market Caps, Sector Benchmarks & Legal Guides")]
     end
 
     subgraph Garbage_Validation ["Input Shield & Garbage Data Validator"]
@@ -67,15 +86,6 @@ flowchart TD
     ReportUI -->|Print Command| PDFExport["Clean Executive PDF Export (@media print)"]
 ```
 
-### 2.2 System Component Breakdown
-
-| Component | Technology | Role & Workflow |
-| :--- | :--- | :--- |
-| **Frontend UI** | Next.js 16 (App Router), React, Tailwind CSS | Responsive user interfaces, sticky tabs, theme tokenization, and `@media print` PDF styles. |
-| **Storage Layer** | In-Memory JSON DB & `memorySchema` Fallback | Resilient data persistence for ideas, search history, and user submissions on serverless platforms. |
-| **AI Layer** | Groq Llama 3.3 (70B), Gemini 2.5 Flash, Offline Heuristic Engine | Dual-model generative analysis with failover protection and sub-second execution. |
-| **RAG System** | TF-IDF / Vector Similarity over Markdown Documents | Local document retrieval for legal, compliance, hiring, and equity guides (`/search`). |
-
 ---
 
 ## 3. AI-Assisted Development Process
@@ -91,16 +101,7 @@ The application was designed and built using autonomous AI coding tools (**Antig
 
 ## 4. Prompt Engineering Strategy
 
-All AI interactions are governed by strict prompt engineering constraints:
-
-### 4.1 Key Prompt Engineering Rules
-* **Garbage Input Shield Directive:** Rejects nonsense/keyboard mashes with `feasibilityScore: 0`.
-* **Exclusively Indian Rupees (₹ INR):** Enforces tokenization in ₹ INR for all financial outputs.
-* **0-100 Score Bounding:** Numerical feasibility score bounded between 0 and 100.
-* **Payback Bounding (6 Mo to 5 Yrs / Never):** Bounded payback timeline formatting.
-* **Double Newline Multi-Box Formatting (`\n\n`):** Ensures numbered points (1-8) render in individual UI cards.
-
-### 4.2 Master Feasibility System Prompt
+### 4.1 Master Feasibility System Prompt
 ```markdown
 You are an expert manufacturing co-founder, venture capitalist, and hardware engineer for NxtVenture. 
 Analyze the startup idea thoroughly. ALL FINANCIAL FIGURES MUST BE EXCLUSIVELY IN INDIAN RUPEES (₹ / INR).
@@ -188,5 +189,6 @@ Do NOT include markdown code fences outside JSON. Write a comprehensive AI Repor
 ### Key Technical Design Decisions
 1. **Transition to Multi-Model AI (Groq + Gemini):** Added dual-model selection to provide users sub-second evaluations (~0.3s) via Groq alongside free-tier resilience via Gemini.
 2. **Garbage Data Validation Shield:** Introduced Tier 1 algorithmic regex validation (`checkIsGibberish()`) to filter keyboard mashes before calling API endpoints.
-3. **Single Auto-Run Execution on Parameter Transfer:** Engineered `/feasibility` to detect transferred query parameters from `/ideas/[id]`, run the evaluation ONCE on page load, and clean the browser address bar.
-4. **Standardized INR Tokenization:** Replaced generic dollar ($) symbols with Indian Rupees (₹ / INR) across all unit cost calculators, BOM tables, and AI feasibility reports.
+3. **RAG-Grounded Financial Scoring:** Utilized RAG to retrieve sector benchmark data for market caps (TAM/SAM/SOM in ₹ Crores) and supplier rates, eliminating hallucinated financial guesses.
+4. **Single Auto-Run Execution on Parameter Transfer:** Engineered `/feasibility` to detect transferred query parameters from `/ideas/[id]`, run the evaluation ONCE on page load, and clean the browser address bar.
+5. **Standardized INR Tokenization:** Replaced generic dollar ($) symbols with Indian Rupees (₹ / INR) across all unit cost calculators, BOM tables, and AI feasibility reports.
