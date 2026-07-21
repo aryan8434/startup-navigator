@@ -1,4 +1,26 @@
-# NxtVenture — Technical Architecture & Technology Stack Specification
+# NxtVenture — Technical Architecture & Vector Database Specification
+
+---
+
+## 🗄️ Vector Database Storage & Access Specification
+
+### 1. Does the Vector DB Store Everything?
+**YES.** The Retrieval-Augmented Generation (RAG) Vector Database in NxtVenture ([`lib/rag.ts`](file:///c:/Codes/assignments/startup-navigator/lib/rag.ts)) dynamically tokenizes and indexes all 4 core data entities:
+
+1. 📄 **Startup Knowledge Articles:** Company registration, SAFEs, Delaware filing, hiring equity, ESOPs, sales tax, and manufacturing lead times.
+2. 💡 **Manufacturing Idea Blueprints:** Seed ideas, user-submitted concepts, and AI-generated concepts.
+3. 📊 **AI Feasibility Audit Reports:** Numerical scores (0-100), verdicts, 4-vector risk matrices, COGS, MSRP pricing in ₹ INR, Bill of Materials, and 8-point detailed analyses.
+4. 📈 **Sector Market Caps & Benchmarks:** TAM/SAM/SOM market caps in ₹ Crores and regional supplier rates (Rajkot, Pune, Noida).
+
+---
+
+### 2. How to Access the Vector Database
+
+| Access Method | Endpoint / Route | How to Use |
+| :--- | :--- | :--- |
+| **1. UI Search Bar** | [`/search`](https://startup-navigator-taupe.vercel.app/search) | Type any natural language question or idea title into the AI Search bar to trigger RAG vector retrieval. |
+| **2. REST API Endpoint** | `POST /api/search` | Send JSON `{ "query": "your query", "aiModel": "groq" }` to retrieve vector matches programmatically. |
+| **3. TypeScript Import** | [`lib/rag.ts`](file:///c:/Codes/assignments/startup-navigator/lib/rag.ts) | Call `executeRagSearch(query, preferredModel)` directly in any Next.js API route or Server Action. |
 
 ---
 
