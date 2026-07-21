@@ -1,35 +1,51 @@
 # NxtVenture — Vague vs. Coherent Startup Idea Validation Guide
 
-This document outlines the classification framework, validation matrix, and prompt engineering directives used by **NxtVenture** to detect and score vague, nonsensical, or gibberish pitches versus production-ready manufacturing blueprints.
+This document outlines the classification framework, validation matrix, screenshot step-by-step walk-throughs, and prompt engineering directives used by **NxtVenture** to detect and score vague, nonsensical, or gibberish pitches versus production-ready manufacturing blueprints.
 
 ---
 
-## 1. Validation Taxonomy & Classification Matrix
+## 1. Step-by-Step Validation Walk-through (Screenshots 1 - 4)
 
-```
-                          ┌──────────────────────────┐
-                          │   Incoming Pitch Data    │
-                          └────────────┬─────────────┘
-                                       │
-                         ┌─────────────┴─────────────┐
-                         │ Input Validation Shield   │
-                         │   (checkIsGibberish)      │
-                         └─────────────┬─────────────┘
-                                       │
-            ┌──────────────────────────┴──────────────────────────┐
-            │                                                     │
-            ▼                                                     ▼
-┌───────────────────────┐                             ┌───────────────────────┐
-│   Vague / Gibberish   │                             │  Coherent / Valid     │
-│   (Score: 0 / 100)    │                             │  (Score: 41 - 100)    │
-└───────────┬───────────┘                             └───────────┬───────────┘
-            │                                                     │
-            ▼                                                     ▼
-• Keyboard mashes (fgbfg, ghfnghj)                     • Detailed product specs
-• Vowels = 0 or consonant ratio > 80%                  • Clear target audience & pricing
-• Single-word non-product titles                       • Realistic Bill of Materials
-• COGS = ₹0, Payback = Never                           • Formatted 8-point AI Report in ₹
-```
+### Step 1: Vague Input Entry Submission (Keyboard Mashes)
+When a user enters nonsensical, unparseable keyboard mashes (e.g. Title: `fgbfg`, Description: `ghfnghj`), the form submits the raw string for validation.
+
+![Step 1: Vague Input Entry](/vague/Screenshot%202026-07-21%20144917.png)
+
+* **Input Title:** `fgbfg` (Consonant ratio 100%, 0 vowels)
+* **Input Description:** `ghfnghj` (Keyboard mash string)
+* **Target Audience:** Left empty (default placeholder)
+
+---
+
+### Step 2: Unshielded Initial Scoring (Historical Defect Identified)
+Prior to implementing the **Input Shield**, the unshielded heuristic engine assigned a `78 / 100` score to `fgbfg`. This was flagged as a product defect and prompted the creation of Tier 1 validation.
+
+![Step 2: Historical Unshielded Defect](/vague/Screenshot%202026-07-21%20144927.png)
+
+* **Defect Identified:** Gibberish text received a `78 / 100 Moderately Viable` score.
+* **Resolution Implemented:** Built `checkIsGibberish()` regex shield and system prompt rejection directives.
+
+---
+
+### Step 3: Input Shield Rejection & Zero Score (`Score: 0 / 100`)
+With the **Validation Shield** active, non-sensical inputs are immediately blocked. The system returns **`Score: 0 / 100 (Non-Viable / Invalid Input)`**, sets all financial metrics to `₹0`, and sets payback to `Never`.
+
+![Step 3: Shield Rejection & Zero Score](/vague/Screenshot%202026-07-21%20145019.png)
+
+* **Feasibility Score:** `0 / 100` (Red Badge)
+* **Status Rating:** `Non-Viable / Invalid Input`
+* **Financial Metrics:** Defaulted to `₹0` COGS, `0%` margin, and `Never` payback.
+
+---
+
+### Step 4: Multi-Line AI Report Box & Heading Badging
+When evaluating a valid concept, the AI Report splits every point (1, 2, 3, 4, 5, 6, 7, 8) onto separate lines with **Purplish Tint Headings** and **Emerald Green Metrics**.
+
+![Step 4: Formatted Multi-Line AI Report](/vague/Screenshot%202026-07-21%20145023.png)
+
+* **Multi-Box Layout:** Separate card container for each numbered point (`1.`, `2.`, `3.`, `4.`, `5.`, `6.`, `7.`, `8.`).
+* **Heading Styling:** Purplish tint background (`text-purple-300 bg-purple-950/80 border-purple-700/50`).
+* **Metric Styling:** Emerald green background (`text-emerald-400 bg-emerald-950/70 border-emerald-700/40`).
 
 ---
 
@@ -48,7 +64,7 @@ This document outlines the classification framework, validation matrix, and prom
 
 ---
 
-## 3. Input Validation Shield Algorithm (`lib/validation.ts`)
+## 3. Input Shield Algorithm (`lib/validation.ts`)
 
 ```typescript
 export function checkIsGibberish(title: string, desc: string): boolean {
