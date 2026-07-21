@@ -2,15 +2,15 @@
 
 ---
 
-## 🗄️ Vector Database Storage & Access Specification
+## Vector Database Storage & Access Specification
 
 ### 1. Does the Vector DB Store Everything?
 **YES.** The Retrieval-Augmented Generation (RAG) Vector Database in NxtVenture ([`lib/rag.ts`](file:///c:/Codes/assignments/startup-navigator/lib/rag.ts)) dynamically tokenizes and indexes all 4 core data entities:
 
-1. 📄 **Startup Knowledge Articles:** Company registration, SAFEs, Delaware filing, hiring equity, ESOPs, sales tax, and manufacturing lead times.
-2. 💡 **Manufacturing Idea Blueprints:** Seed ideas, user-submitted concepts, and AI-generated concepts.
-3. 📊 **AI Feasibility Audit Reports:** Numerical scores (0-100), verdicts, 4-vector risk matrices, COGS, MSRP pricing in ₹ INR, Bill of Materials, and 8-point detailed analyses.
-4. 📈 **Sector Market Caps & Benchmarks:** TAM/SAM/SOM market caps in ₹ Crores and regional supplier rates (Rajkot, Pune, Noida).
+- **Startup Knowledge Articles:** Company registration, SAFEs, Delaware filing, hiring equity, ESOPs, sales tax, and manufacturing lead times.
+- **Manufacturing Idea Blueprints:** Seed ideas, user-submitted concepts, and AI-generated concepts.
+- **AI Feasibility Audit Reports:** Numerical scores (0-100), verdicts, 4-vector risk matrices, COGS, MSRP pricing in INR, Bill of Materials, and 8-point detailed analyses.
+- **Sector Market Caps & Benchmarks:** TAM/SAM/SOM market caps in INR Crores and regional supplier rates (Rajkot, Pune, Noida).
 
 ---
 
@@ -24,7 +24,7 @@
 
 ---
 
-## 🛠️ Complete Technology Stack & System Components
+## Complete Technology Stack & System Components
 
 | Layer | Technology Name | Role & Specification |
 | :--- | :--- | :--- |
@@ -42,12 +42,12 @@
 
 ---
 
-## 📋 Executive Summary & Candidate Declarations
+## Executive Summary & Candidate Declarations
 
 ### Candidate Profile & Status
-* **Immediate Availability:** **YES (0 Days Notice / Immediate Joiner)**
-* **Live Published Application (Vercel):** [https://startup-navigator-taupe.vercel.app/](https://startup-navigator-taupe.vercel.app/)
-* **GitHub Repository:** [https://github.com/aryan8434/startup-navigator](https://github.com/aryan8434/startup-navigator)
+- **Immediate Availability:** **YES (0 Days Notice / Immediate Joiner)**
+- **Live Published Application (Vercel):** [https://startup-navigator-taupe.vercel.app/](https://startup-navigator-taupe.vercel.app/)
+- **GitHub Repository:** [https://github.com/aryan8434/startup-navigator](https://github.com/aryan8434/startup-navigator)
 
 ---
 

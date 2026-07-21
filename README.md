@@ -1,212 +1,157 @@
-# 🚀 Startup & Manufacturing Ideas Platform — Production Blueprint & AI Architecture
+# NxtVenture — Manufacturing & Hardware Startup Navigator
 
-[![Next.js](https://img.shields.io/badge/Next.js-16.2.10-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
-[![Groq Cloud](https://img.shields.io/badge/Groq_Cloud-Llama_3.3_70B-orange?style=for-the-badge)](https://groq.com/)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](https://opensource.org/licenses/MIT)
-
-**Live Web Application:** [https://startup-navigator-taupe.vercel.app/](https://startup-navigator-taupe.vercel.app/)  
-**GitHub Repository:** [https://github.com/aryan8434/startup-navigator](https://github.com/aryan8434/startup-navigator)
+NxtVenture is a full-stack web application designed for hardware founders, industrial product designers, D2C brand creators, and venture investors. Inspired by curated startup databases like 10,000 Ideas and IdeaBrowser, the application transforms hardware and manufacturing concepts into production-ready blueprints complete with unit economics in Indian Rupees (INR), Bill of Materials (BOM), 4-vector risk assessments, RAG-assisted legal lookup, garbage data input shielding, and PDF exports.
 
 ---
 
-## 📌 CANDIDATE DECLARATION & AVAILABILITY
+## Candidate Status and Availability
 
-> [!IMPORTANT]
-> **Candidate Status & Availability Declaration**
-> * **Immediate Availability**: **YES — Available Immediately** (0 days notice period, can start immediately).
-
----
-
-## 🎯 EXECUTIVE ASSESSMENT SUMMARY
-
-This full-stack production application has been engineered as a high-yield **Startup & Manufacturing Ideas Platform**, built to the benchmark standards of leading idea databases (**www.10000ideas.com** and **www.ideabrowser.com**). 
-
-It empowers founders, industrial designers, hardware innovators, and micro-factory operators to evaluate physical product concepts, run unit economics simulations, inspect step-by-step Bill of Materials (BOM), and execute AI-powered feasibility audits.
+- Immediate Availability: YES (0 Days Notice / Immediate Joiner)
+- Live Application URL: https://startup-navigator-taupe.vercel.app/
+- GitHub Repository: https://github.com/aryan8434/startup-navigator
 
 ---
 
-## 🧠 PART 1: MASTER PROMPT ENGINEERING
+## System Architecture and Workflow
 
-```markdown
-================================================================================
-                    MASTER SYSTEM PROMPT & ARCHITECTURE SPEC
-================================================================================
+```
+                                    ┌───────────┐
+                                    │   USER    │
+                                    └─────┬─────┘
+                                          │
+                                    ┌─────▼─────┐
+                                    │   LOGIN   │
+                                    └─────┬─────┘
+           ┌──────────────────────────────┼──────────────────────────────┐
+           │                              │                              │
+           ▼                              ▼                              ▼
+┌────────────────────┐          ┌────────────────────┐         ┌───────────────────┐
+│   IDEA EXPLORER    │          │   AI FEASIBILITY   │         │     AI SEARCH     │
+└──────────┬─────────┘          └─────────┬──────────┘         └─────────┬─────────┘
+           │                              │                              │
+ ┌─────────┴─────────┐              ┌─────▼─────┐                        │
+ │                   │              │ VALID OR  │                        │
+ ▼                   ▼              │   NOT?    │                        ▼
+┌──────────────┐ ┌──────────────┐   └──┬─────┬──┘               ┌───────────────────┐
+│ AI GENERATE  │ │  SUBMIT AN   │      │     │                  │   USER SEARCHES   │
+│  FRESH IDEA  │ │     IDEA     │   NO │     │ YES              └─────────┬─────────┘
+└──────┬───────┘ └──────┬───────┘      │     │                            │
+       │                │              ▼     ▼                            ▼
+       └────────┬───────┘       ┌──────────┐ ┌──────────────┐   ┌───────────────────┐
+                │               │ SCORE: 0 │ │    MODEL     │   │ AI RAG RETRIEVAL  │
+                ▼               │ (PREVENTS│ │  SELECTION   │   └─────────┬─────────┘
+          ┌──────────┐          │ API COST)│ │(GROQ/GEMINI) │             │
+          │   IDEA   │          └──────────┘ └──────┬───────┘             │
+          └─────┬────┘                              │                     ▼
+     ┌──────────┴───────────┐                       ▼           ┌───────────────────┐
+     │                      │               ┌──────────────┐    │  CITED RESULTS    │
+     ▼                      ▼               │ GENERATE REPORT│  └───────────────────┘
+┌──────────────┐   ┌─────────────────┐      └──────┬───────┘
+│  STORED IN   │   │  USER PERFORMS  │             │
+│  VECTOR DB   │   │  AI FEASIBILITY ├─────────────┘
+└──────────────┘   └─────────────────┘             │
+                                                   ▼
+                                           ┌──────────────┐
+                                           │  STORED IN   │
+                                           │  VECTOR DB   │
+                                           └──────────────┘
 
-YOU ARE AN ELITE PRINCIPAL SOFTWARE ARCHITECT AND STARTUP CO-FOUNDER AI. 
-YOUR OBJECTIVE IS TO BUILD A PRODUCTION-GRADE, FULL-STACK STARTUP & MANUFACTURING 
-IDEAS EXPLORER AND FEASIBILITY EVALUATOR WEB APPLICATION.
-
-### 1. CORE DOMAIN & USER ROLES
-- TARGET USERS: Hardware founders, micro-factory operators, D2C brand builders, 
-  SMB manufacturers, industrial designers, and venture investors.
-- USER ROLES:
-  1. Guest User: Browse ideas, search vector RAG, use cost calculator.
-  2. Registered Founder: Upvote concepts, submit new ideas, run AI feasibility audits.
-  3. Administrator: Moderate idea submissions, review search analytics, manage legal templates.
-
-### 2. DATA SCHEMAS & ENTITIES (TypeScript / Prisma-compatible)
-- Idea: id, title, slug, tagline, category, investmentTier, profitMargin, difficulty, 
-  targetMarket, tam, sam, som, summary, problemStatement, proposedSolution, 
-  manufacturingProcess[], billOfMaterials[], machineryNeeded[], unitEconomics{}, 
-  regulatoryRequirements[], competitorLandscape[], growthPlaybook[], tags[], upvotes, featured.
-- Article: id, title, content, category, summary, tags[], createdAt, updatedAt.
-- Resource: id, title, description, type, fileUrl, category, createdAt.
-- SearchLog: id, userId, query, answer, sources[], timestamp.
-
-### 3. AI & RAG CAPABILITIES
-- RAG SEARCH ENGINE: TF-IDF vector retrieval indexing title, body, and tags across 
-  articles and manufacturing ideas.
-- AI FEASIBILITY ENGINE: Accepts custom user pitches and computes 4-vector risk scores 
-  (Technical Difficulty, Supply Chain Risk, Capital Intensity, Regulatory Barrier), 
-  generates unit cost estimates, BOM outlines, and action plans.
-- LLM FALLBACK: Supports Groq (Llama 3.3 70B), Gemini Pro, and OpenAI GPT-4o with 
-  offline extractive RAG fallback when cloud API keys are absent.
-
-### 4. UI/UX & STYLING GUIDELINES
-- DESIGN SYSTEM: Modern dark mode aesthetic (`#020617`), glassmorphism cards, 
-  curated color accents (Indigo `#6366f1`, Emerald `#10b981`, Purple `#a855f7`), 
-  Tailwind CSS v4, dynamic hover states, responsive flex/grid layouts.
-
-### 5. API ROUTES & SECURITY
-- REST ENDPOINTS:
-  - GET/POST `/api/ideas` (list, filter by tier/category/margin, submit new)
-  - GET/DELETE `/api/ideas/[id]` (single blueprint details)
-  - POST `/api/ideas/[id]/upvote` (upvote persistence)
-  - POST `/api/feasibility` (AI feasibility audit engine)
-  - GET `/api/stats` (analytics aggregator)
-  - POST `/api/search` (vector RAG pipeline)
-- SECURITY: JWT HttpOnly session cookies, sanitized query inputs, atomic temp file 
-  locks for database writes.
-================================================================================
+┌───────────────────────────────────────────────────────────────────────────────────┐
+│                               VECTOR DATABASE ENGINE                              │
+│       • Ideas Directory   • Feasibility Reports   • Current Market Caps & Benchmarks │
+└───────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 📐 PART 2: REQUIREMENT ANALYSIS & SYSTEM ARCHITECTURE
+## Features
 
-### 🌐 System Architecture Flow & Mind Map
-
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                          FOUNDER CLIENT INTERFACE                       │
-│ ┌──────────────┐ ┌───────────────┐ ┌──────────────┐ ┌─────────────────┐ │
-│ │Idea Explorer │ │ AI Feasibility│ │ Unit Cost    │ │  Resource Hub   │ │
-│ │  (/ideas)    │ │ (/feasibility)│ │ (/calculator)│ │   (/resources)  │ │
-│ └──────┬───────┘ └───────┬───────┘ └──────┬───────┘ └────────┬────────┘ │
-└────────┼─────────────────┼────────────────┼──────────────────┼──────────┘
-         │                 │                │                  │
-         ▼                 ▼                ▼                  ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│                         NEXT.JS 16 EDGE & REST API                      │
-│ ┌────────────────┐ ┌────────────────┐ ┌────────────────┐ ┌──────────────┐ │
-│ │  GET/POST      │ │ POST           │ │ Financial      │ │ GET/POST     │ │
-│ │  /api/ideas    │ │ /api/feasibility│ │ Simulation     │ │ /api/search  │ │
-│ └──────┬─────────┘ └───────┬────────┘ └────────────────┘ └──────┬───────┘ │
-└────────┼───────────────────┼────────────────────────────────────┼─────────┘
-         │                   │                                    │
-         ▼                   ▼                                    ▼
-┌──────────────────────────────────────┐ ┌────────────────────────────────┐
-│      JSON ATOMIC DATABASE ENGINE     │ │     PLUGGABLE RAG & LLM ENGINES│
-│  - Users, Ideas, Articles, Resources │ │ - TF-IDF Vector Retrieval      │
-│  - Upvote counters & Search Logs     │ │ - Groq Cloud Llama 3.3 (70B)   │
-│  - Atomic temp lock file persistence │ │ - Local Extractive Fallback    │
-└──────────────────────────────────────┘ └────────────────────────────────┘
-```
-
-### 🤖 AI Technology Justification Matrix
-
-| AI Technology | Component / Feature | Justification & Business Value |
-| :--- | :--- | :--- |
-| **Large Language Models (LLMs)** | AI Feasibility Co-Founder & RAG Completion | Generates natural language risk matrix, executive verdicts, and customized action plans based on raw founder pitches. |
-| **Retrieval-Augmented Generation (RAG)** | AI Knowledge Search (`/search`) | Prevents hallucination by extracting internal articles and manufacturing blueprints to cite exact sources. |
-| **TF-IDF Vector Retrieval** | Offline RAG Engine (`lib/rag.ts`) | Enables 100% offline capability without cloud API key dependencies, saving API operational costs. |
-| **Predictive Financial Analytics** | Unit Cost & ROI Calculator (`/calculator`) | Dynamically computes COGS, gross profit margins, break-even unit volumes, and tooling payback months. |
-| **Recommendation Engine** | Multi-Faceted Idea Filters (`/ideas`) | Filters opportunities by Capex Tier (`<$10k`, `$50k-$250k`), profit margin, difficulty, and category. |
+- Idea Explorer Directory (/ideas): Browse hardware concepts filtered by Category, Capex Tier, and Complexity. Includes upvoting, community submission, and instant AI idea generation.
+- 1-Click AI Feasibility Transfer (/ideas/[id]): Transfer parameters (Title, Sector, Capex Tier, Target Market, Description) directly from Idea Details to the Feasibility Evaluator.
+- AI Feasibility and Risk Evaluator (/feasibility): Dual-model AI analysis (Groq Llama 3.3 70B vs Google Gemini 2.5 Flash), 0-100 numerical score gauge, 4-vector risk matrix, and long 8-point AI Report in Indian Rupees (INR).
+- Algorithmic Garbage Data Shield: Pre-LLM Tier 1 regex validation filters keyboard mashes (e.g. "fgbfg", "ghfnghj"), immediately returning a 0 / 100 score and setting unit metrics to INR 0 with $0 API cost.
+- RAG AI Search Assistant (/search): Retrieval-Augmented Generation indexing Articles, Manufacturing Ideas, and Feasibility Audit Reports for natural language vector query processing with citations.
+- Manufacturing Cost and ROI Calculator (/calculator): Interactive simulator for unit COGS, monthly fixed overhead, gross margin %, break-even unit volume, and payback schedules.
+- Clean PDF Report Export: Dedicated print stylesheet formatting AI feasibility reports as executive white-background documents.
 
 ---
 
-## 🎨 PART 3: UI/UX DESIGN SYSTEM SPECIFICATION
+## UI and UX Design Decisions
 
-- **Color Palette**:
-  - **Background**: Deep Space Dark Slate (`#020617`, `#0f172a`)
-  - **Accent Colors**: Hyper-Indigo (`#6366f1`), Emerald Profit Green (`#10b981`), Electric Purple (`#a855f7`), Amber Warning (`#f59e0b`).
-  - **Surfaces**: Glassmorphism translucent cards with `backdrop-blur-md` and subtle borders (`border-slate-800`).
-- **Typography**: Clean sans-serif system font stack paired with tight display headings (`font-display font-extrabold`).
-- **Interactive Elements**: Micro-animations on hover (`hover:-translate-y-1`), active upvote buttons, tabbed specification views, and real-time range sliders.
-
----
-
-## 🛠️ PART 4: AI-ASSISTED DEVELOPMENT WORKFLOW
-
-The application was constructed using an advanced AI-assisted pair-programming workflow:
-
-1. **Prompt Iteration 1 (Architecture & Schema)**: Defined TypeScript interfaces for `Idea`, `UnitEconomics`, `BillOfMaterialItem`, and seed datasets.
-2. **Prompt Iteration 2 (Database & REST APIs)**: Engineered atomic file-locking persistence in `lib/db.ts` to prevent race conditions during concurrent upvotes.
-3. **Prompt Iteration 3 (UI Components & Pages)**: Built glassmorphic `IdeaCard`, `/ideas` multi-dimensional explorer, `/ideas/[id]` detail view, and `/feasibility` evaluator.
-4. **Prompt Iteration 4 (Verification & Refinement)**: Executed Next.js production builds, resolved TypeScript strict type constraints, and validated API responses.
+- Dark Mode Glassmorphic Aesthetic: Base layer styled with Slate 950 (`#020617`) and translucent backdrop blur panels (`backdrop-blur-md`).
+- Structured Card Layouts: Multi-box point formatting forcing every numbered report point (1 through 8) into individual containers.
+- Color Token Hierarchy:
+  - Purplish Tint (`bg-purple-950/80 text-purple-300`): Highlighted headings (e.g. Market Demand, Target Market).
+  - Emerald Green (`bg-emerald-950/70 text-emerald-400`): Bold financial figures, unit margins, and price tags.
+  - Crimson Red (`bg-red-600 text-white`): AI Generated Idea badges and invalid pitch warnings.
+- Responsive Layout Engine: Built using flexbox and grid layouts optimized for mobile, tablet, and desktop viewports.
 
 ---
 
-## 🧪 PART 5: TESTING & QUALITY ASSURANCE
+## Technologies Used
 
-### 1. Automated Integration Tests (`scripts/test-api.mjs`)
-- Tested `db.ideas.findMany()` dataset retrieval.
-- Tested single idea lookup by ID and URL-friendly Slug.
-- Verified upvote state persistence and atomic write locks.
-- Tested guide articles and resource catalog integrity.
-
-### 2. Manual Verification Checklist
-- [x] **Idea Explorer Filtering**: Filtered by category (GreenTech, Hardware, FMCG) and investment tier (`<$10k`).
-- [x] **Upvote Functionality**: Clicked upvote buttons and verified optimistic UI update + database write.
-- [x] **AI Feasibility Evaluator**: Submitted custom pitch and verified risk matrix generation.
-- [x] **Manufacturing Cost Calculator**: Modified raw material cost and tooling capex sliders; confirmed live break-even calculations.
-- [x] **Cross-Browser & Responsiveness**: Verified on Chrome, Firefox, Edge, and mobile viewports.
+- Frontend: Next.js 16 (App Router), React 19, Tailwind CSS v4, Lucide React Icons, Google Fonts (Inter and Outfit)
+- Backend: Next.js Server API Routes, Edge Middleware, JWT Cookie Authentication, Bcrypt Password Hashing, Async Temp File Write Queue
+- AI Models: Groq Cloud Llama 3.3 (70B Versatile), Google Gemini 2.5 Flash / 1.5 Flash, Offline Heuristic Rule Engine
+- RAG Engine: Multi-Weighted TF-IDF Vector Similarity Search with stop-word filtering
+- Database: JSON Atomic File Database (`data/db.json`) with `memorySchema` in-memory fallback for read-only serverless environments
 
 ---
 
-## ⚙️ PART 6: INSTALLATION & LOCAL SETUP
+## Step-by-Step Installation Guide
 
-### 1. Clone & Install
+Follow these steps to set up and run NxtVenture locally on your machine:
+
+### 1. Prerequisites
+Ensure you have the following installed:
+- Node.js (v18.0.0 or higher)
+- npm (v9.0.0 or higher)
+- Git
+
+### 2. Clone the Repository
+Open your terminal and run:
 ```bash
 git clone https://github.com/aryan8434/startup-navigator.git
 cd startup-navigator
+```
+
+### 3. Install Dependencies
+Install all required Node.js modules:
+```bash
 npm install
 ```
 
-### 2. Run Development Server
+### 4. Configure Environment Variables
+Create a `.env` file in the root directory:
+```bash
+cp .env.example .env
+```
+
+Open `.env` and add your API keys (optional, offline fallback engine is active by default):
+```env
+GROQ_API_KEY=your_groq_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
+JWT_SECRET=your_jwt_secret_key_here
+```
+
+### 5. Run the Local Development Server
+Start the Next.js development server:
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### 3. Production Build Validation
-```bash
-npm run build
-npm run start
+Open your browser and navigate to:
+```
+http://localhost:3000
 ```
 
----
+### 6. Build for Production
+To create an optimized production build:
+```bash
+npm run build
+```
 
-## 🌐 PART 7: DEPLOYMENT GUIDE (Vercel / Netlify / Render)
-
-### Live Application Link:
-👉 **[https://startup-navigator-taupe.vercel.app/](https://startup-navigator-taupe.vercel.app/)**
-
-### Step-by-Step Vercel Deployment:
-1. Push your repository to GitHub: `git push origin main`.
-2. Import repository into [Vercel Dashboard](https://vercel.com/new).
-3. Set Framework Preset: **Next.js**.
-4. (Optional) Add Environment Variable:
-   - `GROQ_API_KEY`: *(Optional for LLM completions; falls back gracefully to extractive RAG if omitted)*.
-5. Click **Deploy**. Vercel will automatically compile static and dynamic routes.
-
----
-
-## 📞 CONTACT & SUBMISSION INFORMATION
-
-* **Applicant**: Aryan
-* **GitHub Repository**: [https://github.com/aryan8434/startup-navigator](https://github.com/aryan8434/startup-navigator)
-* **Live App URL**: [https://startup-navigator-taupe.vercel.app/](https://startup-navigator-taupe.vercel.app/)
-* **Immediate Availability**: Yes (0 days notice)
+To run the production server locally:
+```bash
+npm start
+```
