@@ -350,8 +350,9 @@ export default function FeasibilityPage() {
 
               <div className="flex items-center space-x-3">
                 <div className="text-center mr-2">
-                  <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-indigo-600/20 text-3xl font-extrabold text-indigo-400 border border-indigo-500/40 shadow-inner">
-                    {report.feasibilityScore}
+                  <div className="inline-flex flex-col h-20 w-20 items-center justify-center rounded-full bg-indigo-600/20 text-indigo-400 border border-indigo-500/40 shadow-inner">
+                    <span className="text-2xl font-extrabold leading-none">{report.feasibilityScore}</span>
+                    <span className="text-[10px] text-slate-400 font-bold mt-0.5">/ 100</span>
                   </div>
                   <span className="block text-xs font-semibold text-emerald-400 mt-1">{report.ratingLabel}</span>
                 </div>

@@ -24,8 +24,8 @@ Analyze the startup idea thoroughly. ALL FINANCIAL FIGURES MUST BE EXCLUSIVELY I
 
 You MUST return strictly valid JSON matching this schema:
 {
-  "feasibilityScore": number (0-100),
-  "ratingLabel": string ("Highly Viable" | "Moderately Viable" | "High Friction"),
+  "feasibilityScore": number (strictly between 0 and 100, where 0 is non-viable and 100 is highly viable),
+  "ratingLabel": string ("Highly Viable" for 75-100 | "Moderately Viable" for 41-74 | "High Friction" for 0-40),
   "verdict": string (short summary verdict in Indian Rupees),
   "detailedAnalysis": string (an extensive, long AI Report written in numbered points: 1., 2., 3., 4., 5., 6., 7., 8. Use bold headers, bold key metrics, and INR ₹ currency formatting for every point),
   "riskMatrix": {
