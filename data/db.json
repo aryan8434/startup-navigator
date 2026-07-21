@@ -352,5 +352,75 @@
       "createdAt": "2026-07-16T12:26:06.983Z"
     }
   ],
-  "ideas": []
+  "ideas": [
+    {
+      "title": "Solar-Powered Smart Compost Dehydrator",
+      "slug": "solar-powered-smart-compost-dehydrator",
+      "tagline": "GreenTech / Sustainability (or Manufacturing)",
+      "category": "GreenTech / Sustainability",
+      "investmentTier": "$10k - $50k",
+      "profitMargin": "50 - 65%",
+      "difficulty": "Intermediate",
+      "targetMarket": "SMBs & Direct Consumers",
+      "tam": "$1.5 Billion Global Market",
+      "sam": "$150 Million Accessible Market",
+      "som": "$10 Million Initial Targeted Volume",
+      "summary": "GreenTech / Sustainability (or Manufacturing)",
+      "problemStatement": "An automated food-waste dehydrator for residential complexes that uses roof-mounted solar power and internal heating coils to convert wet waste into organic fertilizer within 24 hours. Constructed using food-grade stainless steel (SS304), carbon filtration for odor control, and a low-power microcontroller.",
+      "proposedSolution": "Residential Housing Societies, Eco-Friendly Hotels, and Local Municipalities",
+      "manufacturingProcess": [
+        "Prototyping",
+        "Tooling",
+        "Batch Assembly",
+        "Quality Check"
+      ],
+      "billOfMaterials": [
+        {
+          "item": "Raw Material Component",
+          "costPerUnit": "$10.00",
+          "supplierType": "Distributor",
+          "essential": true
+        }
+      ],
+      "machineryNeeded": [
+        {
+          "name": "Standard CNC Workstation",
+          "estimatedCost": "$5,000",
+          "purpose": "Assembly"
+        }
+      ],
+      "unitEconomics": {
+        "rawMaterialCost": 10,
+        "laborCostPerUnit": 5,
+        "packagingCost": 2,
+        "wholesalePrice": 40,
+        "retailPrice": 79,
+        "grossMargin": 65
+      },
+      "regulatoryRequirements": [
+        "Standard ISO Quality Clearance",
+        "Local Business Operating Permit"
+      ],
+      "competitorLandscape": [
+        {
+          "name": "Traditional Supplier",
+          "weakness": "Slow lead times",
+          "differentiation": "Fast micro-mill delivery"
+        }
+      ],
+      "growthPlaybook": [
+        "Launch direct-to-consumer digital channels",
+        "Target regional b2b distributors"
+      ],
+      "tags": [
+        "manufacturing",
+        "startup"
+      ],
+      "featured": false,
+      "id": "9qywzr1bw",
+      "upvotes": 0,
+      "createdAt": "2026-07-21T07:03:41.545Z",
+      "updatedAt": "2026-07-21T07:03:41.545Z"
+    }
+  ]
 }

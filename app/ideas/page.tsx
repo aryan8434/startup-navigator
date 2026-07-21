@@ -5,7 +5,19 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import IdeaCard, { IdeaCardProps } from "@/components/IdeaCard";
-import { Search, Filter, RotateCcw, Plus, BrainCircuit, Calculator, Sparkles } from "lucide-react";
+import {
+  Search,
+  Filter,
+  RotateCcw,
+  Plus,
+  BrainCircuit,
+  Calculator,
+  Sparkles,
+  Zap,
+  Clock,
+  Loader2,
+  Lightbulb,
+} from "lucide-react";
 
 const CATEGORIES = [
   "All",
@@ -19,10 +31,10 @@ const CATEGORIES = [
 
 const INVESTMENT_TIERS = [
   "All",
-  "< $10k",
-  "$10k - $50k",
-  "$50k - $250k",
-  "$250k+",
+  "< ₹5 Lakhs",
+  "₹5 Lakhs - ₹25 Lakhs",
+  "₹25 Lakhs - ₹1 Crore",
+  "₹1 Crore+",
 ];
 
 const DIFFICULTIES = ["All", "Beginner", "Intermediate", "Advanced", "Expert"];
@@ -35,6 +47,13 @@ export default function IdeasExplorer() {
   const [selectedTier, setSelectedTier] = useState("All");
   const [selectedDifficulty, setSelectedDifficulty] = useState("All");
   const [sortBy, setSortBy] = useState("upvotes");
+
+  // AI Generator state
+  const [genCategory, setGenCategory] = useState("Manufacturing");
+  const [genTier, setGenTier] = useState("₹5 Lakhs - ₹25 Lakhs");
+  const [genAiModel, setGenAiModel] = useState<"groq" | "gemini">("groq");
+  const [genLoading, setGenLoading] = useState(false);
+  const [genSuccessMsg, setGenSuccessMsg] = useState("");
 
   useEffect(() => {
     async function loadIdeas() {
@@ -52,6 +71,35 @@ export default function IdeasExplorer() {
     }
     loadIdeas();
   }, []);
+
+  const handleGenerateIdeas = async () => {
+    setGenLoading(true);
+    setGenSuccessMsg("");
+
+    try {
+      const res = await fetch("/api/ideas/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          category: genCategory,
+          investmentTier: genTier,
+          aiModel: genAiModel,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ideas && Array.isArray(data.ideas)) {
+          setIdeas((prev) => [...data.ideas, ...prev]);
+          setGenSuccessMsg(`Successfully generated 3 new manufacturing concepts using ${data.providerUsed}!`);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to generate ideas:", err);
+    } finally {
+      setGenLoading(false);
+    }
+  };
 
   const filteredIdeas = useMemo(() => {
     return ideas
@@ -98,7 +146,7 @@ export default function IdeasExplorer() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center space-x-2 rounded-full bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold text-indigo-400 border border-indigo-500/20 mb-4">
             <Sparkles className="h-3.5 w-3.5" />
-            <span>10,000 Ideas & IdeaBrowser Standard Directory</span>
+            <span>10,000 Ideas & IdeaBrowser Standard Directory (Groq & Gemini AI Enabled)</span>
           </div>
 
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white font-display">
@@ -106,7 +154,7 @@ export default function IdeasExplorer() {
           </h1>
 
           <p className="mt-4 max-w-2xl mx-auto text-base md:text-lg text-slate-300">
-            Browse high-yield manufacturing opportunities, hardware innovations, and micro-factory blueprints complete with Unit Economics, Bill of Materials, and AI Feasibility ratings.
+            Browse high-yield manufacturing opportunities, hardware innovations, and micro-factory blueprints complete with Unit Economics in ₹ INR, Bill of Materials, and AI Feasibility ratings.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
@@ -138,9 +186,106 @@ export default function IdeasExplorer() {
       </section>
 
       {/* Main Content & Filters */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+        {/* Instant AI Idea Generator Panel */}
+        <div className="rounded-2xl border border-indigo-500/40 bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 p-6 backdrop-blur-md">
+          <div className="flex items-center space-x-2 text-indigo-400 mb-3">
+            <Lightbulb className="h-5 w-5 text-amber-400" />
+            <h2 className="text-lg font-bold text-white font-display">Generate Fresh Ideas with AI (Groq or Gemini)</h2>
+          </div>
+          <p className="text-xs text-slate-300 mb-4">
+            Instantly generate 3 new hardware & manufacturing concepts complete with BOM, unit margins, and feasibility scores using your choice of AI Engine:
+          </p>
+
+          {genSuccessMsg && (
+            <div className="mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-300 font-medium">
+              {genSuccessMsg}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">AI Engine</label>
+              <div className="flex items-center space-x-3 bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-xs">
+                <label className="flex items-center space-x-1 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="genModel"
+                    checked={genAiModel === "groq"}
+                    onChange={() => setGenAiModel("groq")}
+                    className="accent-indigo-500"
+                  />
+                  <span className={genAiModel === "groq" ? "text-amber-400 font-bold" : "text-slate-400"}>
+                    ⚡ Groq
+                  </span>
+                </label>
+                <label className="flex items-center space-x-1 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="genModel"
+                    checked={genAiModel === "gemini"}
+                    onChange={() => setGenAiModel("gemini")}
+                    className="accent-indigo-500"
+                  />
+                  <span className={genAiModel === "gemini" ? "text-purple-400 font-bold" : "text-slate-400"}>
+                    🐢 Gemini
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Target Sector</label>
+              <select
+                value={genCategory}
+                onChange={(e) => setGenCategory(e.target.value)}
+                className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"
+              >
+                <option value="Manufacturing">Manufacturing</option>
+                <option value="Hardware / Electronics">Hardware / Electronics</option>
+                <option value="GreenTech / Sustainability">GreenTech / Sustainability</option>
+                <option value="FMCG / Consumer Goods">FMCG / Consumer Goods</option>
+                <option value="BioTech / Healthcare">BioTech / Healthcare</option>
+                <option value="Industrial Automation">Industrial Automation</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Capex Budget</label>
+              <select
+                value={genTier}
+                onChange={(e) => setGenTier(e.target.value)}
+                className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"
+              >
+                <option value="< ₹5 Lakhs">&lt; ₹5 Lakhs</option>
+                <option value="₹5 Lakhs - ₹25 Lakhs">₹5 Lakhs - ₹25 Lakhs</option>
+                <option value="₹25 Lakhs - ₹1 Crore">₹25 Lakhs - ₹1 Crore</option>
+                <option value="₹1 Crore+">₹1 Crore+</option>
+              </select>
+            </div>
+
+            <button
+              onClick={handleGenerateIdeas}
+              disabled={genLoading}
+              className="rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 py-2.5 px-4 text-xs font-bold text-white shadow-lg hover:opacity-95 transition disabled:opacity-50 flex items-center justify-center space-x-1.5 cursor-pointer h-[42px]"
+            >
+              {genLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Generating...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 text-amber-300" />
+                  <span>Generate Fresh AI Ideas</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
         {/* Search & Main Selectors */}
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
           {/* Search bar */}
           <div className="relative flex-1">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -168,7 +313,7 @@ export default function IdeasExplorer() {
         </div>
 
         {/* Filter Bar */}
-        <div className="rounded-2xl border border-slate-800/80 bg-slate-900/40 p-5 backdrop-blur-md mb-8">
+        <div className="rounded-2xl border border-slate-800/80 bg-slate-900/40 p-5 backdrop-blur-md">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2 text-sm font-semibold text-white">
               <Filter className="h-4 w-4 text-indigo-400" />

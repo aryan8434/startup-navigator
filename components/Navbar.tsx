@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu, X, Rocket, LogOut, LayoutDashboard, UserCheck, ShieldAlert, Cpu } from "lucide-react";
+import { Menu, X, Rocket, LogOut, LayoutDashboard, Cpu } from "lucide-react";
 
 interface User {
   id: string;
@@ -101,15 +101,6 @@ export default function Navbar() {
               <>
                 {user ? (
                   <div className="flex items-center space-x-2.5">
-                    {user.role === "admin" && (
-                      <Link
-                        href="/admin"
-                        className="flex items-center space-x-1 text-xs px-2 py-0.5 bg-red-950/40 text-red-400 border border-red-900/60 rounded-full hover:bg-red-900/40 transition"
-                      >
-                        <ShieldAlert className="h-3 w-3" />
-                        <span>Admin</span>
-                      </Link>
-                    )}
                     <Link
                       href="/dashboard"
                       className="flex items-center space-x-1.5 text-xs font-bold text-white px-3 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-800 transition"
@@ -196,16 +187,6 @@ export default function Navbar() {
                     <div className="text-slate-400 text-sm py-1">
                       Logged in as: <span className="text-white font-medium">{user.name}</span>
                     </div>
-                    {user.role === "admin" && (
-                      <Link
-                        href="/admin"
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="flex items-center space-x-2 py-2 text-red-400 hover:text-red-300"
-                      >
-                        <ShieldAlert className="h-4 w-4" />
-                        <span>Admin Panel</span>
-                      </Link>
-                    )}
                     <Link
                       href="/dashboard"
                       onClick={() => setMobileMenuOpen(false)}
