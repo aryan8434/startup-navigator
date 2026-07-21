@@ -20,12 +20,14 @@ export async function POST(request: Request) {
     let usedProviderName = "Offline Rule Engine";
 
     const promptInstructions = `You are an expert manufacturing co-founder, venture capitalist, and hardware engineer. 
-Analyze the startup idea thoroughly. You MUST return strictly valid JSON matching this schema:
+Analyze the startup idea thoroughly. ALL FINANCIAL FIGURES MUST BE EXCLUSIVELY IN INDIAN RUPEES (₹ / INR).
+
+You MUST return strictly valid JSON matching this schema:
 {
   "feasibilityScore": number (0-100),
   "ratingLabel": string ("Highly Viable" | "Moderately Viable" | "High Friction"),
-  "verdict": string (short summary verdict),
-  "detailedAnalysis": string (a comprehensive 200 to 400 word detailed strategic report analyzing market viability, manufacturing risks, unit economics, supply chain bottlenecks, and competitive moats),
+  "verdict": string (short summary verdict in Indian Rupees),
+  "detailedAnalysis": string (an extensive, long AI Report written in numbered points: 1., 2., 3., 4., 5., 6., 7., 8. Use bold headers, bold key metrics, and INR ₹ currency formatting for every point),
   "riskMatrix": {
     "technicalComplexity": string,
     "supplyChainRisk": string,
@@ -33,15 +35,15 @@ Analyze the startup idea thoroughly. You MUST return strictly valid JSON matchin
     "regulatoryBarrier": string
   },
   "financialViability": {
-    "estimatedCogs": string,
-    "projectedMargin": string,
-    "breakEvenMonths": string,
-    "recommendedRetailPrice": string
+    "estimatedCogs": string (in ₹ Rupees, e.g. "₹450 - ₹850 per unit"),
+    "projectedMargin": string (e.g. "62% - 75%"),
+    "breakEvenMonths": string (e.g. "6 to 9 Months"),
+    "recommendedRetailPrice": string (in ₹ Rupees, e.g. "₹1,899 - ₹2,999")
   },
-  "billOfMaterials": [ { "item": string, "estimatedCost": string } ],
+  "billOfMaterials": [ { "item": string, "estimatedCost": string (in ₹ Rupees, e.g. "₹180") } ],
   "actionPlan": [ string ]
 }
-Do NOT include markdown code blocks or text outside the JSON object. Write a rich, detailed 200-400 word analysis in the "detailedAnalysis" field.`;
+Do NOT include markdown code fences outside JSON. Write a very long, comprehensive AI Report in the "detailedAnalysis" field using numbered points 1-8.`;
 
     const userPrompt = `Assess this startup concept:
 Title: ${title}
@@ -50,7 +52,23 @@ Capex Tier: ${investmentTier}
 Target Market: ${targetMarket}
 Description: ${description}`;
 
-    // Provider Choice 1: Groq Llama 3.3 (70B) (High-Speed ~0.3s)
+    const defaultReportText = `1. **Product Concept & Market Viability**: The concept "${title}" targets a high-growth demand curve in India within the **${category || "Manufacturing"}** sector. Target audience (${targetMarket || "Domestic D2C & B2B Buyers"}) exhibits strong willingness-to-pay for local hardware solutions.
+
+2. **Unit Economics & Margin Target**: Estimated Cost of Goods Sold (COGS) is projected at **₹450 - ₹850 per unit** with a recommended retail price (MSRP) of **₹1,899 - ₹2,999**, yielding a healthy gross margin of **62% to 75%**.
+
+3. **Capex & Initial Tooling Breakdown**: Initial setup capital of **${investmentTier || "₹5 Lakhs - ₹25 Lakhs"}** is optimal for low-volume CNC tooling, 3D printed housings, and component batch ordering without excessive upfront equity dilution.
+
+4. **Bill of Materials (BOM) Sourcing**: Primary component costs are concentrated in structural enclosures (**₹180/unit**), control microcontrollers (**₹220/unit**), and custom eco-packaging (**₹45/unit**). Sourcing from local Indian industrial hubs (Rajkot, Pune, Noida) reduces freight lead times.
+
+5. **Supply Chain & Regulatory Compliance**: Key risks include component procurement delays and BIS / CE certification standards. Founders should secure dual-vendor sourcing agreements for critical electronic chips early.
+
+6. **Go-To-Market & Pre-Order Strategy**: Establish a high-converting landing page to collect 100 paid pre-orders at **₹1,499** prior to initiating batch mold production, validating customer intent.
+
+7. **Break-Even Payback Milestone**: The venture is projected to achieve operational break-even within **6 to 9 Months** upon reaching a monthly sales volume of **350 units**.
+
+8. **Strategic Founder Recommendation**: Maintain a lean capital structure, retain initial assembly in-house, and secure trademark & design patent protections under the Indian IP Scheme for Startups.`;
+
+    // Provider 1: Groq Llama 3.3 (70B)
     if (aiModel === "groq" && groqApiKey) {
       try {
         const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -81,12 +99,16 @@ Description: ${description}`;
               category: category || "Manufacturing",
               feasibilityScore: parsed.feasibilityScore ?? 85,
               ratingLabel: parsed.ratingLabel || "Highly Viable",
-              verdict: parsed.verdict || `The concept "${title}" demonstrates strong hardware viability.`,
-              detailedAnalysis: parsed.detailedAnalysis || `The proposed concept "${title}" addresses a significant market opportunity within the ${category || "Manufacturing"} sector. Initial unit economics suggest an achievable gross margin with manageable prototype tooling capital. Key technical focus areas include component sourcing lead times and thermal assembly verification. By establishing modular Bill of Materials sourcing early and securing pre-orders prior to injection mold investments, the founder can minimize capex exposure while establishing defensive IP positioning against incumbent solutions.`,
+              verdict: parsed.verdict || `The concept "${title}" shows strong market feasibility in Indian Rupees (₹).`,
+              detailedAnalysis: parsed.detailedAnalysis || defaultReportText,
               riskMatrix: parsed.riskMatrix || { technicalComplexity: "Medium", supplyChainRisk: "Moderate", capitalIntensity: "Low", regulatoryBarrier: "Standard" },
-              financialViability: parsed.financialViability || { estimatedCogs: "$18 - $28", projectedMargin: "62% - 75%", breakEvenMonths: "6 to 8 Months", recommendedRetailPrice: "$69 - $99" },
-              billOfMaterials: parsed.billOfMaterials || [{ item: "Main Component", estimatedCost: "$5.00" }],
-              actionPlan: parsed.actionPlan || ["Build prototype", "Obtain supplier quotes"],
+              financialViability: parsed.financialViability || { estimatedCogs: "₹450 - ₹850 per unit", projectedMargin: "62% - 75%", breakEvenMonths: "6 to 8 Months", recommendedRetailPrice: "₹1,899 - ₹2,999" },
+              billOfMaterials: parsed.billOfMaterials || [
+                { item: "Primary Structural Material", estimatedCost: "₹180" },
+                { item: "Control Board / Sensor Array", estimatedCost: "₹220" },
+                { item: "Custom Eco Packaging", estimatedCost: "₹45" },
+              ],
+              actionPlan: parsed.actionPlan || ["Build prototype", "Obtain supplier quotes in ₹ INR", "Launch pre-orders"],
               aiProviderUsed: usedProviderName,
               timestamp: new Date().toISOString(),
             };
@@ -97,7 +119,7 @@ Description: ${description}`;
       }
     }
 
-    // Provider Choice 2: Google Gemini 2.5 / 1.5 Flash (Free Tier Slower)
+    // Provider 2: Google Gemini 2.5 / 1.5 Flash (Free Tier Slower)
     if (!report && (aiModel === "gemini" || geminiApiKey)) {
       if (geminiApiKey) {
         try {
@@ -122,11 +144,11 @@ Description: ${description}`;
                 category: category || "Manufacturing",
                 feasibilityScore: parsed.feasibilityScore ?? 80,
                 ratingLabel: parsed.ratingLabel || "Moderately Viable",
-                verdict: parsed.verdict || `The concept "${title}" demonstrates solid potential.`,
-                detailedAnalysis: parsed.detailedAnalysis || `Comprehensive strategic evaluation conducted via Gemini 2.5 Flash reveals that "${title}" addresses a clear founder opportunity in ${targetMarket || "B2B/B2C markets"}. The initial capital requirements fall within standard seed parameters, though component supply chain volatility requires early supplier agreements. Developing functional CAD prototypes prior to low-volume injection molding will reduce risk. Gross margins of over 60% are achievable provided packaging and assembly overhead remain disciplined.`,
+                verdict: parsed.verdict || `The concept "${title}" demonstrates solid potential in ₹ INR.`,
+                detailedAnalysis: parsed.detailedAnalysis || defaultReportText,
                 riskMatrix: parsed.riskMatrix || { technicalComplexity: "Medium", supplyChainRisk: "Moderate", capitalIntensity: "Low", regulatoryBarrier: "Standard" },
-                financialViability: parsed.financialViability || { estimatedCogs: "$16 - $26", projectedMargin: "65%", breakEvenMonths: "6 to 9 Months", recommendedRetailPrice: "$65 - $89" },
-                billOfMaterials: parsed.billOfMaterials || [{ item: "Polymer Enclosure", estimatedCost: "$4.50" }],
+                financialViability: parsed.financialViability || { estimatedCogs: "₹500 - ₹900 per unit", projectedMargin: "65%", breakEvenMonths: "6 to 9 Months", recommendedRetailPrice: "₹1,999 - ₹3,499" },
+                billOfMaterials: parsed.billOfMaterials || [{ item: "Enclosure Housing", estimatedCost: "₹190" }],
                 actionPlan: parsed.actionPlan || ["Build CAD model", "Perform market validation"],
                 aiProviderUsed: usedProviderName,
                 timestamp: new Date().toISOString(),
@@ -144,7 +166,6 @@ Description: ${description}`;
       const descLength = description.length;
       let feasibilityScore = 78;
       if (descLength > 150) feasibilityScore += 6;
-      if (investmentTier === "< $10k") feasibilityScore += 6;
 
       usedProviderName = "Offline Heuristic Rule Engine";
       report = {
@@ -152,28 +173,28 @@ Description: ${description}`;
         category: category || "Manufacturing",
         feasibilityScore,
         ratingLabel: feasibilityScore >= 80 ? "Highly Viable" : "Moderately Viable",
-        verdict: `The concept "${title}" shows favorable capital-efficiency metrics.`,
-        detailedAnalysis: `Detailed analytical evaluation of "${title}" indicates strong viability within the ${category || "Hardware"} sector. Operating under the ${investmentTier || "< $50k"} investment tier allows for agile prototyping and rapid iteration. Key technical milestones must focus on BOM cost reduction, supplier vendor audits, and securing preliminary pre-orders to validate consumer demand before tooling investments.`,
+        verdict: `The concept "${title}" shows favorable capital-efficiency metrics in ₹ INR.`,
+        detailedAnalysis: defaultReportText,
         riskMatrix: {
           technicalComplexity: category === "Hardware / Electronics" ? "High" : "Medium",
           supplyChainRisk: "Moderate",
-          capitalIntensity: investmentTier === "$250k+" ? "High" : "Low",
+          capitalIntensity: investmentTier === "₹25 Lakhs+" ? "High" : "Low",
           regulatoryBarrier: "Standard",
         },
         financialViability: {
-          estimatedCogs: "$14 - $24 per unit",
-          projectedMargin: "60% - 72%",
+          estimatedCogs: "₹450 - ₹850 per unit",
+          projectedMargin: "62% - 75%",
           breakEvenMonths: "6 to 9 Months",
-          recommendedRetailPrice: "$49 - $89",
+          recommendedRetailPrice: "₹1,899 - ₹2,999",
         },
         billOfMaterials: [
-          { item: "Primary Structural Material", estimatedCost: "$4.50" },
-          { item: "Control Board Array", estimatedCost: "$3.20" },
-          { item: "Fasteners & Gaskets", estimatedCost: "$1.10" },
+          { item: "Primary Structural Material", estimatedCost: "₹180" },
+          { item: "Control Board Microcontroller", estimatedCost: "₹220" },
+          { item: "Fasteners & Seal Gaskets", estimatedCost: "₹65" },
         ],
         actionPlan: [
           "3D print functional MVP prototype.",
-          "Obtain quotes for batch tooling.",
+          "Obtain vendor quotes in ₹ INR.",
           "Launch pre-order pre-launch landing page.",
         ],
         aiProviderUsed: usedProviderName,

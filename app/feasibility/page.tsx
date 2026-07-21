@@ -3,11 +3,11 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import CurrencyConverter from "@/components/CurrencyConverter";
 import {
   BrainCircuit,
   Sparkles,
   CheckCircle2,
-  AlertTriangle,
   Boxes,
   TrendingUp,
   ShieldAlert,
@@ -15,6 +15,7 @@ import {
   Zap,
   Clock,
   FileText,
+  IndianRupee,
 } from "lucide-react";
 
 interface AssessmentReport {
@@ -46,8 +47,8 @@ export default function FeasibilityPage() {
     title: "",
     description: "",
     category: "Manufacturing",
-    investmentTier: "$10k - $50k",
-    targetMarket: "D2C Consumers & Local Retailers",
+    investmentTier: "₹5 Lakhs - ₹25 Lakhs",
+    targetMarket: "D2C Consumers & Local Indian Retailers",
     aiModel: "groq", // "groq" (fast) or "gemini" (slower free tier)
   });
 
@@ -82,6 +83,59 @@ export default function FeasibilityPage() {
     }
   };
 
+  // Helper to format numbered report points with bold text and colored highlights
+  const renderFormattedReport = (rawText: string) => {
+    const lines = rawText.split(/\n+/).filter((l) => l.trim().length > 0);
+
+    return (
+      <div className="space-y-4">
+        {lines.map((line, idx) => {
+          // Parse point number if present (e.g., "1. ", "2. ")
+          const match = line.match(/^(\d+[\.\)])\s*(.*)/);
+          const num = match ? match[1] : `${idx + 1}.`;
+          const content = match ? match[2] : line;
+
+          // Highlight bold text **text** with colored spans
+          const parts = content.split(/(\*\*.*?\*\*)/);
+
+          return (
+            <div key={idx} className="flex items-start space-x-3 rounded-xl border border-slate-800/80 bg-slate-950/80 p-4 shadow-sm hover:border-slate-700 transition">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/20 text-xs font-black text-indigo-400 border border-indigo-500/30">
+                {num}
+              </span>
+              <div className="text-xs text-slate-300 leading-relaxed pt-0.5 font-sans">
+                {parts.map((part, pIdx) => {
+                  if (part.startsWith("**") && part.endsWith("**")) {
+                    const cleanText = part.slice(2, -2);
+                    // Color key financial numbers in emerald, titles in purple/amber
+                    const isCurrency = cleanText.includes("₹") || cleanText.includes("RS") || cleanText.includes("INR");
+                    const isMetric = cleanText.includes("%") || cleanText.includes("Months");
+
+                    return (
+                      <strong
+                        key={pIdx}
+                        className={`font-extrabold px-1 rounded ${
+                          isCurrency
+                            ? "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20"
+                            : isMetric
+                            ? "text-indigo-300 bg-indigo-500/10 border border-indigo-500/20"
+                            : "text-amber-300 bg-amber-500/10 border border-amber-500/20"
+                        }`}
+                      >
+                        {cleanText}
+                      </strong>
+                    );
+                  }
+                  return <span key={pIdx}>{part}</span>;
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
       <Navbar />
@@ -91,7 +145,7 @@ export default function FeasibilityPage() {
         <div className="max-w-4xl mx-auto px-4 text-center">
           <div className="inline-flex items-center space-x-2 rounded-full bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold text-indigo-400 border border-indigo-500/20 mb-4">
             <BrainCircuit className="h-3.5 w-3.5" />
-            <span>AI Startup & Manufacturing Co-Founder</span>
+            <span>AI Startup & Manufacturing Co-Founder (₹ INR Enabled)</span>
           </div>
 
           <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight font-display">
@@ -99,13 +153,16 @@ export default function FeasibilityPage() {
           </h1>
 
           <p className="mt-4 text-base md:text-lg text-slate-300">
-            Pitch your custom manufacturing or hardware concept. Choose your AI Engine and receive an extensive 200-400 word strategic analysis report alongside feasibility scores.
+            Pitch your hardware concept. Receive an extensive AI Report in Indian Rupees (₹) with numbered point-by-point analysis, colored metrics, and risk projections.
           </p>
         </div>
       </section>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-10">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-10 space-y-8">
+        {/* Currency Converter Widget */}
+        <CurrencyConverter />
+
         {!report ? (
           <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 md:p-8 backdrop-blur-md space-y-6">
             {error && (
@@ -204,16 +261,16 @@ export default function FeasibilityPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-white mb-2">Estimated Capex / Budget</label>
+                <label className="block text-sm font-semibold text-white mb-2">Estimated Capex Budget (₹ Rupees)</label>
                 <select
                   value={formData.investmentTier}
                   onChange={(e) => setFormData({ ...formData, investmentTier: e.target.value })}
-                  className="w-full rounded-xl bg-slate-950 border border-slate-800 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none"
+                  className="w-full rounded-xl bg-slate-950 border border-slate-800 px-4 py-3 text-sm text-white focus:border-indigo-500 focus:outline-none font-medium"
                 >
-                  <option value="< $10k">&lt; $10,000 (Micro-Lab)</option>
-                  <option value="$10k - $50k">$10,000 - $50,000 (Low Batch)</option>
-                  <option value="$50k - $250k">$50,000 - $250,000 (Mid Industrial)</option>
-                  <option value="$250k+">$250,000+ (Full Factory)</option>
+                  <option value="< ₹5 Lakhs">&lt; ₹5 Lakhs (Micro Lab Prototype)</option>
+                  <option value="₹5 Lakhs - ₹25 Lakhs">₹5 Lakhs - ₹25 Lakhs (Low Batch Production)</option>
+                  <option value="₹25 Lakhs - ₹1 Crore">₹25 Lakhs - ₹1 Crore (Mid Industrial Plant)</option>
+                  <option value="₹1 Crore+">₹1 Crore+ (Full Factory Plant)</option>
                 </select>
               </div>
             </div>
@@ -234,7 +291,7 @@ export default function FeasibilityPage() {
               <label className="block text-sm font-semibold text-white mb-2">Target Audience / Customer Segment</label>
               <input
                 type="text"
-                placeholder="e.g. Eco-conscious urban apartment dwellers, D2C Shopify brands"
+                placeholder="e.g. Urban Indian apartment dwellers, D2C Amazon/Shopify brands"
                 value={formData.targetMarket}
                 onChange={(e) => setFormData({ ...formData, targetMarket: e.target.value })}
                 className="w-full rounded-xl bg-slate-950 border border-slate-800 px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
@@ -244,17 +301,17 @@ export default function FeasibilityPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 hover:opacity-95 transition-opacity disabled:opacity-50 flex items-center justify-center space-x-2"
+              className="w-full rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 hover:opacity-95 transition-opacity disabled:opacity-50 flex items-center justify-center space-x-2 cursor-pointer"
             >
               {loading ? (
                 <>
                   <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                  <span>Running {formData.aiModel === "groq" ? "Groq Llama 3.3" : "Gemini 2.5"} Evaluation...</span>
+                  <span>Generating Detailed AI Report in ₹ INR...</span>
                 </>
               ) : (
                 <>
                   <Sparkles className="h-4 w-4" />
-                  <span>Generate 200-400 Word AI Audit & Scores</span>
+                  <span>Generate Detailed AI Report (₹ INR)</span>
                 </>
               )}
             </button>
@@ -290,24 +347,25 @@ export default function FeasibilityPage() {
               </div>
             </div>
 
+            {/* AI REPORT SECTION */}
+            <div className="rounded-2xl border border-indigo-500/30 bg-slate-900/60 p-6 md:p-8 backdrop-blur-md space-y-6">
+              <div className="flex items-center space-x-2 text-indigo-400 border-b border-slate-800 pb-4">
+                <FileText className="h-5 w-5" />
+                <h3 className="text-xl font-bold text-white font-display">AI Report</h3>
+                <span className="text-xs text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-semibold ml-auto">
+                  ₹ INR Formatted
+                </span>
+              </div>
+
+              {/* Numbered Points & Colored Bold Formatting */}
+              {report.detailedAnalysis && renderFormattedReport(report.detailedAnalysis)}
+            </div>
+
             {/* Verdict Summary */}
             <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md">
               <h3 className="text-base font-bold text-white mb-2">Executive Summary Verdict</h3>
               <p className="text-sm text-slate-300 leading-relaxed font-medium">{report.verdict}</p>
             </div>
-
-            {/* 200-400 WORD DETAILED ANALYSIS REPORT */}
-            {report.detailedAnalysis && (
-              <div className="rounded-2xl border border-indigo-500/30 bg-slate-900/60 p-6 md:p-8 backdrop-blur-md space-y-4">
-                <div className="flex items-center space-x-2 text-indigo-400 border-b border-slate-800 pb-3">
-                  <FileText className="h-5 w-5" />
-                  <h3 className="text-lg font-bold text-white font-display">200-400 Word Comprehensive Strategic AI Report</h3>
-                </div>
-                <div className="text-sm text-slate-300 leading-relaxed space-y-3 whitespace-pre-line">
-                  {report.detailedAnalysis}
-                </div>
-              </div>
-            )}
 
             {/* Risk Matrix */}
             <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md">
@@ -339,7 +397,7 @@ export default function FeasibilityPage() {
             <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md">
               <h3 className="text-base font-bold text-white mb-4 flex items-center space-x-2">
                 <TrendingUp className="h-4 w-4 text-emerald-400" />
-                <span>Financial Viability & Projections</span>
+                <span>Financial Viability & Projections (₹ INR)</span>
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
                 <div className="rounded-xl border border-slate-800 bg-slate-950 p-3">
@@ -366,7 +424,7 @@ export default function FeasibilityPage() {
               <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-md">
                 <h3 className="text-base font-bold text-white mb-3 flex items-center space-x-2">
                   <Boxes className="h-4 w-4 text-indigo-400" />
-                  <span>Suggested BOM Outline</span>
+                  <span>Bill of Materials Outline (₹ INR)</span>
                 </h3>
                 <div className="space-y-2">
                   {report.billOfMaterials.map((bom, idx) => (
