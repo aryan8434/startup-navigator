@@ -37,7 +37,7 @@ You MUST return strictly valid JSON matching this schema:
   "financialViability": {
     "estimatedCogs": string (in ₹ Rupees, e.g. "₹450 - ₹850 per unit"),
     "projectedMargin": string (e.g. "62% - 75%"),
-    "breakEvenMonths": string (e.g. "6 to 9 Months"),
+    "breakEvenMonths": string (Range must be between 6 Months up to 5 Years e.g. "18 Months" or "3.5 Years". If payback exceeds 5 years / 60 months, strictly return "Never"),
     "recommendedRetailPrice": string (in ₹ Rupees, e.g. "₹1,899 - ₹2,999")
   },
   "billOfMaterials": [ { "item": string, "estimatedCost": string (in ₹ Rupees, e.g. "₹180") } ],

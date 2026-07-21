@@ -41,8 +41,20 @@ export default function CostCalculatorPage() {
       ? Math.ceil(inputs.monthlyOverhead / contributionMarginPerUnit)
       : 0;
 
-  const paybackMonths =
-    monthlyOperatingIncome > 0 ? (inputs.toolingCost / monthlyOperatingIncome).toFixed(1) : "N/A";
+  const rawPaybackMonths = monthlyOperatingIncome > 0 ? inputs.toolingCost / monthlyOperatingIncome : Infinity;
+
+  let paybackMonths = "Never";
+  if (rawPaybackMonths > 0 && rawPaybackMonths <= 60) {
+    if (rawPaybackMonths < 12) {
+      const months = Math.max(6, Math.round(rawPaybackMonths));
+      paybackMonths = `${months} Mo.`;
+    } else {
+      const yrs = (rawPaybackMonths / 12).toFixed(1);
+      paybackMonths = `${yrs} Yrs`;
+    }
+  } else {
+    paybackMonths = "Never";
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
