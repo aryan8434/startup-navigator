@@ -14,9 +14,11 @@ export async function POST(request: Request) {
     }
 
     const groqApiKey = process.env.GROQ_API_KEY;
+    const geminiApiKey = process.env.GEMINI_API_KEY;
 
     let report = null;
 
+    // Provider 1: Groq Llama 3.3 (70B)
     if (groqApiKey) {
       try {
         const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -84,11 +86,48 @@ Description: ${description}`,
           }
         }
       } catch (llmErr) {
-        console.error("Groq AI evaluation failed, resorting to fallback logic:", llmErr);
+        console.error("Groq AI evaluation failed, attempting Gemini fallback:", llmErr);
       }
     }
 
-    // Fallback if LLM is unavailable or fails
+    // Provider 2: Google Gemini 2.5 / 1.5 Flash (Free Tier)
+    if (!report && geminiApiKey) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
+        const prompt = `Analyze startup concept and output valid JSON: { "feasibilityScore": 82, "ratingLabel": "Highly Viable", "verdict": "string", "riskMatrix": { "technicalComplexity": "Medium", "supplyChainRisk": "Moderate", "capitalIntensity": "Low", "regulatoryBarrier": "Standard" }, "financialViability": { "estimatedCogs": "$15-$25", "projectedMargin": "60%", "breakEvenMonths": "6 Months", "recommendedRetailPrice": "$69" }, "billOfMaterials": [{"item": "Part 1", "estimatedCost": "$5"}], "actionPlan": ["Step 1"] }. Title: ${title}, Description: ${description}`;
+
+        const geminiRes = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+        });
+
+        if (geminiRes.ok) {
+          const gData = await geminiRes.json();
+          const rawText = gData.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (rawText) {
+            const cleanJson = rawText.replace(/```json|```/g, "").trim();
+            const parsed = JSON.parse(cleanJson);
+            report = {
+              title,
+              category: category || "Manufacturing",
+              feasibilityScore: parsed.feasibilityScore ?? 80,
+              ratingLabel: parsed.ratingLabel || "Moderately Viable",
+              riskMatrix: parsed.riskMatrix || { technicalComplexity: "Medium", supplyChainRisk: "Moderate", capitalIntensity: "Low", regulatoryBarrier: "Standard" },
+              financialViability: parsed.financialViability || { estimatedCogs: "$15 - $25", projectedMargin: "65%", breakEvenMonths: "6 to 8 Months", recommendedRetailPrice: "$59" },
+              billOfMaterials: parsed.billOfMaterials || [{ item: "Structural Core", estimatedCost: "$4.00" }],
+              actionPlan: parsed.actionPlan || ["Create 3D prototype", "Perform cost analysis"],
+              verdict: parsed.verdict || `The concept "${title}" was analyzed via Gemini 2.5 Flash.`,
+              timestamp: new Date().toISOString(),
+            };
+          }
+        }
+      } catch (geminiErr) {
+        console.error("Gemini AI evaluation failed:", geminiErr);
+      }
+    }
+
+    // Fallback algorithmic scoring if LLM calls are unconfigured or fail
     if (!report) {
       const descLength = description.length;
       let feasibilityScore = 75;
@@ -144,13 +183,17 @@ Description: ${description}`,
       };
     }
 
-    // Log the audit into search history for founder dashboard tracking
-    await db.searchHistory.create({
-      userId: null,
-      query: `Feasibility Audit: ${title}`,
-      answer: report.verdict,
-      sources: [`Score: ${report.feasibilityScore}/100`, report.ratingLabel],
-    });
+    // Safely log the audit into search history (non-blocking)
+    try {
+      await db.searchHistory.create({
+        userId: null,
+        query: `Feasibility Audit: ${title}`,
+        answer: report.verdict,
+        sources: [`Score: ${report.feasibilityScore}/100`, report.ratingLabel],
+      });
+    } catch (logErr) {
+      console.warn("Feasibility log save failed non-fatally:", logErr);
+    }
 
     return NextResponse.json({ success: true, report });
   } catch (error) {

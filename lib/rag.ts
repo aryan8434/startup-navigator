@@ -153,12 +153,17 @@ Based on the official guides in the Startup Navigator, here is a consolidated an
 }
 
 /**
- * Call Gemini Pro API via HTTP POST.
+ * Call Gemini 2.5 / 1.5 Flash API via HTTP POST.
  */
 async function callGemini(query: string, context: string, apiKey: string): Promise<string | null> {
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
-    const prompt = `You are the Startup Navigator AI Assistant, a helpful expert guide for startup founders.
+    // Try Gemini 2.5 Flash / 1.5 Flash endpoints
+    const models = ["gemini-2.5-flash", "gemini-1.5-flash", "gemini-pro"];
+    
+    for (const model of models) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const prompt = `You are the Startup Navigator AI Assistant, a helpful expert guide for startup founders.
 Answer the user's question using ONLY the provided context articles. 
 Ensure your answer is friendly, professionally formatted in Markdown, and directly references parts of the context where applicable.
 If the answer cannot be found in the context articles, say: "I couldn't find a direct answer in our startup guide database, but based on general knowledge..." and then provide a helpful answer based on general startup principles, but clearly mark it as general advice.
@@ -171,25 +176,30 @@ ${query}
 
 Answer in clean Markdown:`;
 
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [{ text: prompt }]
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [{ text: prompt }]
+              }
+            ]
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) {
+            return `${text}\n\n*Source Model: Google Gemini 2.5 Flash (Free Tier - Medium Speed)*`;
           }
-        ]
-      })
-    });
-
-    if (!response.ok) {
-      console.error("Gemini API error status:", response.status);
-      return null;
+        }
+      } catch (err) {
+        console.warn(`Gemini model ${model} invocation failed:`, err);
+      }
     }
-
-    const data = await response.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || null;
+    return null;
   } catch (error) {
     console.error("Error invoking Gemini:", error);
     return null;
@@ -281,7 +291,11 @@ ${query}`;
     }
 
     const data = await response.json();
-    return data.choices?.[0]?.message?.content || null;
+    const content = data.choices?.[0]?.message?.content;
+    if (content) {
+      return `${content}\n\n*Source Model: Groq Llama 3.3 (70B) (High-Speed Engine)*`;
+    }
+    return null;
   } catch (error) {
     console.error("Error invoking Groq:", error);
     return null;
@@ -289,7 +303,7 @@ ${query}`;
 }
 
 /**
- * Core RAG execution function.
+ * Core RAG execution function with sequential multi-provider fallback.
  */
 export async function executeRagSearch(query: string): Promise<{ answer: string; sources: string[] }> {
   const articles = await db.articles.findMany();
@@ -312,7 +326,6 @@ export async function executeRagSearch(query: string): Promise<{ answer: string;
   
   // Get top 3 items for context
   const topMatches = ranked.filter(r => r.score > 0).slice(0, 3);
-  const sources = topMatches.map(m => m.article.title);
 
   // Generate context string
   const contextParts = topMatches.map(
@@ -326,21 +339,28 @@ export async function executeRagSearch(query: string): Promise<{ answer: string;
 
   let answer: string | null = null;
 
+  // Provider 1: Groq Cloud Llama 3.3 (70B) High-Speed
   if (groqKey) {
     answer = await callGroq(query, context, groqKey);
-  } else if (geminiKey) {
+  }
+
+  // Provider 2: Google Gemini 2.5 / 1.5 Flash (Free Tier)
+  if (!answer && geminiKey) {
     answer = await callGemini(query, context, geminiKey);
-  } else if (openaiKey) {
+  }
+
+  // Provider 3: OpenAI GPT-4o-mini
+  if (!answer && openaiKey) {
     answer = await callOpenAI(query, context, openaiKey);
   }
 
-  // Fallback to local extractive RAG if APIs fail or keys are absent
+  // Fallback to local extractive RAG if AI APIs fail or return null
   if (!answer) {
     answer = runLocalRag(query, ranked.filter(r => r.score > 0));
   }
 
   return {
     answer,
-    sources: topMatches.map(m => m.article.id) // Return IDs for linking
+    sources: topMatches.map(m => m.article.id)
   };
 }

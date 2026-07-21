@@ -111,46 +111,54 @@ export interface Schema {
 const DB_DIR = path.join(process.cwd(), "data");
 const DB_FILE = path.join(DB_DIR, "db.json");
 
-// Ensure data folder and db.json exist
+let memorySchema: Schema | null = null;
+
+function getInitialSchema(): Schema {
+  const articlesWithIds: Article[] = seedArticles.map((a) => ({
+    ...a,
+    id: Math.random().toString(36).substring(2, 11),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }));
+
+  const resourcesWithIds: Resource[] = seedResources.map((r) => ({
+    ...r,
+    id: Math.random().toString(36).substring(2, 11),
+    createdAt: new Date().toISOString(),
+  }));
+
+  const ideasWithIds: Idea[] = seedIdeas.map((i) => ({
+    ...i,
+    id: Math.random().toString(36).substring(2, 11),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }));
+
+  return {
+    users: [],
+    articles: articlesWithIds,
+    searchHistory: [],
+    resources: resourcesWithIds,
+    ideas: ideasWithIds,
+  };
+}
+
+// Ensure data folder and db.json exist (with in-memory fallback for Vercel read-only FS)
 function initDb() {
-  if (!fs.existsSync(DB_DIR)) {
-    fs.mkdirSync(DB_DIR, { recursive: true });
-  }
+  if (memorySchema) return;
 
-  if (!fs.existsSync(DB_FILE)) {
-    const articlesWithIds: Article[] = seedArticles.map((a) => ({
-      ...a,
-      id: Math.random().toString(36).substring(2, 11),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }));
+  try {
+    if (!fs.existsSync(DB_DIR)) {
+      fs.mkdirSync(DB_DIR, { recursive: true });
+    }
 
-    const resourcesWithIds: Resource[] = seedResources.map((r) => ({
-      ...r,
-      id: Math.random().toString(36).substring(2, 11),
-      createdAt: new Date().toISOString(),
-    }));
-
-    const ideasWithIds: Idea[] = seedIdeas.map((i) => ({
-      ...i,
-      id: Math.random().toString(36).substring(2, 11),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }));
-
-    const initialData: Schema = {
-      users: [],
-      articles: articlesWithIds,
-      searchHistory: [],
-      resources: resourcesWithIds,
-      ideas: ideasWithIds,
-    };
-    fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), "utf-8");
-  } else {
-    // If DB exists but ideas property is missing, migration patch
-    try {
+    if (!fs.existsSync(DB_FILE)) {
+      const initialData = getInitialSchema();
+      fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), "utf-8");
+      memorySchema = initialData;
+    } else {
       const raw = fs.readFileSync(DB_FILE, "utf-8");
-      const parsed = JSON.parse(raw);
+      const parsed = JSON.parse(raw) as Schema;
       if (!parsed.ideas || parsed.ideas.length === 0) {
         parsed.ideas = seedIdeas.map((i) => ({
           ...i,
@@ -158,45 +166,49 @@ function initDb() {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         }));
-        fs.writeFileSync(DB_FILE, JSON.stringify(parsed, null, 2), "utf-8");
       }
-    } catch {
-      // ignore
+      memorySchema = parsed;
+    }
+  } catch {
+    // If local file system is read-only (e.g., Vercel serverless environment), use in-memory state
+    if (!memorySchema) {
+      memorySchema = getInitialSchema();
     }
   }
 }
 
-// Simple Promise-based lock queue to prevent race conditions during concurrent writes
 let writeQueue: Promise<void> = Promise.resolve();
 
 export async function readDb(): Promise<Schema> {
   initDb();
   try {
-    const data = await fs.promises.readFile(DB_FILE, "utf-8");
-    const parsed = JSON.parse(data) as Schema;
-    if (!parsed.ideas) parsed.ideas = [];
-    return parsed;
-  } catch (error) {
-    console.error("Error reading database:", error);
-    return { users: [], articles: [], searchHistory: [], resources: [], ideas: [] };
+    if (fs.existsSync(DB_FILE)) {
+      const data = await fs.promises.readFile(DB_FILE, "utf-8");
+      const parsed = JSON.parse(data) as Schema;
+      if (!parsed.ideas) parsed.ideas = [];
+      memorySchema = parsed;
+      return parsed;
+    }
+  } catch {
+    // ignore read error
   }
+  return memorySchema || getInitialSchema();
 }
 
 export async function writeDb(data: Schema): Promise<void> {
   initDb();
-  // Queue up the write operation
-  const nextWrite = new Promise<void>((resolve, reject) => {
+  memorySchema = data;
+
+  const nextWrite = new Promise<void>((resolve) => {
     writeQueue = writeQueue.then(async () => {
       try {
-        // Write to a temporary file first, then rename (atomic write)
         const tempFile = `${DB_FILE}.tmp`;
         await fs.promises.writeFile(tempFile, JSON.stringify(data, null, 2), "utf-8");
         await fs.promises.rename(tempFile, DB_FILE);
-        resolve();
-      } catch (error) {
-        console.error("Error writing database:", error);
-        reject(error);
+      } catch {
+        // Read-only filesystem on Vercel: state is safely stored in memorySchema
       }
+      resolve();
     });
   });
   return nextWrite;
