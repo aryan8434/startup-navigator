@@ -330,6 +330,28 @@
       ],
       "id": "31hhusazx",
       "timestamp": "2026-07-21T07:04:44.851Z"
+    },
+    {
+      "userId": null,
+      "query": "Feasibility Audit: Solar Dryer for Fruits and Vegetables (Groq Llama 3.3 (70B) — High-Speed Engine)",
+      "answer": "The solar dryer for fruits and vegetables is a viable startup concept with potential for high returns, estimated to be around ₹50 Lakhs - ₹1 Crore in the first year, with a growth rate of 15% - 20% per annum.",
+      "sources": [
+        "Score: 82/100",
+        "Highly Viable"
+      ],
+      "id": "f3cdfitzq",
+      "timestamp": "2026-07-21T07:26:09.337Z"
+    },
+    {
+      "userId": null,
+      "query": "Feasibility Audit: Solar Dryer for Fruits and Vegetables (Offline Heuristic Rule Engine)",
+      "answer": "The concept \"Solar Dryer for Fruits and Vegetables\" shows favorable capital-efficiency metrics in ₹ INR.",
+      "sources": [
+        "Score: 78/100",
+        "Moderately Viable"
+      ],
+      "id": "b4syloun0",
+      "timestamp": "2026-07-21T07:26:16.342Z"
     }
   ],
   "resources": [

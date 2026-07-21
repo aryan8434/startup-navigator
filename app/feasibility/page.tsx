@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import {
@@ -55,32 +55,10 @@ export default function FeasibilityPage() {
   const [report, setReport] = useState<AssessmentReport | null>(null);
   const [error, setError] = useState("");
 
-  // Parse query parameters when transferring data from idea detail page
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const title = params.get("title");
-      const category = params.get("category");
-      const tier = params.get("tier");
-      const targetMarket = params.get("targetMarket");
-      const description = params.get("description");
+  const autoRunRef = useRef(false);
 
-      if (title || description) {
-        setFormData((prev) => ({
-          ...prev,
-          title: title || prev.title,
-          category: category || prev.category,
-          investmentTier: tier || prev.investmentTier,
-          targetMarket: targetMarket || prev.targetMarket,
-          description: description || prev.description,
-        }));
-      }
-    }
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.title || !formData.description) {
+  const runAssessment = async (dataToSubmit = formData) => {
+    if (!dataToSubmit.title || !dataToSubmit.description) {
       setError("Please fill out the concept title and detailed description.");
       return;
     }
@@ -93,8 +71,8 @@ export default function FeasibilityPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...formData,
-          targetMarket: formData.targetMarket || "D2C & B2B Customers",
+          ...dataToSubmit,
+          targetMarket: dataToSubmit.targetMarket || "D2C & B2B Customers",
         }),
       });
 
@@ -106,6 +84,38 @@ export default function FeasibilityPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Parse query parameters when transferring data from idea detail page & auto-run once
+  useEffect(() => {
+    if (typeof window !== "undefined" && !autoRunRef.current) {
+      const params = new URLSearchParams(window.location.search);
+      const title = params.get("title");
+      const category = params.get("category");
+      const tier = params.get("tier");
+      const targetMarket = params.get("targetMarket");
+      const description = params.get("description");
+
+      if (title && description) {
+        autoRunRef.current = true;
+        const transferredData = {
+          title,
+          category: category || "Manufacturing",
+          investmentTier: tier || "₹5 Lakhs - ₹25 Lakhs",
+          targetMarket: targetMarket || "",
+          description,
+          aiModel: "groq",
+        };
+        setFormData(transferredData);
+        runAssessment(transferredData);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await runAssessment(formData);
   };
 
   // Helper to format numbered report points with bold text and colored highlights
