@@ -128,7 +128,7 @@ Below is the chronological user prompt history documenting product decisions acr
 
 | Step | User Prompt / Directive | Strategic Intent & Implementation |
 | :--- | :--- | :--- |
-| **1** | *"MAKE A WEB APPLICATION ON STARTUP / MANUFACTURING IDEAS (REF: 10000ideas.com / ideabrowser.com)..."* | Core Product & Declarations: Stated immediate availability (0 days) & 6.5 LPA salary. |
+| **1** | *"MAKE A WEB APPLICATION ON STARTUP / MANUFACTURING IDEAS (REF: 10000ideas.com / ideabrowser.com)..."* | Core Product & Declarations: Stated immediate availability (0 days). |
 | **2** | `gsk_E7RJX5zspE2MPEee...` *groq api key...* | Integrated Groq Cloud Llama 3.3 (70B) for fast hardware concept evaluations. |
 | **3** | *"how to deploy on vercel... where RAG vector databases have been used..."* | Added RAG documentation page (`/architecture`) & animated pulse CTAs. |
 | **4** | *"remove flashy button from sign out, and put architecture and docs button top right..."* | Positioned `⚡ Architecture & Docs` top-right of Sign Out. |

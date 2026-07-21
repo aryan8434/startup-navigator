@@ -46,7 +46,6 @@
 
 ### Candidate Profile & Status
 * **Immediate Availability:** **YES (0 Days Notice / Immediate Joiner)**
-* **Previous Salary on Paper:** **6.5 LPA**
 * **Live Published Application (Vercel):** [https://startup-navigator-taupe.vercel.app/](https://startup-navigator-taupe.vercel.app/)
 * **GitHub Repository:** [https://github.com/aryan8434/startup-navigator](https://github.com/aryan8434/startup-navigator)
 

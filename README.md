@@ -16,7 +16,6 @@
 > [!IMPORTANT]
 > **Candidate Status & Availability Declaration**
 > * **Immediate Availability**: **YES — Available Immediately** (0 days notice period, can start immediately).
-> * **Previous Salary on Paper**: **INR 6,50,000 / annum (6.5 LPA)** *(Adjustable / Open for discussion based on role evaluation)*.
 
 ---
 
