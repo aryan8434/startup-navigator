@@ -101,12 +101,38 @@ export interface Idea {
   updatedAt: string;
 }
 
+export interface FeasibilityReport {
+  id: string;
+  title: string;
+  category: string;
+  feasibilityScore: number;
+  ratingLabel: string;
+  verdict: string;
+  detailedAnalysis: string;
+  riskMatrix: {
+    technicalComplexity: string;
+    supplyChainRisk: string;
+    capitalIntensity: string;
+    regulatoryBarrier: string;
+  };
+  financialViability: {
+    estimatedCogs: string;
+    projectedMargin: string;
+    breakEvenMonths: string;
+    recommendedRetailPrice: string;
+  };
+  billOfMaterials: { item: string; estimatedCost: string }[];
+  actionPlan: string[];
+  createdAt: string;
+}
+
 export interface Schema {
   users: User[];
   articles: Article[];
   searchHistory: SearchLog[];
   resources: Resource[];
   ideas: Idea[];
+  feasibilityReports: FeasibilityReport[];
 }
 
 const DB_DIR = path.join(process.cwd(), "data");
@@ -141,6 +167,7 @@ function getInitialSchema(): Schema {
     searchHistory: [],
     resources: resourcesWithIds,
     ideas: ideasWithIds,
+    feasibilityReports: [],
   };
 }
 
@@ -398,6 +425,25 @@ export const db = {
       data.ideas.splice(index, 1);
       await writeDb(data);
       return true;
+    },
+  },
+
+  feasibilityReports: {
+    findMany: async () => {
+      const data = await readDb();
+      return data.feasibilityReports || [];
+    },
+    create: async (report: Omit<FeasibilityReport, "id" | "createdAt">) => {
+      const data = await readDb();
+      const newReport: FeasibilityReport = {
+        ...report,
+        id: Math.random().toString(36).substring(2, 11),
+        createdAt: new Date().toISOString(),
+      };
+      if (!data.feasibilityReports) data.feasibilityReports = [];
+      data.feasibilityReports.unshift(newReport);
+      await writeDb(data);
+      return newReport;
     },
   },
 };

@@ -311,20 +311,33 @@ export async function executeRagSearch(
 ): Promise<{ answer: string; sources: string[] }> {
   const articles = await db.articles.findMany();
   const ideas = await db.ideas.findMany();
+  const feasibilityReports = await db.feasibilityReports.findMany();
 
-  // Convert ideas to article format for RAG indexing
+  // Convert manufacturing ideas to article format for RAG indexing
   const ideaArticles: Article[] = ideas.map((idea) => ({
     id: idea.id,
     title: `[Manufacturing Idea] ${idea.title}`,
     category: idea.category,
     summary: idea.tagline,
-    content: `Idea: ${idea.title}\nCategory: ${idea.category}\nInvestment Tier: ${idea.investmentTier}\nMargin: ${idea.profitMargin}\nTAM: ${idea.tam}\nProblem: ${idea.problemStatement}\nSolution: ${idea.proposedSolution}\nBOM: ${idea.billOfMaterials.map(b => `${b.item} (${b.costPerUnit})`).join(", ")}\nProcess: ${idea.manufacturingProcess.join(" -> ")}`,
+    content: `Idea Concept: ${idea.title}\nCategory: ${idea.category}\nInvestment Tier: ${idea.investmentTier}\nMargin: ${idea.profitMargin}\nTAM: ${idea.tam}\nProblem Statement: ${idea.problemStatement}\nProposed Solution: ${idea.proposedSolution}\nBill of Materials: ${idea.billOfMaterials.map(b => `${b.item} (${b.costPerUnit})`).join(", ")}\nMachinery Needed: ${idea.machineryNeeded.map(m => `${m.name} (${m.estimatedCost})`).join(", ")}\nManufacturing Process: ${idea.manufacturingProcess.join(" -> ")}\nGrowth Playbook: ${idea.growthPlaybook.join(", ")}`,
     tags: idea.tags,
     createdAt: idea.createdAt,
     updatedAt: idea.updatedAt,
   }));
 
-  const combined = [...articles, ...ideaArticles];
+  // Convert AI Feasibility Reports to article format for RAG indexing
+  const reportArticles: Article[] = feasibilityReports.map((report) => ({
+    id: report.id,
+    title: `[AI Feasibility Audit] ${report.title}`,
+    category: report.category,
+    summary: `${report.ratingLabel} (Score: ${report.feasibilityScore}/100)`,
+    content: `Evaluated Concept: ${report.title}\nCategory: ${report.category}\nFeasibility Score: ${report.feasibilityScore} / 100 (${report.ratingLabel})\nVerdict: ${report.verdict}\nFinancial Viability: COGS ${report.financialViability.estimatedCogs}, Gross Margin ${report.financialViability.projectedMargin}, Payback Horizon ${report.financialViability.breakEvenMonths}, Recommended MSRP ${report.financialViability.recommendedRetailPrice}\nRisk Matrix: Technical ${report.riskMatrix.technicalComplexity}, Supply Chain ${report.riskMatrix.supplyChainRisk}, Capital ${report.riskMatrix.capitalIntensity}, Regulatory ${report.riskMatrix.regulatoryBarrier}\nBill of Materials: ${report.billOfMaterials.map(b => `${b.item}: ${b.estimatedCost}`).join(", ")}\nDetailed Analysis:\n${report.detailedAnalysis}`,
+    tags: ["Feasibility Report", "AI Audit", report.category, report.ratingLabel],
+    createdAt: report.createdAt,
+    updatedAt: report.createdAt,
+  }));
+
+  const combined = [...articles, ...ideaArticles, ...reportArticles];
   const ranked = rankArticles(query, combined);
   
   // Get top 3 items for context

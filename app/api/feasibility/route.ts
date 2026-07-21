@@ -255,8 +255,21 @@ Description: ${description}`;
       };
     }
 
-    // Log the audit into search history safely (non-blocking)
+    // Save report into persistent RAG database
     try {
+      await db.feasibilityReports.create({
+        title,
+        category: category || "Manufacturing",
+        feasibilityScore: report.feasibilityScore,
+        ratingLabel: report.ratingLabel,
+        verdict: report.verdict,
+        detailedAnalysis: report.detailedAnalysis,
+        riskMatrix: report.riskMatrix,
+        financialViability: report.financialViability,
+        billOfMaterials: report.billOfMaterials || [],
+        actionPlan: report.actionPlan || [],
+      });
+
       await db.searchHistory.create({
         userId: null,
         query: `Feasibility Audit: ${title} (${usedProviderName})`,
