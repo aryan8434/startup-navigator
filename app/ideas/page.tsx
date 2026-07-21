@@ -228,7 +228,7 @@ export default function IdeasExplorer() {
                     className="accent-indigo-500"
                   />
                   <span className={genAiModel === "gemini" ? "text-purple-400 font-bold" : "text-slate-400"}>
-                    🐢 Gemini
+                    Gemini <span className="text-[10px] text-rose-400 font-bold bg-rose-500/10 px-1 py-0.5 rounded border border-rose-500/20">(under testing & may be inaccurate)</span>
                   </span>
                 </label>
               </div>

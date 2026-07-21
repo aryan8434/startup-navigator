@@ -253,9 +253,14 @@ export default function FeasibilityPage() {
                       <Clock className="h-4 w-4 text-purple-400" />
                       <span>Google Gemini 2.5 Flash</span>
                     </div>
-                    <span className="inline-block mt-1 text-[11px] font-semibold text-indigo-300 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">
-                      Free Tier (~2s Slower)
-                    </span>
+                    <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                      <span className="inline-block text-[11px] font-semibold text-indigo-300 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">
+                        Free Tier (~2s Slower)
+                      </span>
+                      <span className="inline-block text-[11px] font-bold text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
+                        Model may be inaccurate & is currently under testing
+                      </span>
+                    </div>
                   </div>
                 </label>
               </div>

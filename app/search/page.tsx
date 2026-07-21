@@ -215,7 +215,10 @@ export default function AISearch() {
                     className="accent-indigo-500"
                   />
                   <span className={aiModel === "gemini" ? "text-purple-400 font-bold" : "text-slate-400"}>
-                    🐢 Google Gemini 2.5 Flash — Free Tier (~2s)
+                    Google Gemini 2.5 Flash — Free Tier (~2s)
+                  </span>
+                  <span className="text-[10px] font-bold text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20">
+                    Model may be inaccurate & is under testing
                   </span>
                 </label>
               </div>
