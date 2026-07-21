@@ -58,6 +58,7 @@ export default function Navbar() {
     { name: "Idea Explorer", href: "/ideas" },
     { name: "AI Feasibility", href: "/feasibility" },
     { name: "Cost Calculator", href: "/calculator" },
+    { name: "Architecture & RAG Docs", href: "/architecture" },
     { name: "Guides", href: "/explore" },
     { name: "Resources", href: "/resources" },
     { name: "AI Search", href: "/search" },
@@ -78,15 +79,15 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-5">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`text-sm font-medium transition-colors duration-200 hover:text-indigo-400 ${
-                    isActive ? "text-indigo-500 font-semibold" : "text-slate-300"
+                  className={`text-xs font-medium transition-colors duration-200 hover:text-indigo-400 ${
+                    isActive ? "text-indigo-400 font-bold border-b-2 border-indigo-500 pb-0.5" : "text-slate-300"
                   }`}
                 >
                   {link.name}
@@ -95,16 +96,16 @@ export default function Navbar() {
             })}
           </div>
 
-          {/* User Auth Section */}
-          <div className="hidden md:flex items-center space-x-4">
+          {/* User Auth Section with Flashy Red-Green Button */}
+          <div className="hidden md:flex items-center space-x-3">
             {!loading && (
               <>
                 {user ? (
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-3">
                     {user.role === "admin" && (
                       <Link
                         href="/admin"
-                        className="flex items-center space-x-1 text-xs px-2.5 py-1 bg-red-950/40 text-red-400 border border-red-900/60 rounded-full hover:bg-red-900/40 transition"
+                        className="flex items-center space-x-1 text-xs px-2 py-0.5 bg-red-950/40 text-red-400 border border-red-900/60 rounded-full hover:bg-red-900/40 transition"
                       >
                         <ShieldAlert className="h-3 w-3" />
                         <span>Admin</span>
@@ -112,33 +113,33 @@ export default function Navbar() {
                     )}
                     <Link
                       href="/dashboard"
-                      className="flex items-center space-x-1.5 text-sm text-slate-300 hover:text-white transition"
+                      className="flex items-center space-x-1.5 text-xs font-bold text-white px-3 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-800 transition"
                     >
-                      <LayoutDashboard className="h-4 w-4 text-indigo-400" />
+                      <LayoutDashboard className="h-3.5 w-3.5 text-indigo-400" />
                       <span>Dashboard</span>
                     </Link>
-                    <span className="text-slate-500 text-xs">|</span>
                     <button
                       onClick={handleLogout}
-                      className="flex items-center space-x-1.5 text-sm text-slate-400 hover:text-rose-400 transition cursor-pointer"
+                      className="flex items-center space-x-1.5 text-xs px-3.5 py-1.5 rounded-lg text-white flashy-auth-btn cursor-pointer shadow-lg transition"
+                      title="Click to Sign Out"
                     >
-                      <LogOut className="h-4 w-4" />
+                      <LogOut className="h-3.5 w-3.5" />
                       <span>Sign Out</span>
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2">
                     <Link
                       href="/login"
-                      className="text-sm font-medium text-slate-300 hover:text-white transition"
+                      className="text-xs font-medium text-slate-300 hover:text-white px-2 py-1 transition"
                     >
                       Sign In
                     </Link>
                     <Link
                       href="/register"
-                      className="text-sm font-medium px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition duration-200 btn-gradient"
+                      className="text-xs px-4 py-2 rounded-lg text-white flashy-auth-btn shadow-lg transition duration-200 cursor-pointer flex items-center space-x-1"
                     >
-                      Get Started
+                      <span>Get Started / Register</span>
                     </Link>
                   </div>
                 )}
