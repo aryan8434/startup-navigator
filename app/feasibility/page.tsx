@@ -120,7 +120,9 @@ export default function FeasibilityPage() {
 
   // Helper to format numbered report points with bold text and colored highlights
   const renderFormattedReport = (rawText: string) => {
-    const lines = rawText.split(/\n+/).filter((l) => l.trim().length > 0);
+    // Normalize inline numbered points onto separate lines (e.g. " 2. ", " 3. ")
+    const normalizedText = rawText.replace(/(\s+)(\d+[\.\)])(\s+)/g, "\n$2$3");
+    const lines = normalizedText.split(/\n+/).filter((l) => l.trim().length > 0);
 
     return (
       <div className="space-y-4">
@@ -130,6 +132,7 @@ export default function FeasibilityPage() {
           const content = match ? match[2] : line;
 
           const parts = content.split(/(\*\*.*?\*\*)/);
+          let boldCount = 0;
 
           return (
             <div key={idx} className="flex items-start space-x-3 rounded-xl border border-slate-800/80 bg-slate-950/80 p-4 shadow-sm hover:border-slate-700 transition print-card">
@@ -139,19 +142,17 @@ export default function FeasibilityPage() {
               <div className="text-xs text-slate-300 leading-relaxed pt-0.5 font-sans">
                 {parts.map((part, pIdx) => {
                   if (part.startsWith("**") && part.endsWith("**")) {
+                    boldCount++;
                     const cleanText = part.slice(2, -2);
-                    const isCurrency = cleanText.includes("₹") || cleanText.includes("RS") || cleanText.includes("INR");
-                    const isMetric = cleanText.includes("%") || cleanText.includes("Months");
+                    const isHeading = boldCount === 1;
 
                     return (
                       <strong
                         key={pIdx}
-                        className={`font-extrabold px-1 rounded ${
-                          isCurrency
-                            ? "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20"
-                            : isMetric
-                            ? "text-indigo-300 bg-indigo-500/10 border border-indigo-500/20"
-                            : "text-amber-300 bg-amber-500/10 border border-amber-500/20"
+                        className={`font-extrabold rounded-md inline-block my-0.5 ${
+                          isHeading
+                            ? "text-purple-300 bg-purple-950/80 border border-purple-700/50 shadow-sm px-2 py-0.5 mr-1"
+                            : "text-emerald-400 bg-emerald-950/70 border border-emerald-700/40 shadow-sm px-1.5 py-0.5 mx-0.5"
                         }`}
                       >
                         {cleanText}
