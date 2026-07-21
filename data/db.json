@@ -352,6 +352,39 @@
       ],
       "id": "b4syloun0",
       "timestamp": "2026-07-21T07:26:16.342Z"
+    },
+    {
+      "userId": null,
+      "query": "Feasibility Audit: mobile company (Groq Llama 3.3 (70B) — High-Speed Engine)",
+      "answer": "The startup idea is highly unlikely to succeed with a budget of ₹5,000 and a goal to beat Apple in 6 months, targeting high net worth individuals.",
+      "sources": [
+        "Score: 5/100",
+        "High Friction"
+      ],
+      "id": "zpf0at99v",
+      "timestamp": "2026-07-21T07:27:17.740Z"
+    },
+    {
+      "userId": null,
+      "query": "Feasibility Audit: mobile company (Offline Heuristic Rule Engine)",
+      "answer": "The concept \"mobile company\" shows favorable capital-efficiency metrics in ₹ INR.",
+      "sources": [
+        "Score: 78/100",
+        "Moderately Viable"
+      ],
+      "id": "tu9hyna40",
+      "timestamp": "2026-07-21T07:28:02.449Z"
+    },
+    {
+      "userId": null,
+      "query": "Feasibility Audit: fish oil omega (Groq Llama 3.3 (70B) — High-Speed Engine)",
+      "answer": "The startup concept of fish oil omega has a potential market size of ₹500 crores, with an estimated initial investment of ₹3.5 lakhs, offering a promising return on investment.",
+      "sources": [
+        "Score: 82/100",
+        "Highly Viable"
+      ],
+      "id": "n5ioadytm",
+      "timestamp": "2026-07-21T07:28:57.647Z"
     }
   ],
   "resources": [

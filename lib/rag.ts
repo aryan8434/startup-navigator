@@ -120,7 +120,7 @@ function runLocalRag(query: string, matches: MatchResult[]): string {
   if (matches.length === 0) {
     return `### AI Search Assistant Response
 
-I couldn't find any direct guides or articles matching your question in the Startup Navigator database. 
+I couldn't find any direct guides or articles matching your question in the NxtVenture database. 
 
 Try asking questions about:
 *   **Company Registration** (LLCs, Corporations, Delaware filing)
@@ -135,7 +135,7 @@ Try asking questions about:
   const queryTokens = tokenize(query);
   let answer = `### AI Search Assistant (Local Extractive RAG)
 
-Based on the official guides in the Startup Navigator, here is a consolidated answer to your query:
+Based on the official guides in NxtVenture, here is a consolidated answer to your query:
 
 `;
 
@@ -163,7 +163,7 @@ async function callGemini(query: string, context: string, apiKey: string): Promi
     for (const model of models) {
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-        const prompt = `You are the Startup Navigator AI Assistant, a helpful expert guide for startup founders.
+        const prompt = `You are the NxtVenture AI Assistant, a helpful expert guide for startup founders.
 Answer the user's question using ONLY the provided context articles. 
 Ensure your answer is friendly, professionally formatted in Markdown, and directly references parts of the context where applicable.
 If the answer cannot be found in the context articles, say: "I couldn't find a direct answer in our startup guide database, but based on general knowledge..." and then provide a helpful answer based on general startup principles, but clearly mark it as general advice.
@@ -212,7 +212,7 @@ Answer in clean Markdown:`;
 async function callOpenAI(query: string, context: string, apiKey: string): Promise<string | null> {
   try {
     const url = "https://api.openai.com/v1/chat/completions";
-    const prompt = `You are the Startup Navigator AI Assistant, a helpful expert guide for startup founders.
+    const prompt = `You are the NxtVenture AI Assistant, a helpful expert guide for startup founders.
 Answer the user's question using ONLY the provided context articles. 
 Ensure your answer is friendly, professionally formatted in Markdown, and directly references parts of the context where applicable.
 If the answer cannot be found in the context articles, say: "I couldn't find a direct answer in our startup guide database, but based on general knowledge..." and then provide a helpful answer based on general startup principles, but clearly mark it as general advice.
@@ -258,7 +258,7 @@ ${query}`;
 async function callGroq(query: string, context: string, apiKey: string): Promise<string | null> {
   try {
     const url = "https://api.groq.com/openai/v1/chat/completions";
-    const prompt = `You are the Startup Navigator AI Assistant, a helpful expert guide for startup founders.
+    const prompt = `You are the NxtVenture AI Assistant, a helpful expert guide for startup founders.
 Answer the user's question using ONLY the provided context articles. 
 Ensure your answer is friendly, professionally formatted in Markdown, and directly references parts of the context where applicable.
 If the answer cannot be found in the context articles, say: "I couldn't find a direct answer in our startup guide database, but based on general knowledge..." and then provide a helpful answer based on general startup principles, but clearly mark it as general advice.

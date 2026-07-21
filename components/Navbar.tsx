@@ -72,7 +72,7 @@ export default function Navbar() {
             <Link href="/" className="flex items-center space-x-2 group">
               <Rocket className="h-6 w-6 text-indigo-500 group-hover:text-purple-400 transition-colors duration-300" />
               <span className="font-display font-bold text-xl tracking-tight text-white">
-                Startup<span className="text-indigo-500 group-hover:text-purple-400 transition-colors duration-300">Navigator</span>
+                Nxt<span className="text-indigo-500 group-hover:text-purple-400 transition-colors duration-300">Venture</span>
               </span>
             </Link>
           </div>

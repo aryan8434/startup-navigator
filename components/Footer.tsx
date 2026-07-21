@@ -12,7 +12,7 @@ export default function Footer() {
           <div className="md:col-span-2">
             <div className="flex items-center space-x-2 text-white font-display font-bold text-lg mb-4">
               <Rocket className="h-5 w-5 text-indigo-500" />
-              <span>Startup<span className="text-indigo-500">Navigator</span></span>
+              <span>Nxt<span className="text-indigo-500">Venture</span></span>
             </div>
             <p className="text-sm leading-relaxed max-w-sm">
               Your comprehensive full-stack interactive companion for launching high-growth companies. Explore guides on legal, branding, hiring, tax, fundraising, and leverage our RAG AI Search for instant navigation.
@@ -50,7 +50,7 @@ export default function Footer() {
         {/* Bottom */}
         <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 space-y-4 sm:space-y-0">
           <div>
-            &copy; {currentYear} Startup Navigator. All rights reserved.
+            &copy; {currentYear} NxtVenture. All rights reserved.
           </div>
           <div className="flex items-center space-x-1">
             <span>Crafted with</span>

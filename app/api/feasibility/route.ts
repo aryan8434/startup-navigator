@@ -1,6 +1,24 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
+function checkIsGibberish(title: string, desc: string): boolean {
+  const cleanTitle = title.trim().toLowerCase();
+  const cleanDesc = desc.trim().toLowerCase();
+
+  // Short length check
+  if (cleanTitle.length < 3 || cleanDesc.length < 5) return true;
+
+  // Keyboard mashes patterns (e.g. fgbfg, ghfnghj, asdfgh, etc.)
+  const mashRegex = /(?:[bcdfghjklmnpqrstvwxyz]{6,}|[aeiou]{5,}|fgbfg|ghfng|asdf|qwerty|zxcv|1234|test1|abcd)/i;
+  if (mashRegex.test(cleanTitle) || mashRegex.test(cleanDesc)) return true;
+
+  // Check vowel ratio in title if longer than 4 chars
+  const titleVowels = (cleanTitle.match(/[aeiou]/gi) || []).length;
+  if (cleanTitle.length >= 5 && titleVowels === 0) return true;
+
+  return false;
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -13,6 +31,39 @@ export async function POST(request: Request) {
       );
     }
 
+    // Check for garbage / gibberish inputs and immediately score 0
+    if (checkIsGibberish(title, description)) {
+      return NextResponse.json({
+        success: true,
+        report: {
+          title,
+          category: category || "Manufacturing",
+          feasibilityScore: 0,
+          ratingLabel: "Non-Viable / Invalid Input",
+          verdict: `Concept "${title}" rejected. Gibberish or unparseable input provided.`,
+          detailedAnalysis: `1. **Invalid Pitch & Missing Context**: The submitted product title ("${title}") or description ("${description}") contains unparseable keyboard mashes or nonsensical input. No viable manufacturing analysis can be performed for invalid inputs.\n\n2. **Zero Financial Viability**: Unit economics, Bill of Materials, and margin targets are defaulted to ₹0 as no valid hardware component specs were identified.\n\n3. **Founder Recommendation**: Please resubmit with a clear, coherent product concept title and detailed description.`,
+          riskMatrix: {
+            technicalComplexity: "Undefined",
+            supplyChainRisk: "Critical",
+            capitalIntensity: "High Risk",
+            regulatoryBarrier: "Unviable",
+          },
+          financialViability: {
+            estimatedCogs: "₹0",
+            projectedMargin: "0%",
+            breakEvenMonths: "Never",
+            recommendedRetailPrice: "₹0",
+          },
+          billOfMaterials: [
+            { item: "Unparsed / Gibberish Input", estimatedCost: "₹0" },
+          ],
+          actionPlan: ["Provide a clear product title and concept description."],
+          aiProviderUsed: "NxtVenture Validation Shield",
+          timestamp: new Date().toISOString(),
+        },
+      });
+    }
+
     const groqApiKey = process.env.GROQ_API_KEY;
     const geminiApiKey = process.env.GEMINI_API_KEY;
 
@@ -22,10 +73,12 @@ export async function POST(request: Request) {
     const promptInstructions = `You are an expert manufacturing co-founder, venture capitalist, and hardware engineer. 
 Analyze the startup idea thoroughly. ALL FINANCIAL FIGURES MUST BE EXCLUSIVELY IN INDIAN RUPEES (₹ / INR).
 
+CRITICAL INPUT VALIDATION: First evaluate if the pitch represents a coherent, real product concept. If the title or description is gibberish (e.g. "fgbfg", "ghfnghj", keyboard mashes, or missing meaningful context), YOU MUST STRICTLY RETURN feasibilityScore: 0, ratingLabel: "Non-Viable / Invalid Input", verdict: "Invalid or gibberish pitch input.", financialViability: { estimatedCogs: "₹0", projectedMargin: "0%", breakEvenMonths: "Never", recommendedRetailPrice: "₹0" }, and detailedAnalysis explaining why the input was rejected as non-viable.
+
 You MUST return strictly valid JSON matching this schema:
 {
   "feasibilityScore": number (strictly between 0 and 100, where 0 is non-viable and 100 is highly viable),
-  "ratingLabel": string ("Highly Viable" for 75-100 | "Moderately Viable" for 41-74 | "High Friction" for 0-40),
+  "ratingLabel": string ("Highly Viable" for 75-100 | "Moderately Viable" for 41-74 | "High Friction" for 0-40 | "Non-Viable / Invalid Input" for 0),
   "verdict": string (short summary verdict in Indian Rupees),
   "detailedAnalysis": string (an extensive, long AI Report written in numbered points: 1., 2., 3., 4., 5., 6., 7., 8. Use bold headers, bold key metrics, and INR ₹ currency formatting for every point),
   "riskMatrix": {
@@ -43,7 +96,7 @@ You MUST return strictly valid JSON matching this schema:
   "billOfMaterials": [ { "item": string, "estimatedCost": string (in ₹ Rupees, e.g. "₹180") } ],
   "actionPlan": [ string ]
 }
-Do NOT include markdown code fences outside JSON. Write a very long, comprehensive AI Report in the "detailedAnalysis" field using numbered points 1-8.`;
+Do NOT include markdown code fences outside JSON. Write a comprehensive AI Report in the "detailedAnalysis" field using numbered points 1-8.`;
 
     const userPrompt = `Assess this startup concept:
 Title: ${title}

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Startup Navigator — Comprehensive Guide to Startups",
-  description: "Explore company registration, funding, legal, hiring, branding, tax, and query our RAG AI Search Assistant.",
+  title: "NxtVenture — Manufacturing & Hardware Startup Navigator",
+  description: "Explore manufacturing blueprints, unit economics in ₹ INR, bill of materials, and AI feasibility audits.",
 };
 
 export default function RootLayout({
