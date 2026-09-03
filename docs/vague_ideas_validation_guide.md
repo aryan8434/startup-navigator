@@ -26,7 +26,7 @@ Incoming User Pitch Data
             ▼                             ▼
 ┌───────────────────────┐     ┌─────────────────────────────────────────┐
 │ EARLY TERMINATION     │     │ TIER 2: LLM System Prompt Validation    │ ──► Generative LLM API Call
-│ Return Score: 0 / 100 │     │ (Groq Llama 3.3 70B / Gemini 2.5)       │
+│ Return Score: 0 / 100 │     │ (Groq GPT-OSS 120B / Gemini 3.5)       │
 │ Cost Saved: 100%      │     └────────────────────┬────────────────────┘
 └───────────────────────┘                          │
                                                    ▼
@@ -40,7 +40,7 @@ Incoming User Pitch Data
 * **Cost Reduction:** **100% API Cost Elimination ($0.00 / 0 Tokens)**. Immediately returns a structured `Score: 0 / 100 (Non-Viable / Invalid Input)` payload without spending API credits or encountering LLM rate limits.
 
 ### 2. Tier 2: In-LLM System Prompt Validation Directive (Prompt-Level Shield)
-* **Execution Layer:** Groq Llama 3.3 (70B) & Google Gemini 2.5 System Prompt.
+* **Execution Layer:** Groq GPT-OSS 120B & Google Gemini 3.5 System Prompt.
 * **Mechanism:** If a short or vague input (e.g. single generic word) passes Tier 1, system prompt directives force the LLM to judge pitch coherence first. If the concept lacks meaningful manufacturing context, the LLM outputs `feasibilityScore: 0` and defaults financial metrics to `₹0`.
 
 ---

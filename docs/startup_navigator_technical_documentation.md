@@ -33,9 +33,14 @@
 | **Icons & Typography** | **Lucide React & Google Fonts** | Lucide React Iconography with Google Fonts (*Inter* & *Outfit*). |
 | **Backend** | **Next.js 16 Server API Routes** | RESTful JSON endpoints (`/api/feasibility`, `/api/ideas`, `/api/search`, `/api/articles`). |
 | **Authentication** | **JWT & Bcrypt Cookie Auth** | Cookie-based session tokens with password hashing for security. |
-| **Primary AI Engine** | **Groq Cloud Llama 3.3 (70B)** | High-speed generative inference engine (~0.3s latency) executing hardware audits and idea generation. |
-| **Secondary AI Engine** | **Google Gemini 2.5 Flash** | Alternative free-tier LLM engine (under testing warning enabled). |
-| **Fallback AI Engine** | **Offline Heuristic Rule Engine** | Offline manufacturing evaluation engine providing 100% uptime fallback. |
+| **AI Provider Router** | **`lib/providers.ts`** | Multi-provider router. Each provider declares a preference-ordered model list and the router falls through candidates, then providers, before reporting failure. A model that returns a hard 404 is remembered and skipped for the rest of the process. |
+| **Primary AI Engine** | **Groq** | Candidates: `openai/gpt-oss-120b`, `openai/gpt-oss-20b`, `qwen/qwen3.8-27b`. Measured ~0.5-5s depending on report length. |
+| **Secondary AI Engine** | **Google Gemini** | Candidates: `gemini-3.5-flash`, `gemini-3.1-flash-lite`, `gemini-3.6-flash`. Used as the independent second opinion in consensus mode. |
+| **Optional Third Engine** | **OpenAI** | Candidates: `gpt-4o-mini`, `gpt-4.1-mini`. Enabled only when `OPENAI_API_KEY` is set. |
+| **Health Probe** | **`GET /api/health`** | Sends a real completion to every configured provider and reports which model answered plus its latency. Presence of an API key is never treated as proof a provider works. |
+| **Live Evidence Layer** | **`lib/evidence.ts`** | Retrieves citable external data from Wikipedia, World Bank Open Data, Crossref, arXiv and Hacker News. No API keys. Each connector is independently timed out and query-relaxed; failures degrade the evidence pack rather than the request. |
+| **Confidence Model** | **`lib/confidence.ts`** | Scores 0-100 how much the verdict should be trusted, from evidence volume, source authority, source diversity, cross-model agreement, pitch specificity, internal knowledge overlap and calibration against past assessments. Computed from observable facts, never asked of the model. |
+| **Fallback AI Engine** | **Offline Extractive Engine** | Used for RAG search only. The feasibility evaluator does *not* fall back to invented numbers: if every provider fails it returns "Assessment Unavailable" with all figures marked *Not assessed* and confidence 0. |
 | **RAG Vector Engine** | **TF-IDF Multi-Weighted Vector Engine** | Custom vector similarity matching module (`lib/rag.ts`) with tokenization and stop-word filtering. |
 | **Database (DB)** | **JSON Atomic Database (`data/db.json`)** | Persistence engine with temp-file locking queue (`DB_FILE.tmp`). |
 | **Serverless DB Fallback** | **`memorySchema` In-Memory DB** | In-memory schema state fallback solving Vercel read-only filesystem (`EROFS`) constraints. |
@@ -81,16 +86,20 @@ flowchart TD
     end
 
     subgraph Multi_AI_Engine ["Multi-Provider AI Execution Layer"]
-        ModelSelector -->|Groq Selected| GroqAPI["Groq Llama 3.3 (70B) (~0.3s High Speed)"]
-        ModelSelector -->|Gemini Selected| GeminiAPI["Google Gemini 2.5 Flash (~2s Free Tier)"]
-        GroqAPI -->|API Error / Timeout| GeminiAPI
-        GeminiAPI -->|API Error / Timeout| RuleEngine["Offline Heuristic Rule Engine"]
+        ModelSelector --> Evidence["Live Evidence Layer (lib/evidence.ts)"]
+        Evidence --> Sources["Wikipedia · World Bank · Crossref · arXiv · Hacker News"]
+        Sources --> GroqAPI["Groq (gpt-oss-120b, fallback chain)"]
+        Sources --> GeminiAPI["Gemini (3.5-flash, fallback chain)"]
+        GroqAPI -->|all candidates fail| Unavailable["Assessment Unavailable (no invented figures)"]
+        GeminiAPI -->|all candidates fail| Unavailable
     end
 
-    GroqAPI --> FeasibilityReport["Structured Report Generator"]
-    GeminiAPI --> FeasibilityReport
-    RuleEngine --> FeasibilityReport
+    GroqAPI --> Reconcile["Reconcile: mean score, measure disagreement"]
+    GeminiAPI --> Reconcile
+    Reconcile --> Confidence["Confidence Model (lib/confidence.ts)"]
+    Confidence --> FeasibilityReport["Structured Report Generator"]
+    Unavailable --> FeasibilityReport
 
-    FeasibilityReport -->|0-100 Score + 4-Vector Risk| ReportUI["AI Report View (Numbered 1-8 in ₹ INR)"]
+    FeasibilityReport -->|Feasibility 0-100 + Confidence 0-100 + cited sources| ReportUI["AI Report View (Numbered 1-8 in ₹ INR, inline [n] citations)"]
     ReportUI -->|Print Command| PDFExport["Clean Executive PDF Export (@media print)"]
 ```

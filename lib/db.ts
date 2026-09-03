@@ -101,6 +101,25 @@ export interface Idea {
   updatedAt: string;
 }
 
+/** A source the assessment actually cited, persisted so reports stay auditable. */
+export interface CitedSource {
+  title: string;
+  url: string;
+  source: string;
+  sourceType: string;
+  snippet: string;
+  retrievedAt: string;
+}
+
+/** How much to trust the score, and why. See lib/confidence.ts. */
+export interface ConfidenceRecord {
+  score: number;
+  band: string;
+  summary: string;
+  factors: { key: string; label: string; score: number; max: number; detail: string }[];
+  caveats: string[];
+}
+
 export interface FeasibilityReport {
   id: string;
   title: string;
@@ -124,6 +143,18 @@ export interface FeasibilityReport {
   billOfMaterials: { item: string; estimatedCost: string }[];
   actionPlan: string[];
   createdAt: string;
+
+  // Fields below were added with the evidence-grounded pipeline. They are
+  // optional so reports written by the earlier version still parse.
+  /** The original pitch text, kept as the similarity key for calibration. */
+  description?: string;
+  /** Keywords used to search external sources. */
+  queryTerms?: string[];
+  citedSources?: CitedSource[];
+  confidence?: ConfidenceRecord;
+  /** Every model that produced a verdict for this pitch. */
+  modelRuns?: { provider: string; model: string; label: string; score: number; latencyMs: number }[];
+  aiProviderUsed?: string;
 }
 
 export interface Schema {
@@ -432,6 +463,45 @@ export const db = {
     findMany: async () => {
       const data = await readDb();
       return data.feasibilityReports || [];
+    },
+    /**
+     * Past assessments of comparable pitches, used to calibrate a new verdict.
+     * Similarity is Jaccard overlap on the pitch vocabulary plus a category
+     * bonus — crude, but it runs in-process with no embedding provider and is
+     * enough to notice when a new score is wildly out of line with precedent.
+     */
+    findSimilar: async (
+      opts: { title: string; description?: string; category?: string; limit?: number }
+    ) => {
+      const data = await readDb();
+      const reports = data.feasibilityReports || [];
+      if (reports.length === 0) return [];
+
+      const tokenize = (text: string) =>
+        new Set(
+          (text || "")
+            .toLowerCase()
+            .replace(/[^\w\s]/g, " ")
+            .split(/\s+/)
+            .filter((w) => w.length > 3)
+        );
+
+      const queryTokens = tokenize(`${opts.title} ${opts.description || ""}`);
+      if (queryTokens.size === 0) return [];
+
+      return reports
+        .map((report) => {
+          const reportTokens = tokenize(`${report.title} ${report.description || ""}`);
+          let shared = 0;
+          for (const token of queryTokens) if (reportTokens.has(token)) shared++;
+          const union = queryTokens.size + reportTokens.size - shared;
+          let similarity = union > 0 ? shared / union : 0;
+          if (opts.category && report.category === opts.category) similarity += 0.15;
+          return { report, similarity };
+        })
+        .filter((m) => m.similarity >= 0.12)
+        .sort((a, b) => b.similarity - a.similarity)
+        .slice(0, opts.limit ?? 5);
     },
     create: async (report: Omit<FeasibilityReport, "id" | "createdAt">) => {
       const data = await readDb();

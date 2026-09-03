@@ -1,15 +1,49 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, type Idea } from "@/lib/db";
+import { chatJson, type ProviderId } from "@/lib/providers";
+import { gatherEvidence, formatEvidenceForPrompt } from "@/lib/evidence";
+
+/** Shape the generator prompt asks for. Every field is optional because it is
+ *  model output: the mapping below supplies a default for anything missing. */
+interface GeneratedIdea {
+  id?: string;
+  title?: string;
+  tagline?: string;
+  category?: string;
+  investmentTier?: string;
+  difficulty?: string;
+  upvotes?: number;
+  feasibilityScore?: number;
+  profitMargin?: string;
+  tam?: string;
+  problemStatement?: string;
+  proposedSolution?: string;
+  billOfMaterials?: { item?: string; costPerUnit?: string }[];
+  manufacturingProcess?: string[];
+}
 
 export async function POST(request: Request) {
   try {
     const { category = "Manufacturing", investmentTier = "₹5 Lakhs - ₹25 Lakhs", aiModel = "groq" } = await request.json();
 
-    const groqApiKey = process.env.GROQ_API_KEY;
-    const geminiApiKey = process.env.GEMINI_API_KEY;
+    // Ground generation in live market data so ideas reference real conditions
+    // rather than the model's stale priors. Failure here is non-fatal.
+    const evidence = await gatherEvidence({
+      title: `${category} manufacturing India`,
+      description: `manufacturing startup opportunities in ${category} at ${investmentTier} capex in India`,
+      category,
+    }).catch(() => null);
 
-    const systemPrompt = `You are a world-class manufacturing co-founder and venture capitalist. 
+    const evidenceBlock = evidence ? formatEvidenceForPrompt(evidence) : "No external evidence retrieved.";
+
+    const systemPrompt = `You are a world-class manufacturing co-founder and venture capitalist.
 Generate 3 unique, high-profit manufacturing startup ideas in the "${category}" category under Capex Tier "${investmentTier}".
+
+Ground your ideas in the retrieved evidence below. Do not invent market statistics that contradict it, and set feasibilityScore honestly based on how well the evidence supports the concept.
+
+RETRIEVED MARKET EVIDENCE:
+${evidenceBlock}
+
 Return strictly valid JSON matching this schema:
 {
   "generatedIdeas": [
@@ -35,70 +69,22 @@ Do NOT wrap in markdown or extra text. Output strictly valid JSON.`;
 
     const userPrompt = `Generate 3 innovative manufacturing startup concepts for category: ${category}, capex: ${investmentTier}. Include Indian Rupees ₹ pricing.`;
 
-    let generatedIdeas = null;
+    let generatedIdeas: GeneratedIdea[] | null = null;
     let providerUsed = "Offline AI Generator";
 
-    // Groq Generator
-    if (aiModel === "groq" && groqApiKey) {
-      try {
-        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${groqApiKey}`,
-          },
-          body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content: userPrompt },
-            ],
-            temperature: 0.7,
-            response_format: { type: "json_object" },
-          }),
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          const raw = data.choices?.[0]?.message?.content;
-          if (raw) {
-            const parsed = JSON.parse(raw);
-            generatedIdeas = parsed.generatedIdeas;
-            providerUsed = "Groq Llama 3.3 (70B)";
-          }
-        }
-      } catch (err) {
-        console.warn("Groq idea generation failed, falling back to Gemini:", err);
+    // One call: the router tries every candidate model on the preferred
+    // provider, then falls through to the other providers before giving up.
+    try {
+      const out = await chatJson<{ generatedIdeas: GeneratedIdea[] }>(
+        { system: systemPrompt, user: userPrompt, temperature: 0.7, maxTokens: 5000 },
+        (aiModel === "gemini" ? "gemini" : "groq") as ProviderId
+      );
+      if (out && Array.isArray(out.data?.generatedIdeas) && out.data.generatedIdeas.length > 0) {
+        generatedIdeas = out.data.generatedIdeas;
+        providerUsed = out.meta.label;
       }
-    }
-
-    // Gemini Generator
-    if (!generatedIdeas && (aiModel === "gemini" || geminiApiKey)) {
-      if (geminiApiKey) {
-        try {
-          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
-          const gRes = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }] }],
-            }),
-          });
-
-          if (gRes.ok) {
-            const gData = await gRes.json();
-            const rawText = gData.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (rawText) {
-              const cleanJson = rawText.replace(/```json|```/g, "").trim();
-              const parsed = JSON.parse(cleanJson);
-              generatedIdeas = parsed.generatedIdeas;
-              providerUsed = "Google Gemini 2.5 Flash";
-            }
-          }
-        } catch (err) {
-          console.warn("Gemini idea generation failed:", err);
-        }
-      }
+    } catch (err) {
+      console.warn("AI idea generation failed across all providers:", err);
     }
 
     // Fallback Mock Ideas if LLMs are unavailable
@@ -151,24 +137,24 @@ Do NOT wrap in markdown or extra text. Output strictly valid JSON.`;
     const savedIdeas = [];
     for (const idea of generatedIdeas) {
       const formattedIdea = {
-        title: idea.title,
+        title: idea.title || "Untitled AI concept",
         slug: idea.id || `gen-${Math.random().toString(36).substring(2, 9)}`,
         tagline: idea.tagline || "AI Generated manufacturing innovation",
-        category: (idea.category as any) || category || "Manufacturing",
-        investmentTier: (idea.investmentTier as any) || investmentTier || "₹5 Lakhs - ₹25 Lakhs",
+        category: (idea.category || category || "Manufacturing") as Idea["category"],
+        investmentTier: (idea.investmentTier || investmentTier || "₹5 Lakhs - ₹25 Lakhs") as Idea["investmentTier"],
         profitMargin: idea.profitMargin || "65%",
-        difficulty: (idea.difficulty as any) || "Intermediate",
+        difficulty: (idea.difficulty || "Intermediate") as Idea["difficulty"],
         targetMarket: "D2C Consumers & B2B Wholesalers",
         tam: idea.tam || "₹250 Cr",
         sam: "₹75 Cr",
         som: "₹15 Cr",
-        summary: idea.tagline || idea.title,
+        summary: idea.tagline || idea.title || "AI generated manufacturing concept",
         problemStatement: idea.problemStatement || "High cost and inefficiency in traditional hardware production.",
         proposedSolution: idea.proposedSolution || "Modular digital manufacturing process with localized supply chain.",
         manufacturingProcess: idea.manufacturingProcess || ["CAD Modeling", "Tooling Assembly", "Quality Inspection"],
-        billOfMaterials: (idea.billOfMaterials || [{ item: "Main Chassis", costPerUnit: "₹250" }]).map((b: any) => ({
-          item: b.item,
-          costPerUnit: b.costPerUnit,
+        billOfMaterials: (idea.billOfMaterials || [{ item: "Main Chassis", costPerUnit: "₹250" }]).map((b) => ({
+          item: String(b.item ?? "Component"),
+          costPerUnit: String(b.costPerUnit ?? "₹0"),
           supplierType: "Domestic Distributor",
           essential: true,
         })),

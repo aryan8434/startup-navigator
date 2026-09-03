@@ -14,7 +14,8 @@ import {
   HelpCircle,
   Clock,
   ExternalLink,
-  Loader2
+  Loader2,
+  Globe
 } from "lucide-react";
 
 interface SearchLog {
@@ -37,12 +38,30 @@ export default function AISearch() {
   const [query, setQuery] = useState("");
   const [answer, setAnswer] = useState("");
   const [sources, setSources] = useState<{ id: string; title: string }[]>([]);
+  // Live external citations retrieved for this answer, separate from the
+  // internal guide matches above.
+  const [webSources, setWebSources] = useState<{ title: string; url: string; source: string }[]>([]);
+  const [providerUsed, setProviderUsed] = useState("");
   const [searchHistory, setSearchHistory] = useState<SearchLog[]>([]);
   const [loading, setLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [hasSearched, setHasSearched] = useState(false);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
   const [aiModel, setAiModel] = useState<"groq" | "gemini">("groq");
+  const [engines, setEngines] = useState<
+    { provider: string; reachable: boolean; workingModel: string | null }[] | null
+  >(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/health")
+      .then((r) => r.json())
+      .then((d) => !cancelled && setEngines(d.providers || []))
+      .catch(() => !cancelled && setEngines([]));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Load search history if logged in
   const loadHistory = async () => {
@@ -82,7 +101,9 @@ export default function AISearch() {
       if (res.ok) {
         const data = await res.json();
         setAnswer(data.answer);
-        
+        setWebSources(data.webSources || []);
+        setProviderUsed(data.providerUsed || "");
+
         // Resolve sources details
         const articlesRes = await fetch("/api/articles");
         if (articlesRes.ok) {
@@ -114,11 +135,75 @@ export default function AISearch() {
     }
   };
 
-  // Helper to render markdown in the search results
+  // Helper to render markdown in the search results.
+  // Walks the lines rather than mapping them, because tables are multi-line
+  // blocks — models reach for them constantly when comparing sourced figures,
+  // and without this they rendered as raw pipe characters.
   const renderMarkdown = (text: string) => {
-    return text.split("\n").map((line, idx) => {
+    const lines = text.split("\n");
+    const blocks: React.ReactNode[] = [];
+    let i = 0;
+
+    const isTableRow = (l: string) => /^\s*\|.*\|\s*$/.test(l);
+    const isTableDivider = (l: string) => /^\s*\|[\s:|-]+\|\s*$/.test(l);
+    const splitRow = (l: string) =>
+      l.trim().replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
+
+    while (i < lines.length) {
+      const line = lines[i];
+
+      if (isTableRow(line) && i + 1 < lines.length && isTableDivider(lines[i + 1])) {
+        const header = splitRow(line);
+        i += 2;
+        const rows: string[][] = [];
+        while (i < lines.length && isTableRow(lines[i])) {
+          rows.push(splitRow(lines[i]));
+          i++;
+        }
+
+        blocks.push(
+          <div key={`t-${i}`} className="scroll-x my-4 rounded-xl border border-slate-800">
+            <table className="w-full min-w-[420px] border-collapse text-left text-xs">
+              <thead>
+                <tr className="bg-slate-900/80">
+                  {header.map((cell, ci) => (
+                    <th key={ci} className="border-b border-slate-800 px-3 py-2 font-bold text-white">
+                      {parseInlineBold(cell)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row, ri) => (
+                  <tr key={ri} className="even:bg-slate-900/30">
+                    {row.map((cell, ci) => (
+                      <td key={ci} className="border-b border-slate-800/60 px-3 py-2 align-top text-slate-300">
+                        {parseInlineBold(cell)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+        continue;
+      }
+
+      blocks.push(renderMarkdownLine(line, i));
+      i++;
+    }
+
+    return blocks;
+  };
+
+  const renderMarkdownLine = (line: string, idx: number) => {
+    {
       const trimmed = line.trim();
 
+      if (trimmed.startsWith("## ") && !trimmed.startsWith("### ")) {
+        return <h2 key={idx} className="text-xl font-bold text-white mt-7 mb-3">{trimmed.substring(3)}</h2>;
+      }
       if (trimmed.startsWith("### ")) {
         return <h3 key={idx} className="text-lg font-bold text-white mt-6 mb-3">{trimmed.substring(4)}</h3>;
       }
@@ -143,16 +228,22 @@ export default function AISearch() {
       if (trimmed === "") return <div key={idx} className="h-2" />;
 
       return <p key={idx} className="text-slate-300 text-sm leading-relaxed mb-3">{parseInlineBold(trimmed)}</p>;
-    });
+    }
   };
 
+  // Handles **bold** and *italic* in one pass. Bold is matched first so the
+  // inner asterisks of a bold span are never mistaken for an italic marker,
+  // which previously left a stray "*" at the end of italicised lines.
   const parseInlineBold = (text: string) => {
-    const parts = text.split(/\*\*([^*]+)\*\*/g);
+    const parts = text.split(/(\*\*[^*]+\*\*|\*[^*\s][^*]*\*)/g).filter(Boolean);
     return parts.map((part, idx) => {
-      if (idx % 2 === 1) {
-        return <strong key={idx} className="text-white font-semibold">{part}</strong>;
+      if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
+        return <strong key={idx} className="text-white font-semibold">{part.slice(2, -2)}</strong>;
       }
-      return parseInlineCode(part);
+      if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
+        return <em key={idx} className="text-slate-400">{part.slice(1, -1)}</em>;
+      }
+      return <span key={idx}>{parseInlineCode(part)}</span>;
     });
   };
 
@@ -162,8 +253,34 @@ export default function AISearch() {
       if (idx % 2 === 1) {
         return <code key={idx} className="bg-slate-900 border border-slate-800 px-1 py-0.5 rounded text-indigo-400 text-xs font-mono">{part}</code>;
       }
-      return part;
+      return <span key={idx}>{parseInlineLinks(part)}</span>;
     });
+  };
+
+  // Models emit `[label](url)` freely; without this it rendered as literal text.
+  const parseInlineLinks = (text: string) => {
+    const parts = text.split(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g);
+    const out: React.ReactNode[] = [];
+    for (let i = 0; i < parts.length; i++) {
+      // The split yields [before, label, url, before, label, url, ...].
+      if (i % 3 === 1 && parts[i + 1]) {
+        out.push(
+          <a
+            key={i}
+            href={parts[i + 1]}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-indigo-400 underline decoration-indigo-500/40 underline-offset-2 transition-colors hover:text-indigo-300"
+          >
+            {parts[i]}
+          </a>
+        );
+        i++;
+      } else if (i % 3 === 0) {
+        out.push(parts[i]);
+      }
+    }
+    return out;
   };
 
   return (
@@ -192,35 +309,46 @@ export default function AISearch() {
 
             {/* AI Model Selector & Search Input Box */}
             <div className="space-y-3">
-              <div className="flex items-center space-x-4 text-xs">
-                <span className="text-slate-400 font-semibold">AI Model Engine:</span>
-                <label className="flex items-center space-x-1.5 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="searchAiModel"
-                    checked={aiModel === "groq"}
-                    onChange={() => setAiModel("groq")}
-                    className="accent-indigo-500"
-                  />
-                  <span className={aiModel === "groq" ? "text-amber-400 font-bold" : "text-slate-400"}>
-                    ⚡ Groq Llama 3.3 (70B) — Fast (~0.3s)
-                  </span>
-                </label>
-                <label className="flex items-center space-x-1.5 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="searchAiModel"
-                    checked={aiModel === "gemini"}
-                    onChange={() => setAiModel("gemini")}
-                    className="accent-indigo-500"
-                  />
-                  <span className={aiModel === "gemini" ? "text-purple-400 font-bold" : "text-slate-400"}>
-                    Google Gemini 2.5 Flash — Free Tier (~2s)
-                  </span>
-                  <span className="text-[10px] font-bold text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20">
-                    Model may be inaccurate & is under testing
-                  </span>
-                </label>
+              {/* Model names come from the live health probe rather than being
+                  hardcoded — the previously pinned ids were retired by both
+                  vendors and the labels stayed wrong long after the calls broke. */}
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
+                <span className="font-semibold text-slate-400">AI engine:</span>
+
+                {([
+                  { id: "groq" as const, name: "Groq", accent: "text-amber-400" },
+                  { id: "gemini" as const, name: "Google Gemini", accent: "text-purple-400" },
+                ]).map((opt) => {
+                  const status = engines?.find((p) => p.provider === opt.id);
+                  return (
+                    <label key={opt.id} className="flex cursor-pointer items-center gap-1.5">
+                      <input
+                        type="radio"
+                        name="searchAiModel"
+                        checked={aiModel === opt.id}
+                        onChange={() => setAiModel(opt.id)}
+                        className="accent-indigo-500"
+                      />
+                      <span className={aiModel === opt.id ? `${opt.accent} font-bold` : "text-slate-400"}>
+                        {opt.name}
+                      </span>
+                      {status?.workingModel && (
+                        <span className="font-mono text-[10px] text-slate-500">{status.workingModel}</span>
+                      )}
+                      {status && (
+                        <span
+                          className={`rounded border px-1.5 py-0.5 text-[10px] font-bold ${
+                            status.reachable
+                              ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-400"
+                              : "border-rose-500/25 bg-rose-500/10 text-rose-400"
+                          }`}
+                        >
+                          {status.reachable ? "live" : "down"}
+                        </span>
+                      )}
+                    </label>
+                  );
+                })}
               </div>
 
               <form 
@@ -295,6 +423,39 @@ export default function AISearch() {
                             </Link>
                           ))}
                         </div>
+                      </div>
+                    )}
+
+                    {/* Live external citations */}
+                    {webSources.length > 0 && (
+                      <div className="mt-6 pt-6 border-t border-slate-900/80">
+                        <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
+                          <Globe className="h-3.5 w-3.5 text-emerald-400" />
+                          <span>Live web sources ({webSources.length})</span>
+                          {providerUsed && (
+                            <span className="ml-auto normal-case tracking-normal text-[11px] text-slate-600">
+                              via {providerUsed}
+                            </span>
+                          )}
+                        </h4>
+                        <ul className="space-y-2 stagger">
+                          {webSources.map((src, i) => (
+                            <li key={src.url + i}>
+                              <a
+                                href={src.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-start gap-2.5 rounded-xl border border-slate-800/80 bg-slate-900 px-3 py-2.5 text-xs transition-colors hover:border-slate-700"
+                              >
+                                <span className="mt-0.5 shrink-0 rounded border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-bold text-emerald-400">
+                                  {src.source}
+                                </span>
+                                <span className="min-w-0 font-medium text-indigo-300">{src.title}</span>
+                                <ExternalLink className="ml-auto mt-0.5 h-3 w-3 shrink-0 text-slate-600" />
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
                     )}
                   </div>

@@ -36,8 +36,8 @@ flowchart TD
     end
 
     subgraph Multi_AI_Engine ["Multi-Provider AI Execution Layer"]
-        ModelSelector -->|Groq Selected| GroqAPI["Groq Llama 3.3 (70B) (~0.3s High Speed)"]
-        ModelSelector -->|Gemini Selected| GeminiAPI["Google Gemini 2.5 Flash (~2s Free Tier)"]
+        ModelSelector -->|Groq Selected| GroqAPI["Groq GPT-OSS 120B (~0.3s High Speed)"]
+        ModelSelector -->|Gemini Selected| GeminiAPI["Google Gemini 3.5 Flash (~2s Free Tier)"]
         GroqAPI -->|API Error / Timeout| GeminiAPI
         GeminiAPI -->|API Error / Timeout| RuleEngine["Offline Heuristic Rule Engine"]
     end
@@ -60,7 +60,7 @@ The platform was built using autonomous AI coding tools (**Antigravity AI Agent*
 | :--- | :--- | :--- |
 | **Phase 1: Foundation** | Next.js 16 setup, TypeScript interfaces, in-memory DB fallback | `lib/db.ts`, `data/db.json` |
 | **Phase 2: RAG Engine** | Vector document indexing, extractive RAG, model selection | `lib/rag.ts`, `app/search/page.tsx` |
-| **Phase 3: Multi-LLM Layer** | Groq Llama 3.3 (70B) + Gemini 2.5 Flash API handlers | `app/api/feasibility/route.ts` |
+| **Phase 3: Multi-LLM Layer** | Groq GPT-OSS 120B + Gemini 3.5 Flash API handlers | `app/api/feasibility/route.ts` |
 | **Phase 4: Shielding & Formatting** | Algorithmic input shield, 0-score returns, purplish headings, green metrics | `app/feasibility/page.tsx` |
 
 ---
@@ -129,7 +129,7 @@ Below is the chronological user prompt history documenting product decisions acr
 | Step | User Prompt / Directive | Strategic Intent & Implementation |
 | :--- | :--- | :--- |
 | **1** | *"MAKE A WEB APPLICATION ON STARTUP / MANUFACTURING IDEAS (REF: 10000ideas.com / ideabrowser.com)..."* | Core Product & Declarations: Stated immediate availability (0 days). |
-| **2** | `gsk_E7RJX5zspE2MPEee...` *groq api key...* | Integrated Groq Cloud Llama 3.3 (70B) for fast hardware concept evaluations. |
+| **2** | `gsk_***REDACTED***` *(Groq API key supplied out-of-band; never commit key material)* | Integrated Groq GPT-OSS 120B for fast hardware concept evaluations. |
 | **3** | *"how to deploy on vercel... where RAG vector databases have been used..."* | Added RAG documentation page (`/architecture`) & animated pulse CTAs. |
 | **4** | *"remove flashy button from sign out, and put architecture and docs button top right..."* | Positioned `⚡ Architecture & Docs` top-right of Sign Out. |
 | **5** | *"Failed to load resource: 500 everywhere AI API not working in vercel..."* | Fixed read-only DB crash (`EROFS`), added Groq vs Gemini dual AI selector, and expanded reports to 200-400 words. |

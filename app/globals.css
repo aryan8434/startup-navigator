@@ -203,3 +203,200 @@ body {
     background-color: #eef2ff !important;
   }
 }
+
+/* =====================================================================
+   Motion, responsiveness and interaction polish
+   ===================================================================== */
+
+/* Fluid type scale: clamps between mobile and desktop rather than jumping
+   at breakpoints, so long report headings stay readable at every width. */
+:root {
+  --step-sm: clamp(0.78rem, 0.74rem + 0.2vw, 0.875rem);
+  --step-base: clamp(0.875rem, 0.83rem + 0.25vw, 1rem);
+  --step-lg: clamp(1.05rem, 0.95rem + 0.5vw, 1.25rem);
+  --step-xl: clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem);
+  --step-2xl: clamp(1.9rem, 1.3rem + 3vw, 3.25rem);
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Stops layout shifting sideways when a modal or report toggles the scrollbar. */
+  scrollbar-gutter: stable;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* iOS Safari: prevents auto-zoom-out shrinking form labels. */
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Never let a long unbroken string (a URL in a citation, a BOM part number)
+   push the page into horizontal scroll on a phone. */
+p, li, td, h1, h2, h3, h4, span, a {
+  overflow-wrap: break-word;
+}
+
+/* Visible, consistent keyboard focus. The default ring was being suppressed by
+   several custom button classes. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid #818cf8;
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+/* Touch targets: anything tappable gets a comfortable hit area on mobile. */
+@media (pointer: coarse) {
+  button, a[role="button"], input[type="radio"], input[type="checkbox"], select {
+    min-height: 44px;
+  }
+}
+
+/* --- Entrance animations ------------------------------------------------ */
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translate3d(0, 12px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+
+@keyframes growWidth {
+  from { width: 0; }
+}
+
+.animate-rise {
+  animation: fadeSlideUp 0.5s var(--ease-out-soft) both;
+}
+
+.animate-fade {
+  animation: fadeIn 0.4s ease-out both;
+}
+
+/* Stagger helpers so lists cascade instead of snapping in all at once. */
+.stagger > * { animation: fadeSlideUp 0.45s var(--ease-out-soft) both; }
+.stagger > *:nth-child(1) { animation-delay: 0.02s; }
+.stagger > *:nth-child(2) { animation-delay: 0.06s; }
+.stagger > *:nth-child(3) { animation-delay: 0.10s; }
+.stagger > *:nth-child(4) { animation-delay: 0.14s; }
+.stagger > *:nth-child(5) { animation-delay: 0.18s; }
+.stagger > *:nth-child(6) { animation-delay: 0.22s; }
+.stagger > *:nth-child(7) { animation-delay: 0.26s; }
+.stagger > *:nth-child(8) { animation-delay: 0.30s; }
+.stagger > *:nth-child(n+9) { animation-delay: 0.34s; }
+
+/* Skeleton placeholder used while a report streams in. */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(30, 41, 59, 0.5) 25%,
+    rgba(51, 65, 85, 0.7) 50%,
+    rgba(30, 41, 59, 0.5) 75%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.6s infinite linear;
+  border-radius: 0.75rem;
+}
+
+/* Meter fill that animates from zero on mount (confidence + score bars). */
+.meter-fill {
+  animation: growWidth 0.9s var(--ease-out-soft) both;
+  transition: width 0.5s var(--ease-out-soft);
+}
+
+/* --- Softer CTA emphasis ------------------------------------------------
+   The previous CTA styles cycled colours every 0.5s, which reads as a broken
+   element and is a genuine problem for motion-sensitive users. These keep the
+   attention-grabbing intent but breathe instead of strobing. */
+
+@keyframes softPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.45), 0 8px 22px -12px rgba(99, 102, 241, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(99, 102, 241, 0), 0 12px 28px -12px rgba(139, 92, 246, 0.7);
+  }
+}
+
+.flashy-auth-btn,
+.flashy-pulse-btn {
+  animation: softPulse 2.4s var(--ease-in-out-soft) infinite;
+  background-image: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  background-color: transparent;
+  border-color: rgba(165, 180, 252, 0.5);
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.015em;
+  border-width: 1px;
+  transition: transform 0.25s var(--ease-out-soft), filter 0.25s var(--ease-out-soft);
+}
+
+.flashy-auth-btn:hover,
+.flashy-pulse-btn:hover {
+  animation-duration: 1.6s;
+  transform: translateY(-1px) scale(1.02);
+  filter: brightness(1.08);
+}
+
+.flashy-auth-btn:active,
+.flashy-pulse-btn:active {
+  transform: translateY(0) scale(0.99);
+}
+
+/* --- Respect the user's motion preference ------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .glassmorphism-card:hover { transform: none; }
+}
+
+/* Backdrop blur is expensive on low-end mobile GPUs and causes visible jank
+   while scrolling long reports; drop it where it is least missed. */
+@media (max-width: 640px) {
+  .glassmorphism,
+  .glassmorphism-card {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(15, 23, 42, 0.85);
+  }
+}
+
+/* Wide content (BOM tables, code, diagrams) scrolls inside its own box rather
+   than forcing the whole page sideways. */
+.scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+/* Print: also hide the interactive-only panels added with the evidence UI. */
+@media print {
+  .no-print, details > summary { display: none !important; }
+  details[open] > * { display: block !important; }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 9px;
+    color: #475569;
+    word-break: break-all;
+  }
+}

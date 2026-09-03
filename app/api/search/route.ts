@@ -11,7 +11,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Search query is required" }, { status: 400 });
     }
 
-    const { answer, sources } = await executeRagSearch(query, aiModel);
+    const { answer, sources, webSources, providerUsed, latencyMs } = await executeRagSearch(
+      query,
+      aiModel
+    );
 
     // Logging search history safely (non-blocking so filesystem locks never crash search)
     try {
@@ -21,13 +24,14 @@ export async function POST(req: NextRequest) {
         userId,
         query: query.trim(),
         answer,
-        sources,
+        // Persist the external URLs too, so past answers stay auditable.
+        sources: [...sources, ...webSources.map((s) => s.url)],
       });
     } catch (logErr) {
       console.warn("Search history logging failed non-fatally:", logErr);
     }
 
-    return NextResponse.json({ answer, sources });
+    return NextResponse.json({ answer, sources, webSources, providerUsed, latencyMs });
   } catch (error) {
     console.error("AI Search API error:", error);
     // Never crash with 500 error; return fallback RAG answer

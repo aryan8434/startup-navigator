@@ -1,6 +1,6 @@
 # NxtVenture — Master Prompt Engineering Specification
 
-This document provides the complete prompt engineering architecture, system directives, schema validations, and master prompts powering the **NxtVenture** platform across **Groq Llama 3.3 (70B)** and **Google Gemini 2.5 Flash** engines.
+This document provides the complete prompt engineering architecture, system directives, schema validations, and master prompts powering the **NxtVenture** platform across **Groq GPT-OSS 120B** and **Google Gemini 3.5 Flash** engines.
 
 ---
 

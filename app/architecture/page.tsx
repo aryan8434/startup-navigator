@@ -54,7 +54,7 @@ export default function ArchitectureDocsPage() {
               <span className="text-xs font-bold text-purple-400 uppercase tracking-wider block mb-1">Location 2: AI Knowledge Search</span>
               <h3 className="text-base font-bold text-white">/search & /api/search</h3>
               <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                The chat search interface queries the vector index, retrieves top matching documents, and sends the context to <strong>Groq Llama 3.3 (70B)</strong> to compile cited, reference-supported answers.
+                The chat search interface queries the vector index, retrieves top matching documents, and sends the context — alongside live evidence retrieved from public sources — to the multi-provider AI router (<strong>Groq GPT-OSS 120B</strong> or <strong>Google Gemini 3.5 Flash</strong>, whichever is reachable) to compile cited, reference-supported answers.
               </p>
             </div>
 
@@ -147,7 +147,7 @@ export default function ArchitectureDocsPage() {
             </div>
             <div className="rounded-xl bg-slate-950 p-4 border border-slate-800">
               <h4 className="font-bold text-white mb-1">Database & RAG Core</h4>
-              <p className="text-slate-400">Atomic temporary file-locking persistence (`lib/db.ts`) combined with multi-weighted TF-IDF vector search and Groq Llama 3.3 (70B).</p>
+              <p className="text-slate-400">Atomic temporary file-locking persistence (`lib/db.ts`) combined with multi-weighted TF-IDF vector search, a live external evidence layer, and a multi-provider AI router with automatic model fallback.</p>
             </div>
           </div>
         </section>

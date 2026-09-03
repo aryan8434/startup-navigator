@@ -250,7 +250,7 @@ export default function Home() {
               Have Specific Questions About Incorporation, SAFEs, or Manufacturing Taxes?
             </h2>
             <p className="mt-4 text-slate-300 text-sm md:text-base leading-relaxed">
-              Our Vector Search RAG engine indexes internal handbooks to provide cited, reference-supported answers instantly. Uses Groq Llama 3.3 / OpenAI with extractive local fallback.
+              Our Vector Search RAG engine indexes internal handbooks to provide cited, reference-supported answers instantly. Grounded in live public data with every source cited, routed across Groq and Gemini with extractive local fallback.
             </p>
           </div>
 
