@@ -4,6 +4,7 @@ import { rankArticles } from "@/lib/rag";
 import { gatherEvidence, formatEvidenceForPrompt, type EvidencePack } from "@/lib/evidence";
 import { chatJson, isConfigured, type ChatResult, type ProviderId } from "@/lib/providers";
 import { computeConfidence } from "@/lib/confidence";
+import { validatePitch, buildRejectionReport } from "@/lib/validation";
 
 /**
  * Evidence-grounded feasibility assessment.
@@ -41,91 +42,6 @@ interface ModelVerdict {
   actionPlan: string[];
   evidenceUsed?: number[];
   keyUncertainties?: string[];
-}
-
-/* ------------------------------------------------------------------ *
- * Input validation                                                    *
- * ------------------------------------------------------------------ */
-
-/**
- * Rejects keyboard mashes before spending a model call on them.
- * Scores coherence from vowel distribution, consonant runs and word shape
- * rather than a fixed blocklist, so novel gibberish is caught too.
- */
-function assessInputCoherence(title: string, description: string): {
-  coherent: boolean;
-  reason: string;
-} {
-  const t = title.trim();
-  const d = description.trim();
-
-  if (t.length < 3) return { coherent: false, reason: "The product title is too short to assess." };
-  if (d.length < 15)
-    return { coherent: false, reason: "The description is too short to assess — describe what the product does, what it is made of, and who buys it." };
-
-  const combined = `${t} ${d}`.toLowerCase();
-  const words = combined.split(/\s+/).filter((w) => w.length > 0);
-
-  const knownMash = /(asdf|qwer|zxcv|hjkl|fgbfg|ghfng|wasd|1234|abcd)/i;
-  if (knownMash.test(combined))
-    return { coherent: false, reason: "The input contains keyboard-mash text." };
-
-  // A real word almost always carries a vowel; long consonant runs do not occur
-  // in English outside abbreviations, which are short.
-  let badWords = 0;
-  for (const word of words) {
-    const alpha = word.replace(/[^a-z]/g, "");
-    if (alpha.length < 4) continue;
-    const vowels = (alpha.match(/[aeiouy]/g) || []).length;
-    const longConsonantRun = /[bcdfghjklmnpqrstvwxz]{5,}/.test(alpha);
-    if (vowels === 0 || longConsonantRun || vowels / alpha.length < 0.15) badWords++;
-  }
-
-  const substantial = words.filter((w) => w.replace(/[^a-z]/g, "").length >= 4).length;
-  if (substantial >= 3 && badWords / substantial > 0.5)
-    return { coherent: false, reason: "Most words in the pitch are not recognisable language." };
-
-  if (words.length < 6)
-    return { coherent: false, reason: "The pitch does not contain enough words to analyse." };
-
-  return { coherent: true, reason: "" };
-}
-
-function invalidReport(title: string, category: string, reason: string) {
-  return {
-    title,
-    category: category || "Manufacturing",
-    feasibilityScore: 0,
-    ratingLabel: "Non-Viable / Invalid Input",
-    verdict: `Concept "${title}" could not be assessed. ${reason}`,
-    detailedAnalysis: `1. **Input Rejected**: ${reason}\n\n2. **No Analysis Performed**: No external research was run and no model was called, so no financial figures are presented. Reporting numbers for an unparseable pitch would be fabrication.\n\n3. **What To Do Next**: Resubmit with a clear product name, what it physically is, the key materials or components, how it is made, and who buys it.`,
-    riskMatrix: {
-      technicalComplexity: "Not assessed",
-      supplyChainRisk: "Not assessed",
-      capitalIntensity: "Not assessed",
-      regulatoryBarrier: "Not assessed",
-    },
-    financialViability: {
-      estimatedCogs: "Not assessed",
-      projectedMargin: "Not assessed",
-      breakEvenMonths: "Not assessed",
-      recommendedRetailPrice: "Not assessed",
-    },
-    billOfMaterials: [],
-    actionPlan: ["Resubmit with a clear product title and a concrete description."],
-    aiProviderUsed: "NxtVenture Validation Shield",
-    citedSources: [],
-    modelRuns: [],
-    confidence: {
-      score: 0,
-      band: "Very Low" as const,
-      summary: "Input rejected before assessment — no confidence can be assigned.",
-      factors: [],
-      caveats: [reason],
-    },
-    evidenceMeta: { sourcesUsed: [], failures: [], queryTerms: [], durationMs: 0, cached: false },
-    timestamp: new Date().toISOString(),
-  };
 }
 
 /* ------------------------------------------------------------------ *
@@ -267,11 +183,28 @@ export async function POST(request: Request) {
       );
     }
 
-    const coherence = assessInputCoherence(String(title), String(description));
-    if (!coherence.coherent) {
+    /* --- 0. Two-stage validation gate ---------------------------------
+       Nothing expensive runs until a pitch clears both stages. Stage 1 is a
+       free deterministic screen; stage 2 is a single cheap model call that
+       judges whether the concept is real-world-plausible at all. A pitch like
+       "headphones for fishes" reads as valid English and used to consume the
+       whole pipeline — ~34s, 14 source fetches and two model calls — before
+       producing a bill of materials for it. */
+    const validation = await validatePitch(
+      String(title),
+      String(description),
+      category,
+      aiModel === "gemini" ? "gemini" : "groq",
+      investmentTier
+    );
+
+    if (!validation.valid) {
       return NextResponse.json({
         success: true,
-        report: invalidReport(String(title), category, coherence.reason),
+        report: {
+          ...buildRejectionReport(String(title), category, validation),
+          totalDurationMs: Date.now() - startedAt,
+        },
       });
     }
 
@@ -452,6 +385,7 @@ export async function POST(request: Request) {
 
     const finalReport = {
       ...report,
+      validation,
       aiProviderUsed: usedProviderName,
       confidence,
       citedSources,
