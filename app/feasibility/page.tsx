@@ -62,6 +62,22 @@ interface ModelRun {
   latencyMs: number;
 }
 
+interface ValidationVerdict {
+  valid: boolean;
+  stage: "deterministic" | "ai-gate" | "passed";
+  code: string | null;
+  reason: string;
+  guidance: string;
+  gate?: {
+    model: string;
+    label: string;
+    latencyMs: number;
+    clarityScore: number;
+    failedOpen?: boolean;
+    realisticCapitalInr?: string;
+  };
+}
+
 interface AssessmentReport {
   title: string;
   category: string;
@@ -99,6 +115,7 @@ interface AssessmentReport {
     cached: boolean;
   };
   totalDurationMs?: number;
+  validation?: ValidationVerdict;
 }
 
 interface ProviderStatus {
@@ -176,6 +193,8 @@ function RadialGauge({
 }
 
 const ASSESSMENT_STEPS = [
+  { key: "screen", label: "Screening the pitch", hint: "Checking the input is language, not a keyboard mash" },
+  { key: "gate", label: "Validating the concept", hint: "Two independent checks that the idea is real, buildable and sanely capitalised" },
   { key: "research", label: "Searching live sources", hint: "Wikipedia, World Bank, Crossref, arXiv, Hacker News" },
   { key: "models", label: "Running independent AI models", hint: "Two models assess the same evidence separately" },
   { key: "reconcile", label: "Reconciling verdicts", hint: "Averaging scores and measuring disagreement" },
@@ -184,8 +203,15 @@ const ASSESSMENT_STEPS = [
 
 /** Time-based progress indicator. Honest about being an estimate. */
 function AssessmentProgress({ elapsedMs }: { elapsedMs: number }) {
-  // Tuned against measured end-to-end runs (~18-25s with two providers).
-  const stepIndex = elapsedMs < 5000 ? 0 : elapsedMs < 14000 ? 1 : elapsedMs < 19000 ? 2 : 3;
+  // Tuned against measured runs: the gate resolves by ~5s, a full assessment
+  // lands between 9s and 25s depending on provider latency.
+  const stepIndex =
+    elapsedMs < 1200 ? 0
+    : elapsedMs < 6000 ? 1
+    : elapsedMs < 12000 ? 2
+    : elapsedMs < 20000 ? 3
+    : elapsedMs < 25000 ? 4
+    : 5;
 
   return (
     <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 md:p-8 animate-rise">
@@ -684,6 +710,8 @@ export default function FeasibilityPage() {
               <span>Research &amp; assess this concept</span>
             </button>
           </form>
+        ) : report.validation && !report.validation.valid ? (
+          <RejectedView report={report} onReset={() => setReport(null)} />
         ) : (
           <ReportView
             report={report}
@@ -731,6 +759,153 @@ function ProviderPills({ providers }: { providers: ProviderStatus[] | null }) {
           ? "1 engine live — no cross-check"
           : "No engine reachable"}
     </span>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Rejection view                                                      *
+ * ------------------------------------------------------------------ */
+
+const REJECTION_TITLE: Record<string, string> = {
+  empty: "Nothing to assess",
+  "too-short": "Not enough to go on",
+  gibberish: "That is not a readable pitch",
+  "not-a-product": "That is a goal, not a product",
+  implausible: "This cannot work as described",
+  "self-contradictory": "The pitch contradicts itself",
+  "no-differentiation": "No edge over the incumbents",
+  "capital-mismatch": "The capital does not match the concept",
+};
+
+/**
+ * Shown when a pitch never reached assessment. Deliberately shows no gauges,
+ * no bill of materials and no financial fields — there is nothing to report,
+ * and rendering empty scaffolding would imply an assessment happened.
+ */
+function RejectedView({ report, onReset }: { report: AssessmentReport; onReset: () => void }) {
+  const v = report.validation!;
+  const heading = REJECTION_TITLE[v.code ?? ""] ?? "Not assessable";
+
+  const stages = [
+    {
+      label: "Stage 1 — input screening",
+      hint: "Is this readable language?",
+      state: v.stage === "deterministic" ? "failed" : "passed",
+    },
+    {
+      label: "Stage 2 — concept validity",
+      hint: "Is this a real, buildable, sanely-capitalised idea?",
+      state: v.stage === "deterministic" ? "skipped" : "failed",
+    },
+    { label: "Stage 3 — full assessment", hint: "Live research and two AI models", state: "skipped" },
+  ] as const;
+
+  return (
+    <div className="space-y-5">
+      <div className="animate-rise rounded-2xl border border-rose-500/40 bg-gradient-to-r from-slate-900 via-rose-950/25 to-slate-900 p-5 md:p-7">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <span className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-rose-500/30 bg-rose-500/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-rose-300">
+              <AlertTriangle className="h-3 w-3" />
+              Rejected before assessment
+            </span>
+            <h2 className="text-2xl font-bold leading-tight text-white md:text-3xl">{heading}</h2>
+            <p className="mt-1 truncate text-xs text-slate-400">
+              Pitch: “{report.title}” · {report.category}
+            </p>
+          </div>
+
+          <div className="flex shrink-0 flex-col items-center">
+            <div className="flex h-24 w-24 flex-col items-center justify-center rounded-full border-2 border-rose-500/40 bg-rose-500/10">
+              <span className="text-3xl font-extrabold leading-none text-rose-400">0</span>
+              <span className="mt-0.5 text-[10px] font-bold text-slate-500">/ 100</span>
+            </div>
+            <span className="mt-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Feasibility
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <section className="animate-rise rounded-2xl border border-slate-800 bg-slate-900/50 p-5 md:p-6">
+        <h3 className="mb-2 text-base font-bold text-white">Why</h3>
+        <p className="text-sm leading-relaxed text-slate-300">{v.reason}</p>
+
+        {v.gate?.realisticCapitalInr && (
+          <p className="mt-3 rounded-xl border border-amber-600/30 bg-amber-950/25 p-3 text-xs text-amber-200">
+            Realistic starting capital for this concept:{" "}
+            <strong className="font-bold text-amber-100">{v.gate.realisticCapitalInr}</strong>
+          </p>
+        )}
+
+        <h3 className="mb-2 mt-5 text-base font-bold text-white">How to fix it</h3>
+        <p className="text-sm leading-relaxed text-slate-300">{v.guidance}</p>
+
+        <button
+          onClick={onReset}
+          className="btn-gradient mt-5 flex cursor-pointer items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-bold text-white shadow-lg"
+        >
+          <RotateCcw className="h-4 w-4" />
+          Rewrite the pitch
+        </button>
+      </section>
+
+      <section className="animate-rise rounded-2xl border border-slate-800 bg-slate-900/40 p-5 md:p-6">
+        <header className="mb-4 flex items-center gap-2">
+          <Scale className="h-4 w-4 text-indigo-400" />
+          <h3 className="text-base font-bold text-white">Where it stopped</h3>
+          {report.totalDurationMs != null && (
+            <span className="ml-auto text-[11px] text-slate-500">
+              stopped after {(report.totalDurationMs / 1000).toFixed(1)}s
+            </span>
+          )}
+        </header>
+
+        <ol className="space-y-2.5">
+          {stages.map((s) => (
+            <li key={s.label} className="flex items-start gap-3">
+              <span
+                className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-bold ${
+                  s.state === "passed"
+                    ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-400"
+                    : s.state === "failed"
+                      ? "border-rose-500/40 bg-rose-500/15 text-rose-400"
+                      : "border-slate-700 bg-slate-900 text-slate-600"
+                }`}
+              >
+                {s.state === "passed" ? <CheckCircle2 className="h-3.5 w-3.5" /> : s.state === "failed" ? "✕" : "–"}
+              </span>
+              <div className="min-w-0">
+                <p
+                  className={`text-sm font-semibold ${
+                    s.state === "skipped" ? "text-slate-500" : "text-white"
+                  }`}
+                >
+                  {s.label}
+                  <span className="ml-2 text-[11px] font-normal text-slate-500">
+                    {s.state === "passed" ? "passed" : s.state === "failed" ? "rejected here" : "not run"}
+                  </span>
+                </p>
+                <p className="text-[11px] text-slate-500">{s.hint}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+
+        <p className="mt-4 rounded-xl border border-slate-800 bg-slate-950/60 p-3 text-[11px] leading-relaxed text-slate-400">
+          The pipeline stops at the first failed check, so no sources were fetched and no analysis
+          was run. No financial figures are shown, because estimating a bill of materials for a
+          concept that was rejected would be inventing them.
+          {v.gate && !v.gate.failedOpen && (
+            <>
+              {" "}
+              Validity check by <span className="font-mono text-slate-400">{v.gate.label}</span> in{" "}
+              {(v.gate.latencyMs / 1000).toFixed(1)}s.
+            </>
+          )}
+        </p>
+      </section>
+    </div>
   );
 }
 

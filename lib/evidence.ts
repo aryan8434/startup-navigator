@@ -498,6 +498,39 @@ export async function gatherEvidence(input: {
   return pack;
 }
 
+/**
+ * A deliberately narrow, fast lookup for the pre-assessment validity gate.
+ *
+ * The gate has to decide whether a concept is real and whether its capital plan
+ * is sane — it needs to know the category exists and who already sells into it,
+ * not a full evidence pack. So this hits only the two connectors that answer
+ * "does this thing exist and is anyone doing it" (Wikipedia, Hacker News) on a
+ * tight budget, and never blocks: an empty result just means the gate judges
+ * from the pitch alone.
+ */
+export async function gatherQuickContext(input: {
+  title: string;
+  description: string;
+  category?: string;
+}): Promise<{ items: EvidenceItem[]; queryTerms: string[]; durationMs: number }> {
+  const started = Date.now();
+  const queryTerms = extractQueryTerms(input.title, input.description, input.category);
+
+  const settled = await Promise.allSettled([
+    fromWikipedia(queryTerms),
+    fromHackerNews(queryTerms),
+  ]);
+
+  const items = settled
+    .filter(
+      (r): r is PromiseFulfilledResult<EvidenceItem[]> => r.status === "fulfilled"
+    )
+    .flatMap((r) => r.value)
+    .slice(0, 6);
+
+  return { items, queryTerms, durationMs: Date.now() - started };
+}
+
 /** Renders an evidence pack as numbered, citable context for an LLM prompt. */
 export function formatEvidenceForPrompt(pack: EvidencePack): string {
   if (pack.items.length === 0) {

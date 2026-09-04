@@ -38,6 +38,7 @@
 | **Secondary AI Engine** | **Google Gemini** | Candidates: `gemini-3.5-flash`, `gemini-3.1-flash-lite`, `gemini-3.6-flash`. Used as the independent second opinion in consensus mode. |
 | **Optional Third Engine** | **OpenAI** | Candidates: `gpt-4o-mini`, `gpt-4.1-mini`. Enabled only when `OPENAI_API_KEY` is set. |
 | **Health Probe** | **`GET /api/health`** | Sends a real completion to every configured provider and reports which model answered plus its latency. Presence of an API key is never treated as proof a provider works. |
+| **Validation Gate** | **`lib/validation.ts`** | Two stages ahead of the pipeline. Stage 1 is a free deterministic screen; stage 2 is a grounded model call, sampled twice in parallel with a rejection from either winning, that judges whether the concept is real, buildable, differentiated and sanely capitalised. A single sample at temperature 0 measured ~5% misses, so junk reached the full pipeline; two samples squared that. |
 | **Live Evidence Layer** | **`lib/evidence.ts`** | Retrieves citable external data from Wikipedia, World Bank Open Data, Crossref, arXiv and Hacker News. No API keys. Each connector is independently timed out and query-relaxed; failures degrade the evidence pack rather than the request. |
 | **Confidence Model** | **`lib/confidence.ts`** | Scores 0-100 how much the verdict should be trusted, from evidence volume, source authority, source diversity, cross-model agreement, pitch specificity, internal knowledge overlap and calibration against past assessments. Computed from observable facts, never asked of the model. |
 | **Fallback AI Engine** | **Offline Extractive Engine** | Used for RAG search only. The feasibility evaluator does *not* fall back to invented numbers: if every provider fails it returns "Assessment Unavailable" with all figures marked *Not assessed* and confidence 0. |
@@ -80,9 +81,11 @@ flowchart TD
     end
 
     subgraph Garbage_Validation ["Input Shield & Garbage Data Validator"]
-        FeasibilityForm --> InputCheck{"Valid Product Concept?"}
-        InputCheck -->|Nonsense / Keyboard Mashes| ZeroScore["Score: 0 / 100 (Non-Viable / Invalid Input)"]
-        InputCheck -->|Coherent Concept| ModelSelector{"Selected AI Engine"}
+        FeasibilityForm --> Stage1{"Stage 1: readable language?"}
+        Stage1 -->|Empty / too short / keyboard mash| ZeroScore["Score: 0 / 100 — rejected, no API cost"]
+        Stage1 -->|Passes| Stage2{"Stage 2: real, buildable, sanely capitalised? (2 samples)"}
+        Stage2 -->|Implausible / not-a-product / no wedge / capital 10x off| ZeroScore
+        Stage2 -->|Passes| ModelSelector{"Selected AI Engine"}
     end
 
     subgraph Multi_AI_Engine ["Multi-Provider AI Execution Layer"]
