@@ -1,4 +1,6 @@
 import { db, Article } from "./db";
+import { chat } from "./providers";
+import { gatherEvidence } from "./evidence";
 
 // Stopwords for simple keyword matching
 const STOP_WORDS = new Set([
@@ -141,7 +143,7 @@ Based on the official guides in NxtVenture, here is a consolidated answer to you
 
   // Use top 2 matched articles
   const topMatches = matches.slice(0, 2);
-  topMatches.forEach((match, index) => {
+  topMatches.forEach((match) => {
     const snippet = extractSummaries(match.article.content, queryTokens);
     answer += `#### From: **${match.article.title}** (${match.article.category})\n\n`;
     answer += `${snippet}\n\n`;
@@ -153,162 +155,24 @@ Based on the official guides in NxtVenture, here is a consolidated answer to you
 }
 
 /**
- * Call Gemini 2.5 / 1.5 Flash API via HTTP POST.
- */
-async function callGemini(query: string, context: string, apiKey: string): Promise<string | null> {
-  try {
-    // Try Gemini 2.5 Flash / 1.5 Flash endpoints
-    const models = ["gemini-2.5-flash", "gemini-1.5-flash", "gemini-pro"];
-    
-    for (const model of models) {
-      try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-        const prompt = `You are the NxtVenture AI Assistant, a helpful expert guide for startup founders.
-Answer the user's question using ONLY the provided context articles. 
-Ensure your answer is friendly, professionally formatted in Markdown, and directly references parts of the context where applicable.
-If the answer cannot be found in the context articles, say: "I couldn't find a direct answer in our startup guide database, but based on general knowledge..." and then provide a helpful answer based on general startup principles, but clearly mark it as general advice.
-
-Context Articles:
-${context}
-
-User Question:
-${query}
-
-Answer in clean Markdown:`;
-
-        const response = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [{ text: prompt }]
-              }
-            ]
-          })
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (text) {
-            return `${text}\n\n*Source Model: Google Gemini 2.5 Flash (Free Tier - Medium Speed)*`;
-          }
-        }
-      } catch (err) {
-        console.warn(`Gemini model ${model} invocation failed:`, err);
-      }
-    }
-    return null;
-  } catch (error) {
-    console.error("Error invoking Gemini:", error);
-    return null;
-  }
-}
-
-/**
- * Call OpenAI API via HTTP POST.
- */
-async function callOpenAI(query: string, context: string, apiKey: string): Promise<string | null> {
-  try {
-    const url = "https://api.openai.com/v1/chat/completions";
-    const prompt = `You are the NxtVenture AI Assistant, a helpful expert guide for startup founders.
-Answer the user's question using ONLY the provided context articles. 
-Ensure your answer is friendly, professionally formatted in Markdown, and directly references parts of the context where applicable.
-If the answer cannot be found in the context articles, say: "I couldn't find a direct answer in our startup guide database, but based on general knowledge..." and then provide a helpful answer based on general startup principles, but clearly mark it as general advice.
-
-Context Articles:
-${context}
-
-User Question:
-${query}`;
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: "You are a helpful startup mentor." },
-          { role: "user", content: prompt }
-        ],
-        temperature: 0.3
-      })
-    });
-
-    if (!response.ok) {
-      console.error("OpenAI API error status:", response.status);
-      return null;
-    }
-
-    const data = await response.json();
-    return data.choices?.[0]?.message?.content || null;
-  } catch (error) {
-    console.error("Error invoking OpenAI:", error);
-    return null;
-  }
-}
-
-/**
- * Call Groq Cloud API via HTTP POST.
- */
-async function callGroq(query: string, context: string, apiKey: string): Promise<string | null> {
-  try {
-    const url = "https://api.groq.com/openai/v1/chat/completions";
-    const prompt = `You are the NxtVenture AI Assistant, a helpful expert guide for startup founders.
-Answer the user's question using ONLY the provided context articles. 
-Ensure your answer is friendly, professionally formatted in Markdown, and directly references parts of the context where applicable.
-If the answer cannot be found in the context articles, say: "I couldn't find a direct answer in our startup guide database, but based on general knowledge..." and then provide a helpful answer based on general startup principles, but clearly mark it as general advice.
-
-Context Articles:
-${context}
-
-User Question:
-${query}`;
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: [
-          { role: "system", content: "You are a helpful startup mentor." },
-          { role: "user", content: prompt }
-        ],
-        temperature: 0.3
-      })
-    });
-
-    if (!response.ok) {
-      console.error("Groq API error status:", response.status);
-      return null;
-    }
-
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-    if (content) {
-      return `${content}\n\n*Source Model: Groq Llama 3.3 (70B) (High-Speed Engine)*`;
-    }
-    return null;
-  } catch (error) {
-    console.error("Error invoking Groq:", error);
-    return null;
-  }
-}
-
-/**
- * Core RAG execution function with sequential multi-provider fallback.
+ * Core RAG execution.
+ *
+ * Retrieves from two places at once: the internal knowledge base (articles,
+ * ideas, past feasibility reports) and live external sources, then answers over
+ * the union with citations. Provider selection and model fallback are handled
+ * by lib/providers, so a retired model id degrades to the next candidate
+ * instead of silently dropping the whole search to the offline engine.
  */
 export async function executeRagSearch(
   query: string,
   preferredModel: string = "groq"
-): Promise<{ answer: string; sources: string[] }> {
+): Promise<{
+  answer: string;
+  sources: string[];
+  webSources: { title: string; url: string; source: string }[];
+  providerUsed: string;
+  latencyMs: number;
+}> {
   const articles = await db.articles.findMany();
   const ideas = await db.ideas.findMany();
   const feasibilityReports = await db.feasibilityReports.findMany();
@@ -331,7 +195,7 @@ export async function executeRagSearch(
     title: `[AI Feasibility Audit] ${report.title}`,
     category: report.category,
     summary: `${report.ratingLabel} (Score: ${report.feasibilityScore}/100)`,
-    content: `Evaluated Concept: ${report.title}\nCategory: ${report.category}\nFeasibility Score: ${report.feasibilityScore} / 100 (${report.ratingLabel})\nVerdict: ${report.verdict}\nFinancial Viability: COGS ${report.financialViability.estimatedCogs}, Gross Margin ${report.financialViability.projectedMargin}, Payback Horizon ${report.financialViability.breakEvenMonths}, Recommended MSRP ${report.financialViability.recommendedRetailPrice}\nRisk Matrix: Technical ${report.riskMatrix.technicalComplexity}, Supply Chain ${report.riskMatrix.supplyChainRisk}, Capital ${report.riskMatrix.capitalIntensity}, Regulatory ${report.riskMatrix.regulatoryBarrier}\nBill of Materials: ${report.billOfMaterials.map(b => `${b.item}: ${b.estimatedCost}`).join(", ")}\nDetailed Analysis:\n${report.detailedAnalysis}`,
+    content: `Evaluated Concept: ${report.title}\nCategory: ${report.category}\nFeasibility Score: ${report.feasibilityScore} / 100 (${report.ratingLabel})\nVerdict: ${report.verdict}\nFinancial Viability: COGS ${report.financialViability.estimatedCogs}, Gross Margin ${report.financialViability.projectedMargin}, Payback Horizon ${report.financialViability.breakEvenMonths}, Recommended MSRP ${report.financialViability.recommendedRetailPrice}\nRisk Matrix: Technical ${report.riskMatrix.technicalComplexity}, Supply Chain ${report.riskMatrix.supplyChainRisk}, Capital ${report.riskMatrix.capitalIntensity}, Regulatory ${report.riskMatrix.regulatoryBarrier}\nDetailed Analysis:\n${report.detailedAnalysis}`,
     tags: ["Feasibility Report", "AI Audit", report.category, report.ratingLabel],
     createdAt: report.createdAt,
     updatedAt: report.createdAt,
@@ -339,49 +203,78 @@ export async function executeRagSearch(
 
   const combined = [...articles, ...ideaArticles, ...reportArticles];
   const ranked = rankArticles(query, combined);
-  
-  // Get top 3 items for context
-  const topMatches = ranked.filter(r => r.score > 0).slice(0, 3);
+  const topMatches = ranked.filter((r) => r.score > 0).slice(0, 3);
 
-  // Generate context string
-  const contextParts = topMatches.map(
-    (m) => `Title: ${m.article.title}\nCategory: ${m.article.category}\nContent:\n${m.article.content}`
-  );
-  const context = contextParts.join("\n\n---\n\n");
+  const internalContext = topMatches
+    .map((m) => `Title: ${m.article.title}\nCategory: ${m.article.category}\nContent:\n${m.article.content}`)
+    .join("\n\n---\n\n");
 
-  const groqKey = process.env.GROQ_API_KEY;
-  const geminiKey = process.env.GEMINI_API_KEY;
-  const openaiKey = process.env.OPENAI_API_KEY;
+  // Live external evidence runs alongside the internal lookup. A failure here
+  // is non-fatal: the answer just falls back to internal knowledge only.
+  const evidence = await gatherEvidence({
+    title: query,
+    description: query,
+  }).catch(() => null);
 
-  let answer: string | null = null;
+  const webBlock =
+    evidence && evidence.items.length > 0
+      ? evidence.items
+          .map(
+            (item, idx) =>
+              `[W${idx + 1}] ${item.title}\n    Source: ${item.source}\n    URL: ${item.url}\n    ${item.snippet}`
+          )
+          .join("\n\n")
+      : "No external sources retrieved for this query.";
 
-  if (preferredModel === "gemini" && geminiKey) {
-    answer = await callGemini(query, context, geminiKey);
-    if (!answer && groqKey) {
-      answer = await callGroq(query, context, groqKey);
-    }
-  } else {
-    // Default: Prefer Groq Llama 3.3 (70B)
-    if (groqKey) {
-      answer = await callGroq(query, context, groqKey);
-    }
-    if (!answer && geminiKey) {
-      answer = await callGemini(query, context, geminiKey);
-    }
+  const system = `You are the NxtVenture AI Assistant, an expert guide for startup and manufacturing founders in India.
+
+Answer the user's question using the two context blocks below.
+
+RULES:
+- Prefer the internal NxtVenture guides for platform-specific and procedural advice.
+- Use the live external sources for market facts, statistics and current context, and cite them inline as [W1], [W2] etc.
+- If neither context covers the question, say so explicitly, then give clearly-labelled general startup advice.
+- Never invent statistics or source URLs.
+- Format the answer in clean, readable Markdown with short sections.
+
+INTERNAL NXTVENTURE KNOWLEDGE BASE:
+${internalContext || "No matching internal guides."}
+
+LIVE EXTERNAL SOURCES:
+${webBlock}`;
+
+  const webSources = (evidence?.items ?? []).map((i) => ({
+    title: i.title,
+    url: i.url,
+    source: i.source,
+  }));
+
+  try {
+    const result = await chat(
+      { system, user: query, temperature: 0.3, maxTokens: 3000 },
+      preferredModel === "gemini" ? "gemini" : "groq"
+    );
+
+    // The source list is deliberately NOT appended to the answer text: the UI
+    // renders `webSources` as a structured, linked panel, and duplicating it as
+    // raw markdown showed up as literal "[title](url)" under the answer.
+    const answer = `${result.text.trim()}\n\n*Answered by ${result.label} in ${(result.latencyMs / 1000).toFixed(1)}s.*`;
+
+    return {
+      answer,
+      sources: topMatches.map((m) => m.article.id),
+      webSources,
+      providerUsed: result.label,
+      latencyMs: result.latencyMs,
+    };
+  } catch {
+    // All providers exhausted — extractive local answer, clearly labelled.
+    return {
+      answer: runLocalRag(query, ranked.filter((r) => r.score > 0)),
+      sources: topMatches.map((m) => m.article.id),
+      webSources,
+      providerUsed: "Local Extractive Engine (no AI provider reachable)",
+      latencyMs: 0,
+    };
   }
-
-  // Provider 3: OpenAI GPT-4o-mini
-  if (!answer && openaiKey) {
-    answer = await callOpenAI(query, context, openaiKey);
-  }
-
-  // Fallback to local extractive RAG if AI APIs fail or return null
-  if (!answer) {
-    answer = runLocalRag(query, ranked.filter(r => r.score > 0));
-  }
-
-  return {
-    answer,
-    sources: topMatches.map(m => m.article.id)
-  };
 }

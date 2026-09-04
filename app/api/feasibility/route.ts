@@ -1,28 +1,264 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, type FeasibilityReport } from "@/lib/db";
+import { rankArticles } from "@/lib/rag";
+import { gatherEvidence, formatEvidenceForPrompt, type EvidencePack } from "@/lib/evidence";
+import { chatJson, isConfigured, type ChatResult, type ProviderId } from "@/lib/providers";
+import { computeConfidence } from "@/lib/confidence";
 
-function checkIsGibberish(title: string, desc: string): boolean {
-  const cleanTitle = title.trim().toLowerCase();
-  const cleanDesc = desc.trim().toLowerCase();
+/**
+ * Evidence-grounded feasibility assessment.
+ *
+ * Pipeline: validate the pitch, pull live external evidence, retrieve internal
+ * comparables, run two independent models over the same evidence, reconcile
+ * their verdicts, then score how much the result should be trusted.
+ */
 
-  // Short length check
-  if (cleanTitle.length < 3 || cleanDesc.length < 5) return true;
+/** A verdict once titled and merged across models, before metadata is attached. */
+interface AssembledReport extends ModelVerdict {
+  title: string;
+  category: string;
+  secondOpinions?: { label: string; score: number; verdict: string }[];
+}
 
-  // Keyboard mashes patterns (e.g. fgbfg, ghfnghj, asdfgh, etc.)
-  const mashRegex = /(?:[bcdfghjklmnpqrstvwxyz]{6,}|[aeiou]{5,}|fgbfg|ghfng|asdf|qwerty|zxcv|1234|test1|abcd)/i;
-  if (mashRegex.test(cleanTitle) || mashRegex.test(cleanDesc)) return true;
+interface ModelVerdict {
+  feasibilityScore: number;
+  ratingLabel: string;
+  verdict: string;
+  detailedAnalysis: string;
+  riskMatrix: {
+    technicalComplexity: string;
+    supplyChainRisk: string;
+    capitalIntensity: string;
+    regulatoryBarrier: string;
+  };
+  financialViability: {
+    estimatedCogs: string;
+    projectedMargin: string;
+    breakEvenMonths: string;
+    recommendedRetailPrice: string;
+  };
+  billOfMaterials: { item: string; estimatedCost: string }[];
+  actionPlan: string[];
+  evidenceUsed?: number[];
+  keyUncertainties?: string[];
+}
 
-  // Check vowel ratio in title if longer than 4 chars
-  const titleVowels = (cleanTitle.match(/[aeiou]/gi) || []).length;
-  if (cleanTitle.length >= 5 && titleVowels === 0) return true;
+/* ------------------------------------------------------------------ *
+ * Input validation                                                    *
+ * ------------------------------------------------------------------ */
 
-  return false;
+/**
+ * Rejects keyboard mashes before spending a model call on them.
+ * Scores coherence from vowel distribution, consonant runs and word shape
+ * rather than a fixed blocklist, so novel gibberish is caught too.
+ */
+function assessInputCoherence(title: string, description: string): {
+  coherent: boolean;
+  reason: string;
+} {
+  const t = title.trim();
+  const d = description.trim();
+
+  if (t.length < 3) return { coherent: false, reason: "The product title is too short to assess." };
+  if (d.length < 15)
+    return { coherent: false, reason: "The description is too short to assess — describe what the product does, what it is made of, and who buys it." };
+
+  const combined = `${t} ${d}`.toLowerCase();
+  const words = combined.split(/\s+/).filter((w) => w.length > 0);
+
+  const knownMash = /(asdf|qwer|zxcv|hjkl|fgbfg|ghfng|wasd|1234|abcd)/i;
+  if (knownMash.test(combined))
+    return { coherent: false, reason: "The input contains keyboard-mash text." };
+
+  // A real word almost always carries a vowel; long consonant runs do not occur
+  // in English outside abbreviations, which are short.
+  let badWords = 0;
+  for (const word of words) {
+    const alpha = word.replace(/[^a-z]/g, "");
+    if (alpha.length < 4) continue;
+    const vowels = (alpha.match(/[aeiouy]/g) || []).length;
+    const longConsonantRun = /[bcdfghjklmnpqrstvwxz]{5,}/.test(alpha);
+    if (vowels === 0 || longConsonantRun || vowels / alpha.length < 0.15) badWords++;
+  }
+
+  const substantial = words.filter((w) => w.replace(/[^a-z]/g, "").length >= 4).length;
+  if (substantial >= 3 && badWords / substantial > 0.5)
+    return { coherent: false, reason: "Most words in the pitch are not recognisable language." };
+
+  if (words.length < 6)
+    return { coherent: false, reason: "The pitch does not contain enough words to analyse." };
+
+  return { coherent: true, reason: "" };
+}
+
+function invalidReport(title: string, category: string, reason: string) {
+  return {
+    title,
+    category: category || "Manufacturing",
+    feasibilityScore: 0,
+    ratingLabel: "Non-Viable / Invalid Input",
+    verdict: `Concept "${title}" could not be assessed. ${reason}`,
+    detailedAnalysis: `1. **Input Rejected**: ${reason}\n\n2. **No Analysis Performed**: No external research was run and no model was called, so no financial figures are presented. Reporting numbers for an unparseable pitch would be fabrication.\n\n3. **What To Do Next**: Resubmit with a clear product name, what it physically is, the key materials or components, how it is made, and who buys it.`,
+    riskMatrix: {
+      technicalComplexity: "Not assessed",
+      supplyChainRisk: "Not assessed",
+      capitalIntensity: "Not assessed",
+      regulatoryBarrier: "Not assessed",
+    },
+    financialViability: {
+      estimatedCogs: "Not assessed",
+      projectedMargin: "Not assessed",
+      breakEvenMonths: "Not assessed",
+      recommendedRetailPrice: "Not assessed",
+    },
+    billOfMaterials: [],
+    actionPlan: ["Resubmit with a clear product title and a concrete description."],
+    aiProviderUsed: "NxtVenture Validation Shield",
+    citedSources: [],
+    modelRuns: [],
+    confidence: {
+      score: 0,
+      band: "Very Low" as const,
+      summary: "Input rejected before assessment — no confidence can be assigned.",
+      factors: [],
+      caveats: [reason],
+    },
+    evidenceMeta: { sourcesUsed: [], failures: [], queryTerms: [], durationMs: 0, cached: false },
+    timestamp: new Date().toISOString(),
+  };
+}
+
+/* ------------------------------------------------------------------ *
+ * Prompting                                                           *
+ * ------------------------------------------------------------------ */
+
+function buildSystemPrompt(evidenceBlock: string, internalContext: string, priorContext: string) {
+  return `You are a hardware manufacturing co-founder and venture analyst assessing a startup pitch for the Indian market. ALL financial figures MUST be in Indian Rupees (₹ / INR).
+
+You have been given real, retrieved evidence. Ground your analysis in it.
+
+RULES ON EVIDENCE AND HONESTY:
+- Cite evidence by its bracket number, e.g. [2], directly inside your analysis text wherever a claim leans on it.
+- When the evidence does not cover a claim, say so plainly ("no sourced data available; this is an estimate") instead of inventing precision.
+- Do NOT fabricate market sizes, growth rates or company names that are absent from the evidence.
+- Prefer a well-reasoned wide range over a falsely precise point estimate.
+- Score honestly. A weak idea must receive a low score; do not inflate to be encouraging.
+
+RETRIEVED EXTERNAL EVIDENCE:
+${evidenceBlock}
+
+${internalContext}
+
+${priorContext}
+
+Return STRICTLY valid JSON matching this schema (no markdown fences, no prose outside the JSON):
+{
+  "feasibilityScore": number (0-100; 0-40 High Friction, 41-74 Moderately Viable, 75-100 Highly Viable),
+  "ratingLabel": "Highly Viable" | "Moderately Viable" | "High Friction",
+  "verdict": string (2-3 sentence executive verdict, ₹ INR),
+  "detailedAnalysis": string (8 numbered points separated by DOUBLE newlines \\n\\n. Each point starts with a **Bold Header**: then analysis. Bold key metrics. Use ₹ for money. Cite [n] where evidence supports a claim. Cover: market demand, unit economics, capex and tooling, BOM sourcing, supply chain and regulation, go-to-market, break-even, and a final founder recommendation),
+  "riskMatrix": {
+    "technicalComplexity": string,
+    "supplyChainRisk": string,
+    "capitalIntensity": string,
+    "regulatoryBarrier": string
+  },
+  "financialViability": {
+    "estimatedCogs": string (₹ range per unit),
+    "projectedMargin": string (percentage range),
+    "breakEvenMonths": string (between "6 Months" and "5 Years"; if payback exceeds 60 months return "Never"),
+    "recommendedRetailPrice": string (₹ range)
+  },
+  "billOfMaterials": [ { "item": string, "estimatedCost": string (₹) } ],
+  "actionPlan": [ string ],
+  "evidenceUsed": [ number ] (bracket numbers you actually relied on),
+  "keyUncertainties": [ string ] (what you could NOT verify from the evidence)
+}`;
+}
+
+function buildUserPrompt(body: {
+  title: string;
+  category?: string;
+  investmentTier?: string;
+  targetMarket?: string;
+  description: string;
+}) {
+  return `Assess this startup concept:
+Title: ${body.title}
+Sector: ${body.category || "Manufacturing"}
+Capex Tier: ${body.investmentTier || "₹5 Lakhs - ₹25 Lakhs"}
+Target Market: ${body.targetMarket || "Indian D2C and B2B buyers"}
+Description: ${body.description}`;
+}
+
+/* ------------------------------------------------------------------ *
+ * Verdict reconciliation                                              *
+ * ------------------------------------------------------------------ */
+
+/** Loosely-typed view of whatever the model returned, before validation. */
+type RawVerdict = Partial<Record<keyof ModelVerdict, unknown>> & Record<string, unknown>;
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+}
+
+function coerceVerdict(input: unknown): ModelVerdict | null {
+  if (!input || typeof input !== "object") return null;
+  const raw = input as RawVerdict;
+  const score = Number(raw.feasibilityScore);
+  if (!Number.isFinite(score)) return null;
+
+  const clamped = Math.max(0, Math.min(100, Math.round(score)));
+  const label =
+    clamped >= 75 ? "Highly Viable" : clamped >= 41 ? "Moderately Viable" : "High Friction";
+
+  const risk = asRecord(raw.riskMatrix);
+  const money = asRecord(raw.financialViability);
+
+  return {
+    feasibilityScore: clamped,
+    // Trust our own banding over the model's label so score and label never disagree.
+    ratingLabel: label,
+    verdict: String(raw.verdict || "").trim() || "No verdict text returned.",
+    detailedAnalysis: String(raw.detailedAnalysis || "").trim(),
+    riskMatrix: {
+      technicalComplexity: String(risk.technicalComplexity ?? "Not assessed"),
+      supplyChainRisk: String(risk.supplyChainRisk ?? "Not assessed"),
+      capitalIntensity: String(risk.capitalIntensity ?? "Not assessed"),
+      regulatoryBarrier: String(risk.regulatoryBarrier ?? "Not assessed"),
+    },
+    financialViability: {
+      estimatedCogs: String(money.estimatedCogs ?? "Not assessed"),
+      projectedMargin: String(money.projectedMargin ?? "Not assessed"),
+      breakEvenMonths: String(money.breakEvenMonths ?? "Not assessed"),
+      recommendedRetailPrice: String(money.recommendedRetailPrice ?? "Not assessed"),
+    },
+    billOfMaterials: Array.isArray(raw.billOfMaterials)
+      ? raw.billOfMaterials
+          .map(asRecord)
+          .filter((b) => b.item)
+          .map((b) => ({ item: String(b.item), estimatedCost: String(b.estimatedCost ?? "—") }))
+      : [],
+    actionPlan: Array.isArray(raw.actionPlan) ? raw.actionPlan.map(String) : [],
+    evidenceUsed: Array.isArray(raw.evidenceUsed) ? raw.evidenceUsed.map(Number).filter(Number.isFinite) : [],
+    keyUncertainties: Array.isArray(raw.keyUncertainties) ? raw.keyUncertainties.map(String) : [],
+  };
 }
 
 export async function POST(request: Request) {
+  const startedAt = Date.now();
+
   try {
     const body = await request.json();
-    const { title, description, category, investmentTier, targetMarket, aiModel = "groq" } = body;
+    const {
+      title,
+      description,
+      category,
+      investmentTier,
+      targetMarket,
+      aiModel = "groq",
+      consensus = true,
+    } = body;
 
     if (!title || !description) {
       return NextResponse.json(
@@ -31,256 +267,244 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check for garbage / gibberish inputs and immediately score 0
-    if (checkIsGibberish(title, description)) {
+    const coherence = assessInputCoherence(String(title), String(description));
+    if (!coherence.coherent) {
       return NextResponse.json({
         success: true,
-        report: {
-          title,
-          category: category || "Manufacturing",
-          feasibilityScore: 0,
-          ratingLabel: "Non-Viable / Invalid Input",
-          verdict: `Concept "${title}" rejected. Gibberish or unparseable input provided.`,
-          detailedAnalysis: `1. **Invalid Pitch & Missing Context**: The submitted product title ("${title}") or description ("${description}") contains unparseable keyboard mashes or nonsensical input. No viable manufacturing analysis can be performed for invalid inputs.\n\n2. **Zero Financial Viability**: Unit economics, Bill of Materials, and margin targets are defaulted to ₹0 as no valid hardware component specs were identified.\n\n3. **Founder Recommendation**: Please resubmit with a clear, coherent product concept title and detailed description.`,
-          riskMatrix: {
-            technicalComplexity: "Undefined",
-            supplyChainRisk: "Critical",
-            capitalIntensity: "High Risk",
-            regulatoryBarrier: "Unviable",
-          },
-          financialViability: {
-            estimatedCogs: "₹0",
-            projectedMargin: "0%",
-            breakEvenMonths: "Never",
-            recommendedRetailPrice: "₹0",
-          },
-          billOfMaterials: [
-            { item: "Unparsed / Gibberish Input", estimatedCost: "₹0" },
-          ],
-          actionPlan: ["Provide a clear product title and concept description."],
-          aiProviderUsed: "NxtVenture Validation Shield",
-          timestamp: new Date().toISOString(),
-        },
+        report: invalidReport(String(title), category, coherence.reason),
       });
     }
 
-    const groqApiKey = process.env.GROQ_API_KEY;
-    const geminiApiKey = process.env.GEMINI_API_KEY;
-
-    let report = null;
-    let usedProviderName = "Offline Rule Engine";
-
-    const promptInstructions = `You are an expert manufacturing co-founder, venture capitalist, and hardware engineer. 
-Analyze the startup idea thoroughly. ALL FINANCIAL FIGURES MUST BE EXCLUSIVELY IN INDIAN RUPEES (₹ / INR).
-
-CRITICAL INPUT VALIDATION: First evaluate if the pitch represents a coherent, real product concept. If the title or description is gibberish (e.g. "fgbfg", "ghfnghj", keyboard mashes, or missing meaningful context), YOU MUST STRICTLY RETURN feasibilityScore: 0, ratingLabel: "Non-Viable / Invalid Input", verdict: "Invalid or gibberish pitch input.", financialViability: { estimatedCogs: "₹0", projectedMargin: "0%", breakEvenMonths: "Never", recommendedRetailPrice: "₹0" }, and detailedAnalysis explaining why the input was rejected as non-viable.
-
-You MUST return strictly valid JSON matching this schema:
-{
-  "feasibilityScore": number (strictly between 0 and 100, where 0 is non-viable and 100 is highly viable),
-  "ratingLabel": string ("Highly Viable" for 75-100 | "Moderately Viable" for 41-74 | "High Friction" for 0-40 | "Non-Viable / Invalid Input" for 0),
-  "verdict": string (short summary verdict in Indian Rupees),
-  "detailedAnalysis": string (an extensive, long AI Report written in numbered points: 1., 2., 3., 4., 5., 6., 7., 8. YOU MUST PUT DOUBLE NEWLINES \\n\\n BETWEEN EACH NUMBERED POINT. Use bold headers like **Market Demand**:, bold key metrics, and INR ₹ currency formatting for every point),
-  "riskMatrix": {
-    "technicalComplexity": string,
-    "supplyChainRisk": string,
-    "capitalIntensity": string,
-    "regulatoryBarrier": string
-  },
-  "financialViability": {
-    "estimatedCogs": string (in ₹ Rupees, e.g. "₹450 - ₹850 per unit"),
-    "projectedMargin": string (e.g. "62% - 75%"),
-    "breakEvenMonths": string (Range must be between 6 Months up to 5 Years e.g. "18 Months" or "3.5 Years". If payback exceeds 5 years / 60 months, strictly return "Never"),
-    "recommendedRetailPrice": string (in ₹ Rupees, e.g. "₹1,899 - ₹2,999")
-  },
-  "billOfMaterials": [ { "item": string, "estimatedCost": string (in ₹ Rupees, e.g. "₹180") } ],
-  "actionPlan": [ string ]
-}
-Do NOT include markdown code fences outside JSON. Write a comprehensive AI Report in the "detailedAnalysis" field using numbered points 1-8.`;
-
-    const userPrompt = `Assess this startup concept:
-Title: ${title}
-Category: ${category}
-Capex Tier: ${investmentTier}
-Target Market: ${targetMarket}
-Description: ${description}`;
-
-    const defaultReportText = `1. **Product Concept & Market Viability**: The concept "${title}" targets a high-growth demand curve in India within the **${category || "Manufacturing"}** sector. Target audience (${targetMarket || "Domestic D2C & B2B Buyers"}) exhibits strong willingness-to-pay for local hardware solutions.
-
-2. **Unit Economics & Margin Target**: Estimated Cost of Goods Sold (COGS) is projected at **₹450 - ₹850 per unit** with a recommended retail price (MSRP) of **₹1,899 - ₹2,999**, yielding a healthy gross margin of **62% to 75%**.
-
-3. **Capex & Initial Tooling Breakdown**: Initial setup capital of **${investmentTier || "₹5 Lakhs - ₹25 Lakhs"}** is optimal for low-volume CNC tooling, 3D printed housings, and component batch ordering without excessive upfront equity dilution.
-
-4. **Bill of Materials (BOM) Sourcing**: Primary component costs are concentrated in structural enclosures (**₹180/unit**), control microcontrollers (**₹220/unit**), and custom eco-packaging (**₹45/unit**). Sourcing from local Indian industrial hubs (Rajkot, Pune, Noida) reduces freight lead times.
-
-5. **Supply Chain & Regulatory Compliance**: Key risks include component procurement delays and BIS / CE certification standards. Founders should secure dual-vendor sourcing agreements for critical electronic chips early.
-
-6. **Go-To-Market & Pre-Order Strategy**: Establish a high-converting landing page to collect 100 paid pre-orders at **₹1,499** prior to initiating batch mold production, validating customer intent.
-
-7. **Break-Even Payback Milestone**: The venture is projected to achieve operational break-even within **6 to 9 Months** upon reaching a monthly sales volume of **350 units**.
-
-8. **Strategic Founder Recommendation**: Maintain a lean capital structure, retain initial assembly in-house, and secure trademark & design patent protections under the Indian IP Scheme for Startups.`;
-
-    // Provider 1: Groq Llama 3.3 (70B)
-    if (aiModel === "groq" && groqApiKey) {
-      try {
-        const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${groqApiKey}`,
-          },
-          body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
-            messages: [
-              { role: "system", content: promptInstructions },
-              { role: "user", content: userPrompt },
-            ],
-            temperature: 0.3,
-            response_format: { type: "json_object" },
-          }),
-        });
-
-        if (groqRes.ok) {
-          const data = await groqRes.json();
-          const rawJson = data.choices?.[0]?.message?.content;
-          if (rawJson) {
-            const parsed = JSON.parse(rawJson);
-            usedProviderName = "Groq Llama 3.3 (70B) — High-Speed Engine";
-            report = {
-              title,
-              category: category || "Manufacturing",
-              feasibilityScore: parsed.feasibilityScore ?? 85,
-              ratingLabel: parsed.ratingLabel || "Highly Viable",
-              verdict: parsed.verdict || `The concept "${title}" shows strong market feasibility in Indian Rupees (₹).`,
-              detailedAnalysis: parsed.detailedAnalysis || defaultReportText,
-              riskMatrix: parsed.riskMatrix || { technicalComplexity: "Medium", supplyChainRisk: "Moderate", capitalIntensity: "Low", regulatoryBarrier: "Standard" },
-              financialViability: parsed.financialViability || { estimatedCogs: "₹450 - ₹850 per unit", projectedMargin: "62% - 75%", breakEvenMonths: "6 to 8 Months", recommendedRetailPrice: "₹1,899 - ₹2,999" },
-              billOfMaterials: parsed.billOfMaterials || [
-                { item: "Primary Structural Material", estimatedCost: "₹180" },
-                { item: "Control Board / Sensor Array", estimatedCost: "₹220" },
-                { item: "Custom Eco Packaging", estimatedCost: "₹45" },
-              ],
-              actionPlan: parsed.actionPlan || ["Build prototype", "Obtain supplier quotes in ₹ INR", "Launch pre-orders"],
-              aiProviderUsed: usedProviderName,
-              timestamp: new Date().toISOString(),
-            };
-          }
-        }
-      } catch (err) {
-        console.warn("Groq execution failed, trying Gemini fallback:", err);
-      }
-    }
-
-    // Provider 2: Google Gemini 2.5 / 1.5 Flash (Free Tier Slower)
-    if (!report && (aiModel === "gemini" || geminiApiKey)) {
-      if (geminiApiKey) {
+    /* --- 1. Gather external evidence and internal comparables in parallel --- */
+    const [evidence, internalMatches, historical] = await Promise.all([
+      gatherEvidence({ title, description, category }).catch(
+        (): EvidencePack => ({
+          items: [],
+          sourcesUsed: [],
+          failures: [{ source: "all", reason: "evidence layer unavailable" }],
+          queryTerms: [],
+          durationMs: 0,
+          cached: false,
+        })
+      ),
+      (async () => {
         try {
-          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
-          const geminiRes = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: `${promptInstructions}\n\n${userPrompt}` }] }],
-            }),
-          });
-
-          if (geminiRes.ok) {
-            const gData = await geminiRes.json();
-            const rawText = gData.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (rawText) {
-              const cleanJson = rawText.replace(/```json|```/g, "").trim();
-              const parsed = JSON.parse(cleanJson);
-              usedProviderName = "Google Gemini 2.5 Flash — Free Tier Engine (Slower)";
-              report = {
-                title,
-                category: category || "Manufacturing",
-                feasibilityScore: parsed.feasibilityScore ?? 80,
-                ratingLabel: parsed.ratingLabel || "Moderately Viable",
-                verdict: parsed.verdict || `The concept "${title}" demonstrates solid potential in ₹ INR.`,
-                detailedAnalysis: parsed.detailedAnalysis || defaultReportText,
-                riskMatrix: parsed.riskMatrix || { technicalComplexity: "Medium", supplyChainRisk: "Moderate", capitalIntensity: "Low", regulatoryBarrier: "Standard" },
-                financialViability: parsed.financialViability || { estimatedCogs: "₹500 - ₹900 per unit", projectedMargin: "65%", breakEvenMonths: "6 to 9 Months", recommendedRetailPrice: "₹1,999 - ₹3,499" },
-                billOfMaterials: parsed.billOfMaterials || [{ item: "Enclosure Housing", estimatedCost: "₹190" }],
-                actionPlan: parsed.actionPlan || ["Build CAD model", "Perform market validation"],
-                aiProviderUsed: usedProviderName,
-                timestamp: new Date().toISOString(),
-              };
-            }
-          }
-        } catch (err) {
-          console.warn("Gemini execution failed:", err);
+          const articles = await db.articles.findMany();
+          return rankArticles(`${title} ${description}`, articles).slice(0, 3);
+        } catch {
+          return [];
         }
-      }
-    }
+      })(),
+      db.feasibilityReports
+        .findSimilar({ title, description, category, limit: 5 })
+        .catch(() => [] as { report: FeasibilityReport; similarity: number }[]),
+    ]);
 
-    // Fallback if LLMs fail or unconfigured
-    if (!report) {
-      const descLength = description.length;
-      let feasibilityScore = 78;
-      if (descLength > 150) feasibilityScore += 6;
+    const evidenceBlock = formatEvidenceForPrompt(evidence);
 
-      usedProviderName = "Offline Heuristic Rule Engine";
+    const internalContext =
+      internalMatches.length > 0
+        ? `INTERNAL NXTVENTURE KNOWLEDGE BASE (founder playbooks already written for this platform):\n${internalMatches
+            .map((m) => `- ${m.article.title} (${m.article.category}): ${m.article.summary}`)
+            .join("\n")}`
+        : "INTERNAL NXTVENTURE KNOWLEDGE BASE: no closely related playbook found.";
+
+    const priorContext =
+      historical.length > 0
+        ? `PRIOR ASSESSMENTS OF SIMILAR PITCHES ON THIS PLATFORM (for calibration — do not simply copy them):\n${historical
+            .map(
+              (h) =>
+                `- "${h.report.title}" scored ${h.report.feasibilityScore}/100 (${h.report.ratingLabel})`
+            )
+            .join("\n")}`
+        : "PRIOR ASSESSMENTS: none comparable yet.";
+
+    const systemPrompt = buildSystemPrompt(evidenceBlock, internalContext, priorContext);
+    const userPrompt = buildUserPrompt({ title, description, category, investmentTier, targetMarket });
+
+    /* --- 2. Run independent models over identical evidence --- */
+    const preferred: ProviderId = aiModel === "gemini" ? "gemini" : "groq";
+    const secondary: ProviderId = preferred === "groq" ? "gemini" : "groq";
+
+    const runsToDo: ProviderId[] = [preferred];
+    if (consensus && isConfigured(secondary)) runsToDo.push(secondary);
+
+    const settled = await Promise.allSettled(
+      runsToDo.map(async (provider) => {
+        const out = await chatJson<unknown>(
+          { system: systemPrompt, user: userPrompt, temperature: 0.25, maxTokens: 6000 },
+          provider
+        );
+        if (!out) throw new Error(`${provider}: unparseable JSON response`);
+        const verdict = coerceVerdict(out.data);
+        if (!verdict) throw new Error(`${provider}: response missing a usable feasibility score`);
+        return { verdict, meta: out.meta as ChatResult, requested: provider };
+      })
+    );
+
+    const successes = settled
+      .filter((s): s is PromiseFulfilledResult<{ verdict: ModelVerdict; meta: ChatResult; requested: ProviderId }> =>
+        s.status === "fulfilled"
+      )
+      .map((s) => s.value);
+
+    const modelErrors = settled
+      .filter((s): s is PromiseRejectedResult => s.status === "rejected")
+      .map((s) => {
+        const reason: unknown = s.reason;
+        return (reason instanceof Error ? reason.message : String(reason)).slice(0, 240);
+      });
+
+    /* --- 3. Reconcile --- */
+    let report: AssembledReport;
+    let usedProviderName: string;
+    const modelRuns = successes.map((s) => ({
+      provider: s.meta.provider,
+      model: s.meta.model,
+      label: s.meta.label,
+      score: s.verdict.feasibilityScore,
+      latencyMs: s.meta.latencyMs,
+    }));
+
+    if (successes.length === 0) {
+      // Every provider failed. Say so honestly rather than dressing placeholder
+      // text up as an AI verdict, which is what the previous version did.
+      usedProviderName = "Unavailable — all AI providers failed";
       report = {
         title,
         category: category || "Manufacturing",
-        feasibilityScore,
-        ratingLabel: feasibilityScore >= 80 ? "Highly Viable" : "Moderately Viable",
-        verdict: `The concept "${title}" shows favorable capital-efficiency metrics in ₹ INR.`,
-        detailedAnalysis: defaultReportText,
+        feasibilityScore: 0,
+        ratingLabel: "Assessment Unavailable",
+        verdict:
+          "No AI provider could be reached, so no feasibility verdict was produced. The figures below are intentionally blank rather than estimated.",
+        detailedAnalysis: `1. **Assessment Could Not Run**: Every configured AI provider failed for this request.\n\n2. **Provider Errors**: ${modelErrors.join(" | ") || "unknown error"}\n\n3. **Evidence Was Still Collected**: ${evidence.items.length} external source${evidence.items.length === 1 ? "" : "s"} were retrieved and are listed below, so the research is not lost.\n\n4. **What To Do**: Check the provider status panel and retry. No numbers are shown because inventing them would be misleading.`,
         riskMatrix: {
-          technicalComplexity: category === "Hardware / Electronics" ? "High" : "Medium",
-          supplyChainRisk: "Moderate",
-          capitalIntensity: investmentTier === "₹25 Lakhs+" ? "High" : "Low",
-          regulatoryBarrier: "Standard",
+          technicalComplexity: "Not assessed",
+          supplyChainRisk: "Not assessed",
+          capitalIntensity: "Not assessed",
+          regulatoryBarrier: "Not assessed",
         },
         financialViability: {
-          estimatedCogs: "₹450 - ₹850 per unit",
-          projectedMargin: "62% - 75%",
-          breakEvenMonths: "6 to 9 Months",
-          recommendedRetailPrice: "₹1,899 - ₹2,999",
+          estimatedCogs: "Not assessed",
+          projectedMargin: "Not assessed",
+          breakEvenMonths: "Not assessed",
+          recommendedRetailPrice: "Not assessed",
         },
-        billOfMaterials: [
-          { item: "Primary Structural Material", estimatedCost: "₹180" },
-          { item: "Control Board Microcontroller", estimatedCost: "₹220" },
-          { item: "Fasteners & Seal Gaskets", estimatedCost: "₹65" },
+        billOfMaterials: [],
+        actionPlan: ["Retry once a provider is reachable."],
+        keyUncertainties: ["The entire assessment is missing — no model responded."],
+      };
+    } else {
+      // Primary narrative comes from the preferred provider when it answered.
+      const primary =
+        successes.find((s) => s.requested === preferred) ?? successes[0];
+      const others = successes.filter((s) => s !== primary);
+
+      // Reconciled score is the mean across runs, so one outlier model cannot
+      // swing the headline number on its own.
+      const meanScore = Math.round(
+        successes.reduce((acc, s) => acc + s.verdict.feasibilityScore, 0) / successes.length
+      );
+      const reconciledLabel =
+        meanScore >= 75 ? "Highly Viable" : meanScore >= 41 ? "Moderately Viable" : "High Friction";
+
+      usedProviderName =
+        successes.length > 1
+          ? `${successes.map((s) => s.meta.label).join(" + ")} (consensus)`
+          : primary.meta.label;
+
+      report = {
+        ...primary.verdict,
+        feasibilityScore: meanScore,
+        ratingLabel: reconciledLabel,
+        title,
+        category: category || "Manufacturing",
+        secondOpinions: others.map((o) => ({
+          label: o.meta.label,
+          score: o.verdict.feasibilityScore,
+          verdict: o.verdict.verdict,
+        })),
+        keyUncertainties: [
+          ...new Set(successes.flatMap((s) => s.verdict.keyUncertainties || [])),
         ],
-        actionPlan: [
-          "3D print functional MVP prototype.",
-          "Obtain vendor quotes in ₹ INR.",
-          "Launch pre-order pre-launch landing page.",
-        ],
-        aiProviderUsed: usedProviderName,
-        timestamp: new Date().toISOString(),
       };
     }
 
-    // Save report into persistent RAG database
+    /* --- 4. Score confidence in the verdict --- */
+    const confidence = computeConfidence({
+      evidence,
+      modelScores: successes.map((s) => s.verdict.feasibilityScore),
+      providersSucceeded: successes.length,
+      pitchTitle: title,
+      pitchDescription: description,
+      internalKbScore: internalMatches[0]?.score ?? 0,
+      historicalNeighbours: historical.map((h) => h.report.feasibilityScore),
+    });
+
+    const citedSources = evidence.items.map((item) => ({
+      title: item.title,
+      url: item.url,
+      source: item.source,
+      sourceType: item.sourceType,
+      snippet: item.snippet,
+      retrievedAt: item.retrievedAt,
+    }));
+
+    const finalReport = {
+      ...report,
+      aiProviderUsed: usedProviderName,
+      confidence,
+      citedSources,
+      modelRuns,
+      modelErrors,
+      evidenceMeta: {
+        sourcesUsed: evidence.sourcesUsed,
+        failures: evidence.failures,
+        queryTerms: evidence.queryTerms,
+        durationMs: evidence.durationMs,
+        cached: evidence.cached,
+      },
+      comparablePitches: historical.map((h) => ({
+        title: h.report.title,
+        score: h.report.feasibilityScore,
+        similarity: Math.round(h.similarity * 100),
+      })),
+      totalDurationMs: Date.now() - startedAt,
+      timestamp: new Date().toISOString(),
+    };
+
+    /* --- 5. Persist so the corpus improves future calibration --- */
     try {
       await db.feasibilityReports.create({
         title,
+        description,
         category: category || "Manufacturing",
-        feasibilityScore: report.feasibilityScore,
-        ratingLabel: report.ratingLabel,
-        verdict: report.verdict,
-        detailedAnalysis: report.detailedAnalysis,
-        riskMatrix: report.riskMatrix,
-        financialViability: report.financialViability,
-        billOfMaterials: report.billOfMaterials || [],
-        actionPlan: report.actionPlan || [],
+        feasibilityScore: finalReport.feasibilityScore,
+        ratingLabel: finalReport.ratingLabel,
+        verdict: finalReport.verdict,
+        detailedAnalysis: finalReport.detailedAnalysis,
+        riskMatrix: finalReport.riskMatrix,
+        financialViability: finalReport.financialViability,
+        billOfMaterials: finalReport.billOfMaterials || [],
+        actionPlan: finalReport.actionPlan || [],
+        queryTerms: evidence.queryTerms,
+        citedSources,
+        confidence,
+        modelRuns,
+        aiProviderUsed: usedProviderName,
       });
 
       await db.searchHistory.create({
         userId: null,
-        query: `Feasibility Audit: ${title} (${usedProviderName})`,
-        answer: report.verdict,
-        sources: [`Score: ${report.feasibilityScore}/100`, report.ratingLabel],
+        query: `Feasibility Audit: ${title}`,
+        answer: finalReport.verdict,
+        sources: citedSources.map((s) => s.url),
       });
     } catch {
-      // non-fatal
+      // Persistence is best-effort; a read-only filesystem must not fail the request.
     }
 
-    return NextResponse.json({ success: true, report });
+    return NextResponse.json({ success: true, report: finalReport });
   } catch (error) {
     console.error("Error evaluating feasibility:", error);
     return NextResponse.json({ error: "Failed to evaluate idea feasibility" }, { status: 500 });

@@ -68,7 +68,10 @@ NxtVenture is a full-stack web application designed for hardware founders, indus
 
 - Idea Explorer Directory (/ideas): Browse hardware concepts filtered by Category, Capex Tier, and Complexity. Includes upvoting, community submission, and instant AI idea generation.
 - 1-Click AI Feasibility Transfer (/ideas/[id]): Transfer parameters (Title, Sector, Capex Tier, Target Market, Description) directly from Idea Details to the Feasibility Evaluator.
-- AI Feasibility and Risk Evaluator (/feasibility): Dual-model AI analysis (Groq Llama 3.3 70B vs Google Gemini 2.5 Flash), 0-100 numerical score gauge, 4-vector risk matrix, and long 8-point AI Report in Indian Rupees (INR).
+- AI Feasibility and Risk Evaluator (/feasibility): Evidence-grounded analysis. Every pitch is researched against live public data, assessed independently by two AI models over identical evidence, and returned with inline [n] citations, a 0-100 feasibility gauge, a separate 0-100 confidence score, a 4-vector risk matrix, and an 8-point report in Indian Rupees (INR).
+- Confidence Scoring (`lib/confidence.ts`): A second, independent score answering "how much should you trust this verdict?" - computed from evidence volume, source authority, source diversity, cross-model agreement, pitch specificity, internal knowledge overlap, and calibration against comparable past assessments. It is derived from observable facts, never asked of the model, so a confident-sounding completion cannot inflate it.
+- Cited Sources Panel: Every external source used is listed with its provider, retrieval timestamp and link, and citation markers in the report body link back to it.
+- Provider Health Endpoint (`/api/health`): Sends a real completion to each configured provider and reports the model that answered plus its latency, so a retired model id surfaces immediately instead of silently degrading to offline placeholder text.
 - Algorithmic Garbage Data Shield: Pre-LLM Tier 1 regex validation filters keyboard mashes (e.g. "fgbfg", "ghfnghj"), immediately returning a 0 / 100 score and setting unit metrics to INR 0 with $0 API cost.
 - RAG AI Search Assistant (/search): Retrieval-Augmented Generation indexing Articles, Manufacturing Ideas, and Feasibility Audit Reports for natural language vector query processing with citations.
 - Manufacturing Cost and ROI Calculator (/calculator): Interactive simulator for unit COGS, monthly fixed overhead, gross margin %, break-even unit volume, and payback schedules.
@@ -91,9 +94,10 @@ NxtVenture is a full-stack web application designed for hardware founders, indus
 ## Technologies Used
 
 - Frontend: Next.js 16 (App Router), React 19, Tailwind CSS v4, Lucide React Icons, Google Fonts (Inter and Outfit)
-- Backend: Next.js Server API Routes, Edge Middleware, JWT Cookie Authentication, Bcrypt Password Hashing, Async Temp File Write Queue
-- AI Models: Groq Cloud Llama 3.3 (70B Versatile), Google Gemini 2.5 Flash / 1.5 Flash, Offline Heuristic Rule Engine
-- RAG Engine: Multi-Weighted TF-IDF Vector Similarity Search with stop-word filtering
+- Backend: Next.js Server API Routes, Node Proxy layer (`proxy.ts`, replacing the deprecated `middleware.ts` convention in Next 16), JWT Cookie Authentication, Bcrypt Password Hashing, Async Temp File Write Queue
+- AI Models: multi-provider router — Groq (GPT-OSS 120B / 20B, Qwen 3.8 27B), Google Gemini (3.5 Flash, 3.1 Flash Lite), optional OpenAI, with automatic model fallback and an offline extractive engine as last resort
+- RAG Engine: Multi-Weighted TF-IDF Vector Similarity Search with stop-word filtering, plus a live external evidence layer (`lib/evidence.ts`)
+- Live Data Sources (no API key required): Wikipedia, World Bank Open Data, Crossref, arXiv, Hacker News
 - Database: JSON Atomic File Database (`data/db.json`) with `memorySchema` in-memory fallback for read-only serverless environments
 
 ---
