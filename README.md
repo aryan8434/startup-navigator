@@ -1,8 +1,8 @@
-# NxtVenture — Manufacturing & Hardware Startup Navigator
+# NxtVenture – Manufacturing & Hardware Startup Navigator
 
 NxtVenture is a full-stack web application designed for hardware founders, industrial product designers, D2C brand creators, and venture investors. Inspired by curated startup databases like 10,000 Ideas and IdeaBrowser, the application transforms hardware and manufacturing concepts into production-ready blueprints complete with unit economics in Indian Rupees (INR), Bill of Materials (BOM), 4-vector risk assessments, RAG-assisted legal lookup, garbage data input shielding, and PDF exports.
 
----
+
 
 ## Candidate Status and Availability
 
