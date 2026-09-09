@@ -429,10 +429,18 @@ Create a `.env` file in the root directory:
 cp .env.example .env
 ```
 
-Open `.env` and add your API keys (optional, offline fallback engine is active by default):
+| Variable | Description | Required? | Default / Notes |
+| :--- | :--- | :--- | :--- |
+| `GROQ_API_KEY` | Ultra-fast Groq LPU API key for GPT-OSS 120B / Qwen models. | Optional | Falls back to Gemini or Offline Engine if omitted. |
+| `GEMINI_API_KEY` | Google AI Studio API key for Gemini 3.5 Flash / Flash Lite. | Optional | Enables consensus verification mode. |
+| `OPENAI_API_KEY` | OpenAI API key for GPT-4o-mini third-party validation. | Optional | Only called if configured. |
+| `JWT_SECRET` | Secret key for signing and verifying authentication tokens. | Recommended | Falls back to default development secret. |
+| `PORT` | Local development port. | Optional | Defaults to `3000`. |
+
 ```env
 GROQ_API_KEY=your_groq_api_key_here
 GEMINI_API_KEY=your_gemini_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
 JWT_SECRET=your_jwt_secret_key_here
 ```
 
@@ -447,13 +455,34 @@ Open your browser and navigate to:
 http://localhost:3000
 ```
 
-### 6. Build for Production
-To create an optimized production build:
+### 6. Run Automated Test Suites
+
+NxtVenture includes automated validation test scripts to audit the two-stage gate against real and adversarial pitch data:
+
 ```bash
-npm run build
+# Run the 10-case validation gate test matrix
+node scripts/test-validation-gate.mjs
+
+# Run the live API integration test suite
+node scripts/test-api.mjs
 ```
 
-To run the production server locally:
+The validation test suite verifies:
+1. Deterministic rejection of empty inputs and keyboard mash ("fgbfg") with 0 latency.
+2. Semantic rejection of physically impossible products ("headphones for fishes").
+3. Semantic rejection of generic non-product desires ("I want to be rich").
+4. Semantic rejection of 10x+ capital tier mismatches (e.g. semiconductor fab on ₹4 Lakh).
+5. Fast-path passage and full 8-point report generation for legitimate hardware ventures.
+
+### 7. Build for Production & Vercel Deployment
+
+To create an optimized production build locally:
 ```bash
+npm run build
 npm start
 ```
+
+#### Vercel Serverless Considerations
+In serverless production environments (such as Vercel), local disk writes can fail due to read-only filesystems (`EROFS`). NxtVenture solves this via `memorySchema` in [`lib/db.ts`](file:///c:/Codes/assignments/startup-navigator/lib/db.ts), seamlessly transitioning to an in-memory transactional cache when file writes are restricted.
+
+---
