@@ -129,10 +129,24 @@ flowchart TD
 
 ---
 
-## Features
+## Features & Route Matrix
 
-- Idea Explorer Directory (/ideas): Browse hardware concepts filtered by Category, Capex Tier, and Complexity. Includes upvoting, community submission, and instant AI idea generation.
-- 1-Click AI Feasibility Transfer (/ideas/[id]): Transfer parameters (Title, Sector, Capex Tier, Target Market, Description) directly from Idea Details to the Feasibility Evaluator.
+### Core Application Matrix
+
+| Route | Module | Core Functionality | Primary Tech / Dependencies |
+| :--- | :--- | :--- | :--- |
+| **`/`** | **Homepage & Market Pulse** | Live directory metrics, category quick-filters, featured blueprints, and unified search. | Server Component, Lucide Icons, Glassmorphic Hero |
+| **`/ideas`** | **Hardware Idea Explorer** | Multi-attribute filtering (Category, Capex Tier, Complexity), upvoting, and instant AI idea generation. | Client state, Groq / Gemini API, `data/db.json` |
+| **`/ideas/[id]`** | **Blueprint Detail View** | Unit economics in ₹ INR, BOM breakdowns, tooling capex, machinery specs, and **1-Click Feasibility Transfer**. | Dynamic Routing, JSON schema, localStorage bridge |
+| **`/feasibility`** | **AI Feasibility & Risk Engine** | Evidence-grounded assessment, 0-100 gauge, 4-vector risk matrix, confidence score, and executive PDF export. | `lib/validation.ts`, `lib/evidence.ts`, `lib/confidence.ts` |
+| **`/calculator`** | **Unit Cost & ROI Simulator** | Interactive slider simulator for BOM COGS, overhead, break-even unit volume, and payback schedules. | Pure Client-side Math, zero-latency reactive state |
+| **`/search`** | **RAG AI Knowledge Assistant** | Vector similarity retrieval over local startup guides, blueprints, and reports with live source citations. | `lib/rag.ts` (TF-IDF Vector Engine), Groq/Gemini |
+| **`/api/health`** | **Provider Health Endpoint** | Real-time active model identification, roundtrip latency probes, and degradation alerts. | `GET /api/health`, `lib/providers.ts` |
+
+### Key Feature Capabilities
+
+- **Idea Explorer Directory (`/ideas`):** Browse hardware concepts filtered by Category, Capex Tier, and Complexity. Includes upvoting, community submission, and instant AI idea generation.
+- **1-Click AI Feasibility Transfer (`/ideas/[id]`):** Transfer parameters (Title, Sector, Capex Tier, Target Market, Description) directly from Idea Details to the Feasibility Evaluator with auto-execution.
 - AI Feasibility and Risk Evaluator (/feasibility): Evidence-grounded analysis. Every pitch is researched against live public data, assessed independently by two AI models over identical evidence, and returned with inline [n] citations, a 0-100 feasibility gauge, a separate 0-100 confidence score, a 4-vector risk matrix, and an 8-point report in Indian Rupees (INR).
 - Confidence Scoring (`lib/confidence.ts`): A second, independent score answering "how much should you trust this verdict?" - computed from evidence volume, source authority, source diversity, cross-model agreement, pitch specificity, internal knowledge overlap, and calibration against comparable past assessments. It is derived from observable facts, never asked of the model, so a confident-sounding completion cannot inflate it.
 - Cited Sources Panel: Every external source used is listed with its provider, retrieval timestamp and link, and citation markers in the report body link back to it.
