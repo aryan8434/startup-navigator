@@ -263,6 +263,45 @@ Client Request
 
 ---
 
+## Live Evidence Layer & Confidence Scoring Engine
+
+### 1. Live Evidence Retrieval Layer (`lib/evidence.ts`)
+
+Rather than relying purely on static parametric LLM memory, NxtVenture grounds every feasibility evaluation in live public data. The evidence collector queries 5 authoritative endpoints concurrently without requiring external API keys:
+
+| Source | Target Domain | Extraction Strategy | Timeout / Resilience |
+| :--- | :--- | :--- | :--- |
+| **Wikipedia REST API** | Encyclopedic context, materials, processes | REST summary extraction | 3500ms timeout; automatic query relaxation |
+| **World Bank Open Data** | Macroeconomics, trade flows, industrial data | Indicator query | 4000ms timeout; graceful empty fallback |
+| **Crossref API** | Academic papers, material science journals | DOI & metadata search | 3500ms timeout; per-source isolation |
+| **arXiv API** | Cutting-edge hardware & electronics preprints | Atom feed parsing | 4000ms timeout; regex query cleaning |
+| **Hacker News Algolia** | Hardware startup post-mortems, founder anecdotes | Algolia Search REST API | 3000ms timeout; community sentiment filter |
+
+Every external data point is captured with its retrieval timestamp, source provider, and direct URL, and is injected into the LLM context with unique `[n]` citation tags.
+
+### 2. Objective Confidence Scoring Model (`lib/confidence.ts`)
+
+A key innovation in NxtVenture is the separation of **Feasibility (0–100)** from **Confidence (0–100)**:
+- **Feasibility:** Does this manufacturing concept have a viable market, unit margin, and production pathway?
+- **Confidence:** How much should the founder or investor trust this assessment based on observable evidence?
+
+The confidence score is computed deterministically in TypeScript over **7 observable vectors**:
+
+```
+Confidence Score (0 - 100) =
+  + Evidence Volume        (Weight: 15% | Citable sources retrieved)
+  + Source Authority       (Weight: 15% | Peer-reviewed & institutional vs community)
+  + Source Diversity       (Weight: 15% | Unique providers contributing data)
+  + Cross-Model Consensus  (Weight: 20% | Agreement between Groq and Gemini)
+  + Pitch Specificity      (Weight: 15% | Technical clarity of BOM, capex, and market)
+  + Internal Vector Overlap(Weight: 10% | Match against verified sector blueprints)
+  + Calibration Baseline   (Weight: 10% | Historical variance normalization)
+```
+
+> **Grounding Guarantee:** The confidence score is never asked of the AI model. Because LLMs suffer from uncalibrated overconfidence, this metric is derived purely from factual telemetry. A confident-sounding completion cannot inflate it.
+
+---
+
 ## Technologies Used
 
 - Frontend: Next.js 16 (App Router), React 19, Tailwind CSS v4, Lucide React Icons, Google Fonts (Inter and Outfit)
