@@ -313,6 +313,93 @@ Confidence Score (0 - 100) =
 
 ---
 
+## REST API Reference
+
+NxtVenture exposes a set of clean Next.js 16 Server API Routes for programmatic hardware analysis and vector search:
+
+### 1. `POST /api/feasibility`
+Executes validation gate screening, live evidence collection, and dual-model feasibility assessment.
+
+* **Headers:** `Content-Type: application/json`
+* **Request Body:**
+  ```json
+  {
+    "title": "Solar-Powered Water Desalination Unit",
+    "category": "CleanTech / Hardware",
+    "description": "Portable reverse-osmosis desalination kit for coastal villages.",
+    "targetMarket": "Rural coastal communities & panchayats in Gujarat/Tamil Nadu",
+    "capexTier": "Mid",
+    "aiModel": "groq"
+  }
+  ```
+* **Success Response (`200 OK`):**
+  ```json
+  {
+    "feasibilityScore": 78,
+    "confidenceScore": 84,
+    "verdict": "Viable with Targeted Subsidy Wedge",
+    "riskMatrix": {
+      "technical": "Moderate",
+      "market": "Low",
+      "supplyChain": "High",
+      "regulatory": "Moderate"
+    },
+    "stagePassed": "full_pipeline",
+    "citations": [
+      {
+        "id": 1,
+        "title": "Solar Desalination Economics",
+        "provider": "Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Solar_desalination"
+      }
+    ],
+    "financialBreakdown": {
+      "estimatedUnitCOGS": "₹14,200",
+      "estimatedMSRP": "₹21,500",
+      "grossMarginPercent": "33.9%"
+    }
+  }
+  ```
+* **Validation Failure Response (`200 OK`):**
+  ```json
+  {
+    "feasibilityScore": 0,
+    "confidenceScore": 0,
+    "verdict": "Invalid / Non-Viable Pitch",
+    "stagePassed": "stage_1_rejected",
+    "rejectionReason": "Keyboard mash or insufficient character entropy detected."
+  }
+  ```
+
+### 2. `POST /api/ideas/generate`
+Generates a brand new, commercially viable hardware venture blueprint on demand.
+
+* **Request Body:** `{ "sector": "Robotics", "capexTier": "Mid" }`
+* **Response:** Returns fully structured idea schema with BOM, machinery list, and unit economics in ₹ INR.
+
+### 3. `POST /api/search`
+Retrieval-Augmented Generation (RAG) search across articles, blueprints, and feasibility records.
+
+* **Request Body:** `{ "query": "Delaware vs India C-Corp filing", "aiModel": "groq" }`
+* **Response:** Returns ranked vector citations with similarity scores and generated summary answer.
+
+### 4. `GET /api/health`
+Probes all AI providers with lightweight completions to detect model retirements and measure live latency.
+
+* **Response:**
+  ```json
+  {
+    "status": "healthy",
+    "timestamp": "2026-09-09T08:15:00Z",
+    "providers": {
+      "groq": { "status": "up", "model": "openai/gpt-oss-120b", "latencyMs": 420 },
+      "gemini": { "status": "up", "model": "gemini-3.5-flash", "latencyMs": 1380 }
+    }
+  }
+  ```
+
+---
+
 ## Step-by-Step Installation Guide
 
 Follow these steps to set up and run NxtVenture locally on your machine:
