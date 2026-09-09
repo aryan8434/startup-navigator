@@ -486,3 +486,71 @@ npm start
 In serverless production environments (such as Vercel), local disk writes can fail due to read-only filesystems (`EROFS`). NxtVenture solves this via `memorySchema` in [`lib/db.ts`](file:///c:/Codes/assignments/startup-navigator/lib/db.ts), seamlessly transitioning to an in-memory transactional cache when file writes are restricted.
 
 ---
+
+## Repository Directory Structure
+
+```
+startup-navigator/
+├── app/                                # Next.js 16 App Router
+│   ├── api/                            # RESTful Backend API Endpoints
+│   │   ├── feasibility/route.ts        # Evidence-grounded feasibility evaluator
+│   │   ├── health/route.ts             # Provider live latency & model probe
+│   │   ├── ideas/                      # Ideas listing, creation, and generator
+│   │   └── search/route.ts             # RAG vector retrieval endpoint
+│   ├── architecture/page.tsx           # Interactive system architecture diagram
+│   ├── calculator/page.tsx             # Hardware unit economics & payback simulator
+│   ├── feasibility/page.tsx            # Feasibility evaluator & PDF export UI
+│   ├── ideas/                          # Directory explorer & blueprint detail views
+│   ├── search/page.tsx                 # RAG AI Search interface with citations
+│   ├── globals.css                     # Design tokens, Tailwind v4, & @media print
+│   ├── layout.tsx                      # Root layout with font optimization
+│   └── page.tsx                        # Homepage hero and quick-launch grid
+├── data/
+│   └── db.json                         # Local JSON database & vector corpus
+├── docs/                               # Engineering & architecture specifications
+│   ├── prompt_engineering.md           # System prompt directives and output schema
+│   ├── startup_navigator_technical_documentation.md # Vector DB & system specs
+│   ├── thought_process_and_feature_matrix.md        # User personas & design logic
+│   └── vague_ideas_validation_guide.md              # Input shield architecture
+├── lib/                                # Core Algorithmic & AI Engine Modules
+│   ├── confidence.ts                   # 7-vector objective confidence scoring
+│   ├── db.ts                           # Database abstraction with memory fallback
+│   ├── evidence.ts                     # 5-source live public evidence retriever
+│   ├── providers.ts                    # Multi-provider LLM router (Groq/Gemini/OpenAI)
+│   ├── rag.ts                          # TF-IDF multi-weighted vector search engine
+│   └── validation.ts                   # Two-stage deterministic + semantic gate
+├── public/                             # Static assets, icons, and SVG illustrations
+├── scripts/                            # Verification and test runner scripts
+│   ├── test-api.mjs                    # End-to-end API integration tests
+│   └── test-validation-gate.mjs        # 10-point validation matrix runner
+├── proxy.ts                            # Node proxy layer (Next 16 convention)
+├── package.json                        # Project dependencies and script commands
+└── tsconfig.json                       # TypeScript compiler configuration
+```
+
+---
+
+## Design System & Styling Tokens
+
+NxtVenture adheres to an executive, industrial-grade dark mode aesthetic designed for professional venture auditing and founder strategy:
+
+| Design Token | Value / Tailwind Utility | Visual Purpose |
+| :--- | :--- | :--- |
+| **Canvas Background** | `#020617` (`bg-slate-950`) | Deep dark-mode foundation minimizing eye fatigue during long audits. |
+| **Glass Backdrop** | `backdrop-blur-md bg-slate-900/40` | Subtle glassmorphism providing visual hierarchy between card layers. |
+| **Purplish Heading** | `bg-purple-950/80 text-purple-300` | Section anchors across the 8-point feasibility report (e.g. Market Demand). |
+| **Emerald Financials** | `bg-emerald-950/70 text-emerald-400` | High-contrast highlight for unit margins, COGS, MSRP, and INR metrics. |
+| **Crimson Alert** | `bg-red-950/80 text-red-400` | Validation rejections, high-risk flags, and zero-score indicators. |
+| **Primary Action** | `from-indigo-600 to-purple-600` | High-energy interactive buttons, tab selectors, and CTA triggers. |
+| **Typography** | Google Fonts *Inter* & *Outfit* | *Outfit* for modern display titles; *Inter* for legible financial tables. |
+| **Executive Print** | `@media print` CSS overrides | Strips dark backdrops and navbars, outputting clean white-background PDFs. |
+
+---
+
+## License & Candidate Information
+
+- **Author:** Aryan Kumar Raj ([@aryan8434](https://github.com/aryan8434))
+- **Email:** aryankumarraj123@gmail.com
+- **Immediate Availability:** **YES (0 Days Notice / Immediate Joiner)**
+- **Live Demo:** [https://startup-navigator-taupe.vercel.app/](https://startup-navigator-taupe.vercel.app/)
+- **License:** Open source under the [MIT License](LICENSE).
