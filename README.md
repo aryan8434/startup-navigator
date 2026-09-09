@@ -157,7 +157,49 @@ flowchart TD
   - A rejected pitch returns 0 / 100 with no financial figures at all, and the report shows which stage stopped it. Rejections resolve in ~2-6s against ~9-25s for a full assessment.
 - RAG AI Search Assistant (/search): Retrieval-Augmented Generation indexing Articles, Manufacturing Ideas, and Feasibility Audit Reports for natural language vector query processing with citations.
 - Manufacturing Cost and ROI Calculator (/calculator): Interactive simulator for unit COGS, monthly fixed overhead, gross margin %, break-even unit volume, and payback schedules.
-- Clean PDF Report Export: Dedicated print stylesheet formatting AI feasibility reports as executive white-background documents.
+- **Clean PDF Report Export:** Dedicated print stylesheet formatting AI feasibility reports as executive white-background documents.
+
+---
+
+## Two-Stage Validation Gate Architecture (`lib/validation.ts`)
+
+A critical challenge in AI-driven startup audit platforms is shielding the inference pipeline from junk inputs, keyboard mashes, physically impossible concepts, and severe financial hallucinations. NxtVenture solves this via a hierarchical **Two-Stage Validation Gate** before any expensive inference runs.
+
+```
+Incoming Pitch
+      │
+      ▼
+┌───────────────────────────────────────┐
+│ Stage 1: Deterministic Screen         │  ── Reject ──►  Score: 0 / 100 | Time: ~0.001s | Cost: $0.00
+│ • Minimum word & character counts     │                 (Empty, keyboard mash "fgbfg", gibberish)
+│ • Consonant-cluster entropy checks    │
+└──────────────────┬────────────────────┘
+                   │ Pass
+                   ▼
+┌───────────────────────────────────────┐
+│ Stage 2: Dual-Sampled Semantic Gate   │  ── Reject ──►  Score: 0 / 100 | Time: ~2-6s | Cost: ~$0.0001
+│ • Grounded lightweight model call     │                 (Non-physical "headphones for fishes",
+│ • Dual parallel samples (either fails)│                  "I want to be rich", 10x capex mismatch)
+│ • Strict physical & economic filters  │
+└──────────────────┬────────────────────┘
+                   │ Pass
+                   ▼
+┌───────────────────────────────────────┐
+│ Full Assessment Pipeline              │  ── Success ─►  Score: 0-100 | Time: ~9-25s
+│ • 5-Source live evidence research     │                 (Full 8-point report in ₹ INR,
+│ • Dual-model consensus evaluation     │                  BOM breakdown, 4-vector risk matrix)
+└───────────────────────────────────────┘
+```
+
+### Stage Comparison Matrix
+
+| Attribute | Stage 1: Deterministic Screen | Stage 2: Semantic Gate | Full Assessment Pipeline |
+| :--- | :--- | :--- | :--- |
+| **Execution Engine** | Local TypeScript Regex & Heuristics | Fast LLM (Sampled 2x in Parallel) | Dual Provider (Groq 120B + Gemini 3.5 Flash) |
+| **API Cost** | **$0.00 (Zero API calls)** | **<$0.0002** (1 cheap prompt) | Standard inference cost |
+| **Resolution Latency** | **< 2 ms** | **~2 – 6 seconds** | **~9 – 25 seconds** |
+| **What It Catches** | Empty input, length < 15 chars, keyboard mashes (`fgbfg`, `asdfghjkl`) | Non-physical concepts, generic desires, clone without wedge, CapEx off by >10x | Valid hardware ventures needing deep audit |
+| **Verdict on Failure** | Feasibility Score: `0`, Confidence: `0` | Feasibility Score: `0`, Confidence: `0` | Calculated 0-100 based on market metrics |
 
 ---
 
