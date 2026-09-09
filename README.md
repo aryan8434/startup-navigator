@@ -13,9 +13,23 @@ NxtVenture is an enterprise-grade, full-stack web application designed for hardw
 
 ## Candidate Status and Availability
 
-- Immediate Availability: YES (0 Days Notice / Immediate Joiner)
-- Live Application URL: https://startup-navigator-taupe.vercel.app/
-- GitHub Repository: https://github.com/aryan8434/startup-navigator
+- **Immediate Availability:** YES (0 Days Notice / Immediate Joiner)
+- **Live Application URL:** [https://startup-navigator-taupe.vercel.app/](https://startup-navigator-taupe.vercel.app/)
+- **GitHub Repository:** [https://github.com/aryan8434/startup-navigator](https://github.com/aryan8434/startup-navigator)
+
+---
+
+## Problem Statement & Target Personas
+
+Building physical products and hardware startups presents unique challenges compared to pure software SaaS: high upfront capital expenditure (CapEx), supply chain dependencies, regional supplier fragmentation, and complex Bill of Materials (BOM) cost structures. Most early-stage founders lack quick access to reliable unit economics and risk modeling, while venture investors waste dozens of hours auditing unviable physical product concepts.
+
+NxtVenture bridges this gap with structured data pipelines and evidence-grounded AI evaluation tailored for three primary personas:
+
+| Persona | Core Pain Points | NxtVenture Solution |
+| :--- | :--- | :--- |
+| **Hardware & Manufacturing Founders** | Complex unit economics, tooling capex estimation, component sourcing uncertainty in India. | Instant BOM breakdown, unit COGS in ₹ INR, machinery capex estimates, and supplier hub benchmarks (Rajkot, Pune, Noida). |
+| **Early-Stage VCs & Angel Investors** | Evaluating unvetted physical hardware pitch decks; inconsistent feasibility assessment metrics. | Standardized 0-100 Feasibility Gauge, 4-vector risk assessment, independent dual-model consensus, and executive PDF export. |
+| **Industrial & Product Designers** | Translating product sketches into low-volume manufacturing pilot plans and assembly steps. | Structured 8-point manufacturing blueprint, tooling workflows, regulatory compliance checks, and RAG legal lookup. |
 
 ---
 
