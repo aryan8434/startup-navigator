@@ -215,6 +215,54 @@ Incoming Pitch
 
 ---
 
+## Multi-Provider AI Architecture & Model Fallback (`lib/providers.ts`)
+
+To guarantee high availability and prevent single-point-of-failure from LLM API rate limits, deprecations, or outages, NxtVenture implements an adaptive **Multi-Provider Router**:
+
+```
+Client Request
+      │
+      ▼
+┌───────────────────────────────────────────────┐
+│ Multi-Provider Router (lib/providers.ts)     │
+│ • Health checks & active model caching        │
+│ • Hard 404 auto-blacklist in memory           │
+└──────┬──────────────────────┬─────────────────┘
+       │                      │
+       ▼                      ▼
+┌──────────────────┐   ┌──────────────────┐
+│  Provider: Groq  │   │ Provider: Gemini │
+│  (Ultra-Low      │   │ (Consensus &     │
+│   Latency)       │   │  Secondary)      │
+└────────┬─────────┘   └────────┬─────────┘
+         │ Candidate fallback   │ Candidate fallback
+         ▼                      ▼
+  1. gpt-oss-120b        1. gemini-3.5-flash
+  2. gpt-oss-20b         2. gemini-3.1-flash-lite
+  3. qwen3.8-27b         3. gemini-3.6-flash
+         │                      │
+         └──────────┬───────────┘
+                    ▼
+       ┌────────────────────────┐
+       │ Multi-Model Consensus  │
+       │ & Agreement Comparison │
+       └────────────────────────┘
+```
+
+### Provider Hierarchy & Specifications
+
+| Provider | Candidate Models in Priority Order | Latency Profile | Primary Role |
+| :--- | :--- | :--- | :--- |
+| **Groq** | `openai/gpt-oss-120b`<br>`openai/gpt-oss-20b`<br>`qwen/qwen3.8-27b` | **~0.4s – 1.8s** | Primary fast-path generation for idea generation, stage 2 validation, and feasibility audits. |
+| **Google Gemini** | `gemini-3.5-flash`<br>`gemini-3.1-flash-lite`<br>`gemini-3.6-flash` | **~1.5s – 3.2s** | Independent second opinion in consensus mode; automatic failover if Groq hits rate limits. |
+| **OpenAI** *(Optional)* | `gpt-4o-mini`<br>`gpt-4.1-mini` | **~1.2s – 2.5s** | High-precision third opinion when `OPENAI_API_KEY` is present in the environment. |
+| **Offline Extractive** | Rule-based regex & heuristic extraction | **< 5 ms** | RAG fallback when all remote providers are offline. |
+
+- **Zero Silent Failures:** The system never returns fake or hallucinated feasibility numbers if all providers fail. Instead, it returns `"Assessment Unavailable"` with all metrics marked as *Not assessed* and confidence at `0`.
+- **Active Health Probing (`GET /api/health`):** Rather than assuming an API key means a provider is working, the health endpoint dispatches live lightweight completions to each provider to report live latency and the exact responding model.
+
+---
+
 ## Technologies Used
 
 - Frontend: Next.js 16 (App Router), React 19, Tailwind CSS v4, Lucide React Icons, Google Fonts (Inter and Outfit)
