@@ -35,6 +35,50 @@ NxtVenture bridges this gap with structured data pipelines and evidence-grounded
 
 ## System Architecture and Workflow
 
+The system employs a multi-tiered architecture that isolates deterministic validation, real-time external evidence retrieval, dual-model AI consensus evaluation, and TF-IDF vector search.
+
+### High-Level Architectural Flow
+
+```mermaid
+flowchart TD
+    User([User / Founder]) -->|Browse & Filter| Explorer[Idea Explorer /ideas]
+    User -->|Submit Pitch| FeasibilityForm[AI Feasibility Evaluator /feasibility]
+    User -->|Natural Language Query| RAGSearch[RAG AI Assistant /search]
+    User -->|Simulate Margins & COGS| CostCalc[Unit Cost & ROI Calculator /calculator]
+
+    subgraph TwoStageGate ["Stage 1 & 2 Validation Gate (lib/validation.ts)"]
+        FeasibilityForm --> Stage1{"Stage 1: Deterministic Screen"}
+        Stage1 -->|Keyboard Mash / Empty| ZeroScore["Instant Reject: Score 0 / 100 (Zero API Cost)"]
+        Stage1 -->|Pass| Stage2{"Stage 2: Semantic Gate (Dual Sampled)"}
+        Stage2 -->|Unbuildable / 10x CapEx Mismatch| ZeroScore
+        Stage2 -->|Valid Concept| EvidenceLayer["Evidence Layer (lib/evidence.ts)"]
+    end
+
+    subgraph ExternalEvidence ["Live External Evidence Layer (lib/evidence.ts)"]
+        EvidenceLayer --> Wiki["Wikipedia API"]
+        EvidenceLayer --> WB["World Bank Data"]
+        EvidenceLayer --> ArXiv["arXiv & Crossref"]
+        EvidenceLayer --> HN["Hacker News Algolia"]
+    end
+
+    subgraph ModelConsensus ["Multi-Model Consensus Engine (lib/providers.ts)"]
+        ExternalEvidence --> ModelA["Primary: Groq GPT-OSS 120B"]
+        ExternalEvidence --> ModelB["Secondary: Google Gemini 3.5 Flash"]
+        ModelA --> ConfidenceCalc["Confidence Scorer (lib/confidence.ts)"]
+        ModelB --> ConfidenceCalc
+    end
+
+    ConfidenceCalc --> FeasibilityReport["Structured Report Generator (8 Points in INR)"]
+    FeasibilityReport --> PDFExport["Clean Executive PDF (@media print)"]
+
+    subgraph RAGEngine ["TF-IDF Multi-Weighted Vector Engine (lib/rag.ts)"]
+        RAGSearch --> VectorSearch["Vector Similarity Search"]
+        VectorSearch --> LocalDB[("Local Data Store (Articles, Blueprints, Benchmarks)")]
+    end
+```
+
+### ASCII Architecture Diagram
+
 ```
                                     ┌───────────┐
                                     │   USER    │
