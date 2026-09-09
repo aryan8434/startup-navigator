@@ -1,6 +1,13 @@
 # NxtVenture — Manufacturing & Hardware Startup Navigator
 
-NxtVenture is a full-stack web application designed for hardware founders, industrial product designers, D2C brand creators, and venture investors. Inspired by curated startup databases like 10,000 Ideas and IdeaBrowser, the application transforms hardware and manufacturing concepts into production-ready blueprints complete with unit economics in Indian Rupees (INR), Bill of Materials (BOM), 4-vector risk assessments, RAG-assisted legal lookup, garbage data input shielding, and PDF exports.
+[![Next.js 16](https://img.shields.io/badge/Next.js-16.0-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![React 19](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Status](https://img.shields.io/badge/Status-Production--Ready-success?style=for-the-badge)](https://startup-navigator-taupe.vercel.app/)
+[![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
+
+NxtVenture is an enterprise-grade, full-stack web application designed for hardware founders, industrial product designers, D2C brand creators, and venture investors. Inspired by curated startup intelligence databases like 10,000 Ideas and IdeaBrowser, the application transforms raw hardware and manufacturing concepts into production-ready blueprints complete with unit economics in Indian Rupees (₹ INR), Bill of Materials (BOM), 4-vector risk assessments, RAG-assisted legal lookup, garbage data input shielding, dual-stage feasibility validation, and executive PDF exports.
 
 ---
 
