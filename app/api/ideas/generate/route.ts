@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
+import { getAuthenticatedUser } from "@/lib/auth";
 import { db, type Idea } from "@/lib/db";
 import { chatJson, type ProviderId } from "@/lib/providers";
 import { gatherEvidence, formatEvidenceForPrompt } from "@/lib/evidence";
@@ -22,7 +23,7 @@ interface GeneratedIdea {
   manufacturingProcess?: string[];
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const { category = "Manufacturing", investmentTier = "₹5 Lakhs - ₹25 Lakhs", aiModel = "groq" } = await request.json();
 
@@ -186,6 +187,22 @@ Do NOT wrap in markdown or extra text. Output strictly valid JSON.`;
       } catch (err) {
         console.warn("Failed to persist AI idea:", err);
         savedIdeas.push({ ...formattedIdea, id: formattedIdea.slug });
+      }
+    }
+
+    // Generation is open to everyone. A signed-in user or guest also gets the
+    // run logged to their dashboard, alongside their feasibility audits.
+    const session = getAuthenticatedUser(request);
+    if (session) {
+      try {
+        await db.searchHistory.create({
+          userId: session.id,
+          query: `AI Idea Generation: ${category} (${investmentTier})`,
+          answer: savedIdeas.map((i) => `- ${i.title}`).join("\n"),
+          sources: [],
+        });
+      } catch {
+        // Logging is best-effort and must not fail the generation.
       }
     }
 

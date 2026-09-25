@@ -1,9 +1,14 @@
 /**
  * Two-stage pitch validation, run before any expensive assessment work.
  *
- * Stage 1 (deterministic, free): empty input, too-short input, keyboard mash.
+ * Stage 1 (deterministic, free): empty input, too-short input, keyboard mash,
+ *   and short pitches that carry no concrete detail.
  * Stage 2 (AI gate, one cheap call): is this a coherent, real-world-plausible
- *   product or business concept at all?
+ *   product or business concept at all, written with genuine intent?
+ *
+ * Length is not the test; specificity is. "Manufacturing tablets for the health
+ * industry at ₹500" is short but names a product, a buyer and a price, so it is
+ * assessed. "I want to start a shoe business" is a placeholder, so it is not.
  *
  * Stage 2 exists because stage 1 only judges whether the text is *language*.
  * A pitch like "headphones worth ₹100,000 for fishes" is perfectly well-formed
@@ -22,6 +27,7 @@ export type RejectionCode =
   | "too-short"
   | "gibberish"
   | "not-a-product"
+  | "too-vague"
   | "implausible"
   | "self-contradictory"
   | "no-differentiation"
@@ -53,7 +59,9 @@ export interface ValidationResult {
 const REJECTION_GUIDANCE: Record<RejectionCode, string> = {
   empty: "Enter a product title and a description of what it is and who buys it.",
   "too-short":
-    "Describe what the product physically is, the key materials or components, and who would buy it. Aim for at least 25 words.",
+    "Describe what the product is, who buys it, and a price, budget or key material. One specific sentence is enough, e.g. \"Manufacturing tablets for the health industry at ₹500 per pack\".",
+  "too-vague":
+    "A short pitch is fine as long as it is specific. Add at least two concrete details: who buys it, a price or budget, the key material or manufacturing process, or what makes it different. For example: \"Manufacturing tablets for the health industry at ₹500 per pack\".",
   gibberish:
     "The text does not read as language. Rewrite the pitch as plain sentences describing a real product.",
   "not-a-product":
@@ -71,6 +79,72 @@ const REJECTION_GUIDANCE: Record<RejectionCode, string> = {
 /* ------------------------------------------------------------------ *
  * Stage 1 — deterministic screening (no network, no cost)             *
  * ------------------------------------------------------------------ */
+
+/** Below this many words a pitch has to prove it is specific, not just long enough. */
+export const SHORT_PITCH_WORDS = 20;
+
+/** A short pitch needs concrete details of at least this many different kinds. */
+export const MIN_DETAIL_KINDS_FOR_SHORT_PITCH = 2;
+
+// Word-start stems, so "manufacturing", "moulded" and "hospitals" all match.
+const stems = (list: string[]) => new RegExp(`\\b(?:${list.join("|")})`, "i");
+
+// Words after "for" that do not name a buyer ("for extra income", "for the future").
+const NOT_A_BUYER = [
+  "a", "an", "the", "my", "me", "myself", "us", "our", "extra", "more", "money", "income",
+  "profit", "profits", "fun", "future", "now", "sale", "sales", "business", "people",
+  "everyone", "all", "good", "free", "some", "any", "this", "that",
+];
+
+const PRICE_PATTERNS = [
+  // A standalone number counts; "3D" or "5G" does not.
+  /₹|\b\d+(?:[.,]\d+)*\b|\brs\.?\s*\d/i,
+  /\b(?:rs|inr|rupees?|lakhs?|crores?|per (?:unit|piece|pack|kg|litre))\b/i,
+];
+
+const BUYER_PATTERNS = [
+  stems([
+    "industr", "hospital", "clinic", "pharmac", "doctor", "patient", "school", "college",
+    "student", "kids?\\b", "child", "farmer", "agri", "restaurant", "cafe", "hotel", "retail",
+    "wholesal", "distributor", "dealer", "b2b", "b2c", "d2c", "export", "customer", "buyer",
+    "consumer", "household", "office", "corporate", "factor(?:y|ies)", "gym", "salon", "oem",
+    "government", "municipal", "panchayat", "rural", "urban", "village", "cit(?:y|ies)",
+    "metro", "india", "online", "amazon", "flipkart", "shops?\\b", "stores?\\b", "e-?commerce",
+  ]),
+  new RegExp(`\\bfor\\s+(?:the\\s+)?(?!(?:${NOT_A_BUYER.join("|")})\\b)[a-z]{3,}`, "i"),
+];
+
+const MATERIAL_PATTERNS = [
+  stems([
+    "manufactur", "production", "mou?ld", "stitch", "weav", "knit", "assembl", "3d print",
+    "cnc", "machin", "inject", "extru", "casting", "forg(?:e|ed|ing)\\b", "ferment", "distill",
+    "bak(?:e|ing|ery)", "packag", "bottling", "recycl", "upcycl", "handmade", "handcraft",
+    "organic", "herbal", "ayurved", "steel", "stainless", "alumin", "iron", "copper", "brass",
+    "plastic", "polymer", "cotton", "silk", "wool", "khadi", "bamboo", "wood", "leather", "glass",
+    "ceramic", "rubber", "silicone", "paper", "jute", "clay", "coir", "fib(?:re|er)", "pcb",
+    "sensor", "batter(?:y|ies)", "motor", "solar", "led\\b", "electric", "iot\\b", "bluetooth",
+    "gps\\b",
+  ]),
+];
+
+const DIFFERENTIATOR_PATTERNS = [
+  stems([
+    "cheaper", "affordable", "low[- ]cost", "biodegradable", "compostable", "eco[- ]?friendly",
+    "reusable", "repairable", "patent", "import substitut", "locally made", "made in india",
+  ]),
+];
+
+const DETAIL_SIGNALS: { kind: string; patterns: RegExp[] }[] = [
+  { kind: "price, budget or quantity", patterns: PRICE_PATTERNS },
+  { kind: "buyer or market", patterns: BUYER_PATTERNS },
+  { kind: "material, component or process", patterns: MATERIAL_PATTERNS },
+  { kind: "differentiator", patterns: DIFFERENTIATOR_PATTERNS },
+];
+
+/** Which kinds of concrete detail a pitch contains. Order-free and cheap. */
+export function detectDetailKinds(text: string): string[] {
+  return DETAIL_SIGNALS.filter((s) => s.patterns.some((p) => p.test(text))).map((s) => s.kind);
+}
 
 export function screenDeterministic(title: string, description: string): ValidationResult {
   const t = (title || "").trim();
@@ -159,6 +233,24 @@ export function screenDeterministic(title: string, description: string): Validat
     };
   }
 
+  // A short pitch is welcome when it is specific; a short placeholder is not.
+  // Longer pitches go to the AI gate, which judges specificity by meaning.
+  if (words.length < SHORT_PITCH_WORDS) {
+    const kinds = detectDetailKinds(combined);
+    if (kinds.length < MIN_DETAIL_KINDS_FOR_SHORT_PITCH) {
+      return {
+        valid: false,
+        stage: "deterministic",
+        code: "too-vague",
+        reason:
+          kinds.length === 0
+            ? "The pitch is short and gives no concrete detail — no buyer, price, material or process — so there is nothing specific to assess."
+            : `The pitch is short and only gives one kind of concrete detail (${kinds[0]}), which is not enough to assess.`,
+        guidance: REJECTION_GUIDANCE["too-vague"],
+      };
+    }
+  }
+
   return pass;
 }
 
@@ -180,14 +272,14 @@ const GATE_SYSTEM = `You are a triage filter sitting in front of an expensive st
 Return STRICT JSON:
 {
   "isValidConcept": boolean,
-  "rejectionCode": "gibberish" | "not-a-product" | "implausible" | "self-contradictory" | "no-differentiation" | "capital-mismatch" | null,
+  "rejectionCode": "gibberish" | "not-a-product" | "implausible" | "self-contradictory" | "too-vague" | "no-differentiation" | "capital-mismatch" | null,
   "reason": string (one plain sentence addressed to the founder, no jargon, naming the specific problem),
   "clarityScore": number 0-100 (how well-specified the concept is; independent of whether it passes),
   "realisticCapitalInr": string (REQUIRED when rejectionCode is "capital-mismatch": your estimate of the minimum capital to start a first small batch in India, e.g. "₹8-20 lakh". Otherwise null.)
 }
 
 If more than one code could apply, pick the FIRST that fits in this exact order:
-gibberish -> not-a-product -> implausible -> self-contradictory -> no-differentiation -> capital-mismatch.
+gibberish -> not-a-product -> implausible -> self-contradictory -> too-vague -> no-differentiation -> capital-mismatch.
 In particular, "the stated user cannot physically use or buy it" is ALWAYS "implausible", never "self-contradictory". Reserve "self-contradictory" for pitches whose own stated facts conflict (a price that contradicts the stated cost, a buyer that contradicts the stated product).
 
 REJECT (isValidConcept: false) when one of these clearly applies:
@@ -196,6 +288,9 @@ REJECT (isValidConcept: false) when one of these clearly applies:
 - "not-a-product": coherent text naming no product or service anyone could build and sell. Goals ("I want to be rich"), questions, greetings and bare statements of intent belong here.
 - "implausible": cannot work in the real world — the stated users physically cannot use or buy it, or it requires violating physics.
 - "self-contradictory": the pitch's own elements contradict each other so it cannot be assessed.
+- "too-vague": a low-effort placeholder rather than a genuine pitch. It names at most a bare product or category and gives FEWER THAN TWO concrete specifics. Concrete specifics are: a buyer or segment ("for the health industry", "for hotels"), a price, cost, budget or quantity ("at ₹500", "10,000 units a month"), a material, component or manufacturing process ("stainless steel", "injection moulded", "tablet press"), a location or sales channel ("Pune", "sold on Amazon"), or a differentiator ("repairable", "half the import price").
+    Judge the founder's INTENT, not the length. A short pitch written with genuine intent passes: "Manufacturing tablets for the health industry at ₹500" names a product, a buyer and a price, so ACCEPT it. A low-effort placeholder is rejected even when padded out: "I want to start a shoe business", "a water bottle company", "some AI product that will make money", or a paragraph of hype ("revolutionary, huge market, everyone will buy it") with no specifics.
+    Every specific counts, however brief. When unsure whether two specifics are present, ACCEPT.
 - "no-differentiation": use this ONLY when ALL THREE of the following hold. If any one fails, do not use this code.
     (a) The category is genuinely DOMINATED — a handful of global players hold overwhelming share and a newcomer cannot sell without displacing them. Examples: smartphone operating systems, web search, social networks, cloud platforms, premium noise-cancelling audio, general e-commerce marketplaces.
     (b) The pitch positions itself directly against those players, or claims parity with them ("compete with Apple", "same features as Sony", "an Indian Amazon", "beat Google").
@@ -204,13 +299,13 @@ REJECT (isValidConcept: false) when one of these clearly applies:
   Naming a country or market alone is NOT a wedge. "Sold in India", "for the Indian market", "targeting everyone who listens to music" are not edges unless tied to something concrete, such as local manufacturing that undercuts import duty, a price point the incumbent will not serve, or a specific underserved segment.
   CRITICAL — fragmented markets are NOT dominated. Water bottles, clothing, furniture, snacks, packaging, soap, stationery, hand tools, jewellery and most consumer goods have thousands of small profitable players and no incumbent to displace. An ordinary undifferentiated product in a fragmented market is ACCEPTED. "We sell stainless steel reusable water bottles" must PASS: being unremarkable is a quality problem, scored downstream, not a validity problem.
 - "capital-mismatch": the stated capital is off by 10x or more from what the concept needs to START A FIRST SMALL BATCH in India — not to reach scale, not to run comfortably, not to compete nationally. Before using this code you MUST fill in "realisticCapitalInr" with your estimate of that minimum starting cost. Reject only if the stated capital is below a tenth of it, or above ten times it.
-    * Far too little (rare): the concept has an IRREDUCIBLE capital floor that cannot be shrunk by starting small — semiconductor fabs, automotive assembly plants, licensed pharmaceutical manufacturing, steel mills, airlines. These need crores at absolute minimum.
+    * Far too little (rare): the concept has an IRREDUCIBLE capital floor that cannot be shrunk by starting small — semiconductor fabs, automotive assembly plants, a founder's own licensed prescription-drug plant, steel mills, airlines. These need crores at absolute minimum.
     * Far too much: a small clothing label, phone-case brand or snack business demanding ₹100 crore when ₹1-2 crore, or even lakhs, would launch it.
-  DO NOT reject for "too little" merely because more money would help, or because the founder could not compete at national scale on that budget. Almost any physical product — packaging, food, furniture, textiles, consumer hardware, moulded goods, assembly of bought-in components — can legitimately start in a rented shed on ₹5-25 lakh with manual or semi-automatic processes. Anchors for a first small batch in India: moulded or grown packaging ₹5-20 lakh; garment stitching unit ₹3-15 lakh; food processing ₹5-25 lakh; small-electronics assembly from bought-in modules ₹10-50 lakh; CNC machining shop ₹25 lakh-₹1 crore; injection moulding with own tooling ₹25 lakh-₹1 crore. If the concept fits any of these patterns, its capital is NOT mismatched.
+  DO NOT reject for "too little" merely because more money would help, or because the founder could not compete at national scale on that budget. Almost any physical product — packaging, food, furniture, textiles, consumer hardware, moulded goods, assembly of bought-in components — can legitimately start in a rented shed on ₹5-25 lakh with manual or semi-automatic processes. Anchors for a first small batch in India: moulded or grown packaging ₹5-20 lakh; garment stitching unit ₹3-15 lakh; food processing ₹5-25 lakh; small-electronics assembly from bought-in modules ₹10-50 lakh; CNC machining shop ₹25 lakh-₹1 crore; injection moulding with own tooling ₹25 lakh-₹1 crore; tablets, capsules or supplements made in a nutraceutical/ayurvedic unit or through third-party (loan-licence) manufacturing ₹10-50 lakh — a pitch that just says "tablets" or "medicines" without claiming its own drug plant fits this anchor. If the concept fits any of these patterns, its capital is NOT mismatched.
   If you are not confident the gap exceeds 10x, ACCEPT.
 
 ACCEPT (isValidConcept: true) everything else, including:
-- Vague or thinly-described but real concepts ("a water bottle company") — under-specification is scored downstream, not here.
+- Short pitches that carry at least two concrete specifics. Brevity is not a flaw: the downstream assessment fills the gaps and states its assumptions.
 - Crowded, boring, low-margin or probably-unprofitable ideas. A bad business is still a real business.
 - Niche, unusual or premium concepts a real buyer could plausibly want.
 - Products for animals where a HUMAN is the buyer and operator: pet GPS collars, aquarium filters, automatic feeders, livestock health monitors, tank sound systems. Large real markets — ACCEPT.
@@ -322,6 +417,7 @@ ${contextBlock}`;
       "not-a-product",
       "implausible",
       "self-contradictory",
+      "too-vague",
       "no-differentiation",
       "capital-mismatch",
     ] as const;

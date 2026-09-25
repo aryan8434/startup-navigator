@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ContinueAsGuestButton from "@/components/ContinueAsGuestButton";
 import { Lock, Mail, Rocket, ShieldAlert, Loader2 } from "lucide-react";
 
 export default function Login() {
@@ -117,6 +118,8 @@ export default function Login() {
               )}
             </button>
           </form>
+
+          <ContinueAsGuestButton />
 
           <p className="mt-6 text-center text-xs text-slate-500">
             Don&apos;t have an account?{" "}

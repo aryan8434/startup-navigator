@@ -365,6 +365,19 @@ export const db = {
       await writeDb(data);
       return newLog;
     },
+    /** Moves every log owned by one session id to another, e.g. guest -> new account. */
+    reassign: async (fromUserId: string, toUserId: string) => {
+      const data = await readDb();
+      let moved = 0;
+      for (const log of data.searchHistory) {
+        if (log.userId === fromUserId) {
+          log.userId = toUserId;
+          moved++;
+        }
+      }
+      if (moved > 0) await writeDb(data);
+      return moved;
+    },
   },
 
   resources: {

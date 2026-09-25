@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
+import { getAuthenticatedUser } from "@/lib/auth";
 import { db, type FeasibilityReport } from "@/lib/db";
 import { rankArticles } from "@/lib/rag";
 import { gatherEvidence, formatEvidenceForPrompt, type EvidencePack } from "@/lib/evidence";
@@ -42,6 +43,8 @@ interface ModelVerdict {
   actionPlan: string[];
   evidenceUsed?: number[];
   keyUncertainties?: string[];
+  interpretedConcept?: string;
+  assumptions?: string[];
 }
 
 /* ------------------------------------------------------------------ *
@@ -60,6 +63,11 @@ RULES ON EVIDENCE AND HONESTY:
 - Prefer a well-reasoned wide range over a falsely precise point estimate.
 - Score honestly. A weak idea must receive a low score; do not inflate to be encouraging.
 
+RULES ON BRIEF PITCHES:
+- Founders often write one specific sentence ("manufacturing tablets for the health industry at ₹500"). It has already passed a specificity check, so treat it as a genuine idea and give a full, detailed assessment.
+- Expand it into a concrete concept: the most sensible product specification, the buyer, the price point, how it is made and sold in India. Resolve ambiguous words to the reading that best fits the stated buyer and price, and say which reading you chose.
+- List every gap you filled as an assumption so the founder can correct it. Do not lower the feasibility score for brevity alone; missing detail is reflected in the separately computed confidence score.
+
 RETRIEVED EXTERNAL EVIDENCE:
 ${evidenceBlock}
 
@@ -69,6 +77,8 @@ ${priorContext}
 
 Return STRICTLY valid JSON matching this schema (no markdown fences, no prose outside the JSON):
 {
+  "interpretedConcept": string (2-4 sentences: the concrete concept you assessed — product specification, buyer, price point, how it is made and sold. Expand a brief pitch into a fuller concept; restate a detailed one faithfully),
+  "assumptions": [ string ] (each gap you filled to assess the pitch, e.g. "Read 'tablets' as nutraceutical tablets for pharmacies, not tablet computers". Empty array if the pitch specified everything),
   "feasibilityScore": number (0-100; 0-40 High Friction, 41-74 Moderately Viable, 75-100 Highly Viable),
   "ratingLabel": "Highly Viable" | "Moderately Viable" | "High Friction",
   "verdict": string (2-3 sentence executive verdict, ₹ INR),
@@ -158,10 +168,12 @@ function coerceVerdict(input: unknown): ModelVerdict | null {
     actionPlan: Array.isArray(raw.actionPlan) ? raw.actionPlan.map(String) : [],
     evidenceUsed: Array.isArray(raw.evidenceUsed) ? raw.evidenceUsed.map(Number).filter(Number.isFinite) : [],
     keyUncertainties: Array.isArray(raw.keyUncertainties) ? raw.keyUncertainties.map(String) : [],
+    interpretedConcept: String(raw.interpretedConcept || "").trim() || undefined,
+    assumptions: Array.isArray(raw.assumptions) ? raw.assumptions.map(String).filter(Boolean) : [],
   };
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const startedAt = Date.now();
 
   try {
@@ -428,8 +440,10 @@ export async function POST(request: Request) {
         aiProviderUsed: usedProviderName,
       });
 
+      // Open to everyone: signed-in users and guests get the audit filed under
+      // their session so it shows on their dashboard; anonymous runs stay unowned.
       await db.searchHistory.create({
-        userId: null,
+        userId: getAuthenticatedUser(request)?.id ?? null,
         query: `Feasibility Audit: ${title}`,
         answer: finalReport.verdict,
         sources: citedSources.map((s) => s.url),

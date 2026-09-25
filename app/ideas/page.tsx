@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import GuestModeNotice from "@/components/GuestModeNotice";
 import IdeaCard, { IdeaCardProps } from "@/components/IdeaCard";
 import {
   Search,
@@ -196,6 +197,10 @@ export default function IdeasExplorer() {
           <p className="text-xs text-slate-300 mb-4">
             Instantly generate 3 new hardware & manufacturing concepts complete with BOM, unit margins, and feasibility scores using your choice of AI Engine:
           </p>
+
+          <div className="mb-4 empty:hidden">
+            <GuestModeNotice feature="AI idea generations" />
+          </div>
 
           {genSuccessMsg && (
             <div className="mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-300 font-medium">

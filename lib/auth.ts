@@ -7,9 +7,15 @@ const JWT_SECRET = process.env.JWT_SECRET || "default_super_secret_for_startup_n
 export interface JWTPayload {
   id: string;
   email: string;
-  role: "admin" | "user";
+  role: "admin" | "user" | "guest";
   name: string;
 }
+
+/** Prefix that marks a session id as a guest rather than a registered user. */
+export const GUEST_ID_PREFIX = "guest_";
+
+/** Lifetime of every session cookie, matching the JWT expiry below. */
+export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24;
 
 /**
  * Hashes a plain-text password using Node.js pbkdf2Sync
@@ -39,6 +45,20 @@ export function verifyPassword(password: string, stored: string): boolean {
  */
 export function signToken(payload: JWTPayload): string {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
+}
+
+/**
+ * Signs a token for an anonymous guest. Guests have no row in the users table;
+ * the random id only ties their audits and searches to this browser session.
+ */
+export function signGuestToken(): { token: string; user: JWTPayload } {
+  const user: JWTPayload = {
+    id: `${GUEST_ID_PREFIX}${crypto.randomBytes(8).toString("hex")}`,
+    email: "",
+    role: "guest",
+    name: "Guest Founder",
+  };
+  return { token: signToken(user), user };
 }
 
 /**

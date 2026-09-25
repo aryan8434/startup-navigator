@@ -47,12 +47,46 @@ const CASES = [
   },
   {
     expect: "reject",
-    codes: ["not-a-product", "gibberish"],
+    codes: ["not-a-product", "gibberish", "too-vague"],
     label: "goal, not a product",
     body: {
       title: "Make money fast",
       description:
         "I want to become very rich quickly and build a big successful company that earns a lot of profit every month.",
+      category: "Manufacturing",
+    },
+  },
+  {
+    expect: "reject",
+    codes: ["too-vague"],
+    label: "short low-effort placeholder",
+    // Caught free at stage 1: short, and names no buyer, price, material or process.
+    body: {
+      title: "Shoe business",
+      description: "I want to start a shoe business",
+      category: "FMCG / Consumer Goods",
+    },
+  },
+  {
+    expect: "reject",
+    codes: ["too-vague"],
+    label: "bare category, no specifics",
+    body: {
+      title: "Water bottle company",
+      description: "We will make and sell water bottles",
+      category: "FMCG / Consumer Goods",
+    },
+  },
+  {
+    expect: "reject",
+    codes: ["too-vague", "not-a-product"],
+    label: "padded hype, no specifics",
+    // Long enough to clear stage 1, so the AI gate has to judge intent: length
+    // without a single concrete detail is still a low-effort pitch.
+    body: {
+      title: "Revolutionary product",
+      description:
+        "This is a revolutionary product idea that will change the world. The market is huge and everyone will want to buy it because it is amazing, innovative and better than anything else out there.",
       category: "Manufacturing",
     },
   },
@@ -94,6 +128,28 @@ const CASES = [
   },
 
   /* ---------- must be ACCEPTED (over-rejection guard) ---------- */
+  {
+    expect: "accept",
+    label: "short but specific (one sentence)",
+    // Brevity is not a flaw: product, buyer and price in one line is a genuine
+    // pitch. It must also not trip capital-mismatch on the default tier.
+    body: {
+      title: "Tablet manufacturing",
+      description: "Manufacturing tablets for the health industry at Rs 500 per pack",
+      category: "BioTech / Healthcare",
+      investmentTier: "₹5 Lakhs - ₹25 Lakhs",
+    },
+  },
+  {
+    expect: "accept",
+    label: "short but specific (material + buyer)",
+    body: {
+      title: "Bamboo toothbrushes",
+      description: "Bamboo toothbrushes for hotels at ₹20 each",
+      category: "FMCG / Consumer Goods",
+      investmentTier: "< ₹5 Lakhs",
+    },
+  },
   {
     expect: "accept",
     label: "vague but real",

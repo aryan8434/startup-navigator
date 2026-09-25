@@ -103,6 +103,18 @@ When evaluating a valid concept, the AI Report splits every point (1, 2, 3, 4, 5
 | **Payback Horizon** | **`Never`** | **`6 Months to 3.5 Years`** |
 | **Bill of Materials (BOM)** | `Unparsed / Gibberish Input (₹0)` | Structural Enclosures (₹180), Microcontrollers (₹220) |
 
+### Short pitches: specificity, not length
+
+A short pitch is judged by the founder's intent. Under 20 words, the free Stage 1 screen requires at least two different kinds of concrete detail: a buyer or market, a price or quantity, a material or process, or a differentiator. Longer pitches go to the Stage 2 AI gate, which rejects low-effort placeholders and hype paragraphs that give fewer than two concrete specifics (code `too-vague`).
+
+| Pitch | Concrete details found | Decision |
+| :--- | :--- | :--- |
+| `I want to start a shoe business` | none | **REJECT** (`too-vague`) |
+| `We will make and sell water bottles` | none | **REJECT** (`too-vague`) |
+| `We will sell stainless steel water bottles` | material only | **REJECT** (`too-vague`) — add a buyer or a price |
+| `Manufacturing tablets for health industry at Rs 500` | buyer, price, process | **PASS** — full report plus a "How we read your pitch" section listing the assumptions made |
+| `Bamboo toothbrushes for hotels at ₹20 each` | material, buyer, price | **PASS** |
+
 ---
 
 ## 4. Input Shield Algorithm (`lib/validation.ts`)

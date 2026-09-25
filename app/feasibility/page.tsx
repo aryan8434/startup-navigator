@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import GuestModeNotice from "@/components/GuestModeNotice";
 import {
   BrainCircuit,
   Sparkles,
@@ -105,6 +106,8 @@ interface AssessmentReport {
   modelRuns?: ModelRun[];
   modelErrors?: string[];
   keyUncertainties?: string[];
+  interpretedConcept?: string;
+  assumptions?: string[];
   secondOpinions?: { label: string; score: number; verdict: string }[];
   comparablePitches?: { title: string; score: number; similarity: number }[];
   evidenceMeta?: {
@@ -535,6 +538,8 @@ export default function FeasibilityPage() {
             onSubmit={handleSubmit}
             className="animate-rise space-y-6 rounded-2xl border border-slate-800 bg-slate-900/60 p-5 md:p-8"
           >
+            <GuestModeNotice feature="feasibility audits" />
+
             {error && (
               <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-xs font-medium text-rose-300">
                 {error}
@@ -682,8 +687,9 @@ export default function FeasibilityPage() {
                 required
               />
               <p className="mt-1.5 text-[11px] text-slate-500">
-                {formData.description.trim().split(/\s+/).filter(Boolean).length} words — aim for 60+
-                with materials, volumes and a named buyer.
+                {formData.description.trim().split(/\s+/).filter(Boolean).length} words. One sentence is
+                fine if it is specific, e.g. &ldquo;Manufacturing tablets for the health industry at
+                ₹500 per pack&rdquo;. Add materials, volumes and a named buyer to raise confidence.
               </p>
             </div>
 
@@ -771,6 +777,7 @@ const REJECTION_TITLE: Record<string, string> = {
   "too-short": "Not enough to go on",
   gibberish: "That is not a readable pitch",
   "not-a-product": "That is a goal, not a product",
+  "too-vague": "Short is fine, but add some specifics",
   implausible: "This cannot work as described",
   "self-contradictory": "The pitch contradicts itself",
   "no-differentiation": "No edge over the incumbents",
@@ -789,7 +796,7 @@ function RejectedView({ report, onReset }: { report: AssessmentReport; onReset: 
   const stages = [
     {
       label: "Stage 1 — input screening",
-      hint: "Is this readable language?",
+      hint: "Is this readable, and specific enough to assess?",
       state: v.stage === "deterministic" ? "failed" : "passed",
     },
     {
@@ -1074,6 +1081,34 @@ function ReportView({
                 </p>
               ))}
             </div>
+          )}
+        </section>
+      )}
+
+      {/* How the pitch was read — matters most for one-line pitches the model expanded */}
+      {(report.interpretedConcept || (report.assumptions && report.assumptions.length > 0)) && (
+        <section className="animate-rise rounded-2xl border border-purple-500/30 bg-slate-900/50 p-5 md:p-6 print-card">
+          <header className="mb-3 flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-purple-400" />
+            <h3 className="text-base font-bold text-white">How we read your pitch</h3>
+          </header>
+          {report.interpretedConcept && (
+            <p className="text-sm leading-relaxed text-slate-300">{report.interpretedConcept}</p>
+          )}
+          {report.assumptions && report.assumptions.length > 0 && (
+            <>
+              <p className="mb-2 mt-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                Assumptions made to fill gaps — correct any that are wrong and re-run
+              </p>
+              <ul className="space-y-2 stagger">
+                {report.assumptions.map((item, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-[13px] text-slate-300">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-purple-400" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
         </section>
       )}

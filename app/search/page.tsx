@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { startGuestSession } from "@/lib/guest-session";
 import Link from "next/link";
 import { 
   Search, 
@@ -494,7 +495,17 @@ export default function AISearch() {
               <div className="p-4 rounded-xl border border-slate-900 bg-slate-950/20 text-center">
                 <Clock className="h-6 w-6 text-slate-600 mx-auto mb-2" />
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  <Link href="/login" className="text-indigo-400 hover:underline">Sign In</Link> to save your query histories and access customized dashboard metrics.
+                  <Link href="/login" className="text-indigo-400 hover:underline">Sign In</Link> or{" "}
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (await startGuestSession()) loadHistory();
+                    }}
+                    className="text-amber-400 hover:underline cursor-pointer"
+                  >
+                    continue as guest
+                  </button>{" "}
+                  to save your query histories and access customized dashboard metrics.
                 </p>
               </div>
             ) : historyLoading ? (
