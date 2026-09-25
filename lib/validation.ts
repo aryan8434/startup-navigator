@@ -21,6 +21,7 @@
 
 import { chatJson, isConfigured, type ProviderId } from "./providers";
 import { gatherQuickContext } from "./evidence";
+import { checkSpecificity } from "./specificity";
 
 export type RejectionCode =
   | "empty"
@@ -79,72 +80,6 @@ const REJECTION_GUIDANCE: Record<RejectionCode, string> = {
 /* ------------------------------------------------------------------ *
  * Stage 1 — deterministic screening (no network, no cost)             *
  * ------------------------------------------------------------------ */
-
-/** Below this many words a pitch has to prove it is specific, not just long enough. */
-export const SHORT_PITCH_WORDS = 20;
-
-/** A short pitch needs concrete details of at least this many different kinds. */
-export const MIN_DETAIL_KINDS_FOR_SHORT_PITCH = 2;
-
-// Word-start stems, so "manufacturing", "moulded" and "hospitals" all match.
-const stems = (list: string[]) => new RegExp(`\\b(?:${list.join("|")})`, "i");
-
-// Words after "for" that do not name a buyer ("for extra income", "for the future").
-const NOT_A_BUYER = [
-  "a", "an", "the", "my", "me", "myself", "us", "our", "extra", "more", "money", "income",
-  "profit", "profits", "fun", "future", "now", "sale", "sales", "business", "people",
-  "everyone", "all", "good", "free", "some", "any", "this", "that",
-];
-
-const PRICE_PATTERNS = [
-  // A standalone number counts; "3D" or "5G" does not.
-  /₹|\b\d+(?:[.,]\d+)*\b|\brs\.?\s*\d/i,
-  /\b(?:rs|inr|rupees?|lakhs?|crores?|per (?:unit|piece|pack|kg|litre))\b/i,
-];
-
-const BUYER_PATTERNS = [
-  stems([
-    "industr", "hospital", "clinic", "pharmac", "doctor", "patient", "school", "college",
-    "student", "kids?\\b", "child", "farmer", "agri", "restaurant", "cafe", "hotel", "retail",
-    "wholesal", "distributor", "dealer", "b2b", "b2c", "d2c", "export", "customer", "buyer",
-    "consumer", "household", "office", "corporate", "factor(?:y|ies)", "gym", "salon", "oem",
-    "government", "municipal", "panchayat", "rural", "urban", "village", "cit(?:y|ies)",
-    "metro", "india", "online", "amazon", "flipkart", "shops?\\b", "stores?\\b", "e-?commerce",
-  ]),
-  new RegExp(`\\bfor\\s+(?:the\\s+)?(?!(?:${NOT_A_BUYER.join("|")})\\b)[a-z]{3,}`, "i"),
-];
-
-const MATERIAL_PATTERNS = [
-  stems([
-    "manufactur", "production", "mou?ld", "stitch", "weav", "knit", "assembl", "3d print",
-    "cnc", "machin", "inject", "extru", "casting", "forg(?:e|ed|ing)\\b", "ferment", "distill",
-    "bak(?:e|ing|ery)", "packag", "bottling", "recycl", "upcycl", "handmade", "handcraft",
-    "organic", "herbal", "ayurved", "steel", "stainless", "alumin", "iron", "copper", "brass",
-    "plastic", "polymer", "cotton", "silk", "wool", "khadi", "bamboo", "wood", "leather", "glass",
-    "ceramic", "rubber", "silicone", "paper", "jute", "clay", "coir", "fib(?:re|er)", "pcb",
-    "sensor", "batter(?:y|ies)", "motor", "solar", "led\\b", "electric", "iot\\b", "bluetooth",
-    "gps\\b",
-  ]),
-];
-
-const DIFFERENTIATOR_PATTERNS = [
-  stems([
-    "cheaper", "affordable", "low[- ]cost", "biodegradable", "compostable", "eco[- ]?friendly",
-    "reusable", "repairable", "patent", "import substitut", "locally made", "made in india",
-  ]),
-];
-
-const DETAIL_SIGNALS: { kind: string; patterns: RegExp[] }[] = [
-  { kind: "price, budget or quantity", patterns: PRICE_PATTERNS },
-  { kind: "buyer or market", patterns: BUYER_PATTERNS },
-  { kind: "material, component or process", patterns: MATERIAL_PATTERNS },
-  { kind: "differentiator", patterns: DIFFERENTIATOR_PATTERNS },
-];
-
-/** Which kinds of concrete detail a pitch contains. Order-free and cheap. */
-export function detectDetailKinds(text: string): string[] {
-  return DETAIL_SIGNALS.filter((s) => s.patterns.some((p) => p.test(text))).map((s) => s.kind);
-}
 
 export function screenDeterministic(title: string, description: string): ValidationResult {
   const t = (title || "").trim();
@@ -235,20 +170,18 @@ export function screenDeterministic(title: string, description: string): Validat
 
   // A short pitch is welcome when it is specific; a short placeholder is not.
   // Longer pitches go to the AI gate, which judges specificity by meaning.
-  if (words.length < SHORT_PITCH_WORDS) {
-    const kinds = detectDetailKinds(combined);
-    if (kinds.length < MIN_DETAIL_KINDS_FOR_SHORT_PITCH) {
-      return {
-        valid: false,
-        stage: "deterministic",
-        code: "too-vague",
-        reason:
-          kinds.length === 0
-            ? "The pitch is short and gives no concrete detail — no buyer, price, material or process — so there is nothing specific to assess."
-            : `The pitch is short and only gives one kind of concrete detail (${kinds[0]}), which is not enough to assess.`,
-        guidance: REJECTION_GUIDANCE["too-vague"],
-      };
-    }
+  const { passes, kinds } = checkSpecificity(t, d);
+  if (!passes) {
+    return {
+      valid: false,
+      stage: "deterministic",
+      code: "too-vague",
+      reason:
+        kinds.length === 0
+          ? "The pitch is short and gives no concrete detail — no buyer, price, material or process — so there is nothing specific to assess."
+          : `The pitch is short and only gives one kind of concrete detail (${kinds[0]}), which is not enough to assess.`,
+      guidance: REJECTION_GUIDANCE["too-vague"],
+    };
   }
 
   return pass;
