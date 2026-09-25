@@ -1,0 +1,603 @@
+[
+  {
+    "title": "Jaggery cubes",
+    "description": "organic jaggery cubes sold to dhabas and chai stalls, Rs.450 per 5kg",
+    "label": "accept"
+  },
+  {
+    "title": "Bamboo toothbrush",
+    "description": "hotels buy, ₹12 each",
+    "label": "accept"
+  },
+  {
+    "title": "Water bottles",
+    "description": "we will sell good quality water bottles at best price",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "HDPE water tanks",
+    "description": "blow moulding 500 litre tanks, supplied to rural panchayats",
+    "label": "accept"
+  },
+  {
+    "title": "Solar dryer",
+    "description": "solar dehydrator so kisaan can dry tomato and onion, approx fifteen thousand rupees",
+    "label": "accept"
+  },
+  {
+    "title": "Medical device",
+    "description": "innovative medical device, huge market, hospitals will need it",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Dairy startup",
+    "description": "milk products, target 10 crore turnover in five years",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Shoe business",
+    "description": "I want to earn 1 lakh per month from shoe business",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "PP woven sacks",
+    "description": "PP woven sacks for rice mills, 50k pcs/month",
+    "label": "accept"
+  },
+  {
+    "title": "Areca leaf plates",
+    "description": "areca plates for caterers, Rs 2 each, want to earn 1 lakh monthly",
+    "label": "accept"
+  },
+  {
+    "title": "SS tiffin boxes",
+    "description": "SS 304 tiffins made in Ludhiana, hospitals buy for patient meals",
+    "label": "accept"
+  },
+  {
+    "title": "Detergent cakes",
+    "description": "FMCG detergent bars for rural haats, Rs 10 pack, made in Kanpur",
+    "label": "accept"
+  },
+  {
+    "title": "Sanitary pads",
+    "description": "banana fibre pads made by SHG women, Rs 30 per pack of eight",
+    "label": "accept"
+  },
+  {
+    "title": "Neem comb",
+    "description": "good quality neem wood combs, 50 pcs/day, IndiaMART wholesale orders",
+    "label": "accept"
+  },
+  {
+    "title": "Hospital bed castors",
+    "description": "replacement castor wheels, hospitals buy at half the chinese import price",
+    "label": "accept"
+  },
+  {
+    "title": "Powder coating unit",
+    "description": "powder coating job work for Rajkot MSME fabricators, 12 rupees per sq ft",
+    "label": "accept"
+  },
+  {
+    "title": "Face cream",
+    "description": "fairness cream, will launch on Amazon in future, good margin",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "ORS sachets",
+    "description": "orange flavour ORS sachets at five rupees each through kirana stores in Bihar",
+    "label": "accept"
+  },
+  {
+    "title": "EV scooter",
+    "description": "electric scooter like Ola and Ather, best quality, affordable price",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Glucometer strips",
+    "description": "glucometer strips manufactured in india, sold thru chemist shops at ₹8 per strip",
+    "label": "accept"
+  },
+  {
+    "title": "Knitted baby wear",
+    "description": "cotton baby rompers from Tiruppur, listed on Meesho at Rs 199",
+    "label": "accept"
+  },
+  {
+    "title": "Pickle business",
+    "description": "homemade pickles, very tasty",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Packaging business",
+    "description": "all types of packaging items, good quality, best rates, for profit",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Moringa powder",
+    "description": "moringa leaf powder from Anantapur farms, INR 2k per kg, exporters buy",
+    "label": "accept"
+  },
+  {
+    "title": "pickle d2c",
+    "description": "mango and lime achaar in glass jars, shipping pan india via insta",
+    "label": "accept"
+  },
+  {
+    "title": "Brass diyas",
+    "description": "moradabad brass diyas, corporate diwali gifting, min order 500 pcs",
+    "label": "accept"
+  },
+  {
+    "title": "SS bottle startup",
+    "description": "we will sell SS 304 water bottles, premium brand like Milton",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Milking machine",
+    "description": "portable milking machine for small dairy farmers with 5-10 cows, priced under 25 thousand, sold via cooperatives",
+    "label": "accept"
+  },
+  {
+    "title": "Chappal brand",
+    "description": "chappals at just Rs 99, for everyone, huge demand",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "vermicompost bags",
+    "description": "25kg vermicompost bags, sasta at 300 rs, kisan in nashik district buy direct",
+    "label": "accept"
+  },
+  {
+    "title": "Agarbatti",
+    "description": "agarbatti business, low investment, high returns, want to start soon",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Fertilizer",
+    "description": "fertilizer for kisan, very good results, will make lakhs",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Masala brand",
+    "description": "I will make masala products for my family and friends first, best taste, good profit in future",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Clay water bottles",
+    "description": "terracotta bottles handmade in Kutch, selling on amazon for 350",
+    "label": "accept"
+  },
+  {
+    "title": "Surgical masks",
+    "description": "3 ply masks, 2 lakh a day, supplied to govt hospitals",
+    "label": "accept"
+  },
+  {
+    "title": "Garam masala sachets",
+    "description": "₹10 packs supplied to highway dhabas on NH44.",
+    "label": "accept"
+  },
+  {
+    "title": "Cycle brake pads",
+    "description": "Rubber, supplied to Hero cycle dealers.",
+    "label": "accept"
+  },
+  {
+    "title": "Neem wood combs",
+    "description": "Handmade, sold at Jaipur haat stalls.",
+    "label": "accept"
+  },
+  {
+    "title": "Pressure cooker gaskets",
+    "description": "Silicone replacements, stocked by neighbourhood utensil repair shops.",
+    "label": "accept"
+  },
+  {
+    "title": "Cotton sanitary pads",
+    "description": "Under ₹30 a pack, stocked in girls' hostel vending machines.",
+    "label": "accept"
+  },
+  {
+    "title": "Refurbished inverter batteries",
+    "description": "Half the price of new, sold via Kanpur electrical shops.",
+    "label": "accept"
+  },
+  {
+    "title": "DIY LED bulb kits",
+    "description": "Polytechnic students assemble them; we sell at college fests.",
+    "label": "accept"
+  },
+  {
+    "title": "Khadi school uniforms",
+    "description": "Bhagalpur-woven, bulk orders from government schools.",
+    "label": "accept"
+  },
+  {
+    "title": "Areca leaf plates",
+    "description": "Pressed from fallen leaves; wedding caterers buy them by the thousand.",
+    "label": "accept"
+  },
+  {
+    "title": "Corrugated mango boxes",
+    "description": "Ratnagiri orchards ship Alphonso to Mumbai in these.",
+    "label": "accept"
+  },
+  {
+    "title": "Folding classroom desks",
+    "description": "Steel frame, plywood top; zilla parishad schools order them.",
+    "label": "accept"
+  },
+  {
+    "title": "Moringa capsules",
+    "description": "Coimbatore chemists stock them, cheaper than imported brands.",
+    "label": "accept"
+  },
+  {
+    "title": "Manual seed drill",
+    "description": "A light push-type drill small groundnut farmers rent cheaply through their local FPO every sowing season.",
+    "label": "accept"
+  },
+  {
+    "title": "Kumkumadi face oil",
+    "description": "Ayurvedic, cold-pressed, sold on Nykaa.",
+    "label": "accept"
+  },
+  {
+    "title": "Tractor seat covers",
+    "description": "Rexine, Moga mandi.",
+    "label": "accept"
+  },
+  {
+    "title": "Pickle startup",
+    "description": "I want to make and sell pickles for my village people.",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Steel water bottles",
+    "description": "We will sell stainless steel bottles for daily use.",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Herbal juice",
+    "description": "Aloe vera and amla juice for health, good for everyone.",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Solar lamp company",
+    "description": "Our company will produce solar lamps for a better future.",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Bamboo toothbrushes",
+    "description": "Selling bamboo toothbrushes for everyone, everywhere.",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Furniture business",
+    "description": "I plan to start my furniture business in 2027.",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Carton box business",
+    "description": "My 2 friends and I will make and sell carton boxes.",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Auto parts venture",
+    "description": "An Industry 4.0 auto parts startup, ready to grow fast.",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Smart home devices",
+    "description": "Smart devices that work 24/7 for every family.",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Tailoring unit",
+    "description": "I want to stitch clothes and earn 50000 monthly.",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Masala brand",
+    "description": "Target ₹1 crore turnover in three years selling masalas.",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Cotton towels",
+    "description": "Towels made from 100% cotton.",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Soap company",
+    "description": "Our soap company will be based in Indore.",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Farm equipment company",
+    "description": "We will make, produce and sell farm equipment.",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "AI-powered cosmetics",
+    "description": "Innovative premium skincare, smart and eco, powered by AI.",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Farm tools startup",
+    "description": "Modern, innovative farm tools for the future of agriculture.",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Vitamin gummies",
+    "description": "Tasty vitamin gummies for health, launching by Diwali 2027.",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Silk sarees",
+    "description": "Beautiful silk sarees for every occasion and every budget.",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Kitchenware startup",
+    "description": "Kitchen items for everyone.",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Electronics company",
+    "description": "Me and my 3 college friends want to start an innovative electronics company in 2027, working 24/7.",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Leather business",
+    "description": "I want to start my own leather goods business in future",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "PU soles Agra",
+    "description": "PU sole moulding unit for Agra shoe makers, 2 lakh pairs capacity.",
+    "label": "accept"
+  },
+  {
+    "title": "Dairy tech",
+    "description": "revolutionary dairy machine, will disrupt the whole industry, huge demand!!",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Drone startup",
+    "description": "i want to start a drone company, looking for co founder",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Surgical gauze",
+    "description": "sterile gauze swabs for nursing homes in UP, Rs 3 per piece",
+    "label": "accept"
+  },
+  {
+    "title": "Kanpur Leather Wallets",
+    "description": "genuine buff leather wallets from Jajmau tannery, wholesale @₹180/pc to Delhi retailers",
+    "label": "accept"
+  },
+  {
+    "title": "kumkumadi face oil",
+    "description": "ayurvedic face oil, Nykaa pe list kiya hai, 30ml bottle @ ₹649",
+    "label": "accept"
+  },
+  {
+    "title": "Solar pump kits",
+    "description": "3HP solar pumps under PM-KUSUM subsidy for Vidarbha farmers",
+    "label": "accept"
+  },
+  {
+    "title": "Cycle freewheels",
+    "description": "Ludhiana-made freewheels for Hero and Avon, ₹95 each, 20k/month.",
+    "label": "accept"
+  },
+  {
+    "title": "Cycle parts",
+    "description": "cycle ke parts banayenge, 10000 piece per month target",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "School furniture",
+    "description": "we will make furniture for schools and colleges",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "EV revolution",
+    "description": "e-rickshaw ka ekdum game changer idea hai bhai, market hila dega",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Snacks brand",
+    "description": "we will make very tasty namkeen, best quality, everyone will love it",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Kisan spray drone",
+    "description": "10L spraying drone on rent for sugarcane farmers in Kolhapur, ₹400/acre",
+    "label": "accept"
+  },
+  {
+    "title": "Agarbatti unit",
+    "description": "want to set up agarbatti manufacturing, pls guide",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Guntur chilli powder",
+    "description": "stemless teja chilli, cold ground, 1kg packs for Hyderabad restaurants",
+    "label": "accept"
+  },
+  {
+    "title": "LED Streetlights",
+    "description": "30W LED streetlights for gram panchayats, 5 yr warranty, ₹1,150 landed",
+    "label": "accept"
+  },
+  {
+    "title": "3D printed jigs",
+    "description": "Nylon CF printed fixtures for Pune auto component plants, 48hr turnaround",
+    "label": "accept"
+  },
+  {
+    "title": "school benches",
+    "description": "MS pipe dual desks for govt schools via GeM portal, Rs.3,400/- per unit",
+    "label": "accept"
+  },
+  {
+    "title": "Bamboo products",
+    "description": "we make all kinds of products from bamboo",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "gravity water filter",
+    "description": "no electricity terracotta filter for rural homes, sold at haats, 850 rs",
+    "label": "accept"
+  },
+  {
+    "title": "brass items",
+    "description": "brass hardware items like hinges, handles, locks etc",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Premium cosmetics",
+    "description": "high quality premium cosmetics brand with best ingredients at affordable price",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Papad for NRIs",
+    "description": "Bikaneri moong papad, vacuum packed, shipping to Indian stores in New Jersey.",
+    "label": "accept"
+  },
+  {
+    "title": "Tirupur dyeing unit",
+    "description": "zero liquid discharge reactive dyeing for knitwear exporters, job work @ ₹22/kg",
+    "label": "accept"
+  },
+  {
+    "title": "E-rick controllers",
+    "description": "48V controllers for e-rickshaw garages in Patna, half price of chinese ones",
+    "label": "accept"
+  },
+  {
+    "title": "Bamboo toothbrush",
+    "description": "Tripura bamboo handles, sell to eco hotels in Goa, 1.2L units first order",
+    "label": "accept"
+  },
+  {
+    "title": "Water purifier",
+    "description": "we will sell water purifiers at just Rs 4999",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Cricket bats",
+    "description": "Kashmir willow bats made in Jalandhar, export to UK clubs at £45",
+    "label": "accept"
+  },
+  {
+    "title": "Business idea",
+    "description": "idea is about LED lights, will fill details later",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Milk Can Manufacturing",
+    "description": "Aluminium 40-litre milk cans supplied to Amul and Banas Dairy village collection centres.",
+    "label": "accept"
+  },
+  {
+    "title": "Footwear",
+    "description": "will sell slippers and sandals online soon",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Pet food startup",
+    "description": "planning to launch pet food brand, need help with everything",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "agarbatti brand",
+    "description": "charcoal free masala agarbati, selling thru kirana stores in mysore at rs 40 per box",
+    "label": "accept"
+  },
+  {
+    "title": "Morbi vitrified tiles",
+    "description": "600x1200 GVT tiles, dealer network in Rajasthan, ₹38 per sq ft",
+    "label": "accept"
+  },
+  {
+    "title": "Spices",
+    "description": "masala business in Kerala, good quality spices",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Solar Pump Venture",
+    "description": "To become India's leading solar pump company within five years.",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Fresh dog food",
+    "description": "cooked chicken-rice meals for dogs in Bengaluru, subscription ₹2.8k/month, delivered daily",
+    "label": "accept"
+  },
+  {
+    "title": "ceramic mugs",
+    "description": "Nice ceramic mugs, different designs and colours, customers will like",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "brass door handles",
+    "description": "Jamnagar se brass handles, IHGF Delhi fair mein stall liya, Dubai buyers target",
+    "label": "accept"
+  }
+]

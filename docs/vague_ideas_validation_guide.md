@@ -105,13 +105,18 @@ When evaluating a valid concept, the AI Report splits every point (1, 2, 3, 4, 5
 
 ### Short pitches: specificity, not length
 
-A short pitch is judged by the founder's intent. Under 20 words, the free Stage 1 screen requires at least two different kinds of concrete detail: a buyer or market, a price or quantity, a material or process, or a differentiator. Longer pitches go to the Stage 2 AI gate, which rejects low-effort placeholders and hype paragraphs that give fewer than two concrete specifics (code `too-vague`).
+A short pitch is judged by the founder's intent, in two steps:
+
+- **Stage 1 (free, `lib/specificity.ts`)** rejects a pitch under 20 words that has no concrete detail at all: no buyer, market or channel, no price or quantity, no material or process, no differentiator. Income goals ("earn 50000 monthly"), years, "24/7" and phrases like "for everyone" or "for daily use" do not count as detail.
+- **Stage 2 (AI gate)** judges everything else by meaning and rejects pitches whose specifics cover fewer than two different kinds (code `too-vague`).
+
+The split is deliberate. A keyword check cannot reliably tell "for hotels" from "for daily use", so Stage 1 only makes the calls it can make with near-certainty. Both stages were checked against 110 pitches whose labels were agreed by independent AI reviewers (`npm run test:specificity`): no genuine pitch is rejected at Stage 1.
 
 | Pitch | Concrete details found | Decision |
 | :--- | :--- | :--- |
 | `I want to start a shoe business` | none | **REJECT** (`too-vague`) |
 | `We will make and sell water bottles` | none | **REJECT** (`too-vague`) |
-| `We will sell stainless steel water bottles` | material only | **REJECT** (`too-vague`) — add a buyer or a price |
+| `We will sell stainless steel water bottles` | material only | Passes Stage 1, **REJECT** at the AI gate (`too-vague`) — add a buyer or a price |
 | `Manufacturing tablets for health industry at Rs 500` | buyer, price, process | **PASS** — full report plus a "How we read your pitch" section listing the assumptions made |
 | `Bamboo toothbrushes for hotels at ₹20 each` | material, buyer, price | **PASS** |
 
