@@ -168,8 +168,9 @@ export function screenDeterministic(title: string, description: string): Validat
     };
   }
 
-  // A short pitch is welcome when it is specific; a short placeholder is not.
-  // Longer pitches go to the AI gate, which judges specificity by meaning.
+  // A short placeholder with no concrete detail at all is rejected here for
+  // free. Anything with some detail, and every longer pitch, goes to the AI
+  // gate, which judges by meaning whether there is enough ("too-vague").
   const { passes, kinds } = checkSpecificity(t, d);
   if (!passes) {
     return {

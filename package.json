@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:gate": "node scripts/test-validation-gate.mjs"
+    "test:gate": "node scripts/test-validation-gate.mjs",
+    "test:specificity": "node --experimental-strip-types --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-specificity.mjs"
   },
   "dependencies": {
     "jsonwebtoken": "^9.0.3",
