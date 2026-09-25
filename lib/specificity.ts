@@ -62,7 +62,7 @@ const NOT_A_BUYER = [
  * The four kinds of concrete detail                                   *
  * ------------------------------------------------------------------ */
 
-const UNIT = String.raw`(?:k|kg|kgs|g|gm|gms|grams?|ml|ltr|l|litres?|liters?|pcs|pieces?|units?|nos|dozen|mm|cm|m|sq\.?\s*ft|w|kw|mah|tons?|tonnes?|quintals?|packs?|sachets?|bags?|boxes?|bottles?|ply)`;
+const UNIT = String.raw`(?:k|kg|kgs|g|gm|gms|grams?|ml|ltr|l|litres?|liters?|pcs|pieces?|units?|nos|dozen|mm|cm|m|sq\.?\s*ft|v|w|kw|kwh|mah|hp|tons?|tonnes?|quintals?|packs?|sachets?|bags?|boxes?|bottles?|ply)`;
 
 const PRICE_PATTERNS = [
   /₹|\b(?:rs\.?|inr)\s*\d|\b\d[\d,.]*\s*(?:\/-|rs\b|rupees|inr\b)/i,
@@ -112,7 +112,7 @@ const MATERIAL_PATTERNS = [
     "assembl", "3d print", "cnc", "machin", "inject", "extru", "casting", "forg(?:e|ed|ing)\\b",
     "ferment", "distill", "bak(?:e|ing|ery)", "packag", "bottling", "recycl", "upcycl",
     "refurbish", "handmade", "hand[- ]made", "handcraft", "cold[- ]pressed", "pressed", "powder[- ]coat",
-    "blow", "corrugat", "vermicompost", "compost", "dehydrat", "dried", "diy", "kits?\\b",
+    "blow", "vacuum", "corrugat", "vermicompost", "compost", "dehydrat", "dried", "diy", "kits?\\b",
     // Materials and components
     "organic", "herbal", "ayurved", "steel", "stainless", "ss\\s?304", "ss\\b", "alumin", "iron",
     "copper", "brass", "plastic", "polymer", "pvc", "hdpe", "ldpe", "pp\\b", "rexine", "cotton",
@@ -125,7 +125,7 @@ const MATERIAL_PATTERNS = [
 
 const DIFFERENTIATOR_PATTERNS = [
   stems([
-    "cheaper than", "half the", "import", "biodegradable", "compostable", "reusable", "repairable",
+    "cheaper than", "half (?:the )?price", "half the", "import", "biodegradable", "compostable", "reusable", "repairable",
     "patent", "made in india", "locally made", "replacement",
   ]),
 ];

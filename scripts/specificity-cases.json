@@ -381,5 +381,223 @@
     "description": "Me and my 3 college friends want to start an innovative electronics company in 2027, working 24/7.",
     "label": "reject",
     "stage1": "reject"
+  },
+  {
+    "title": "Leather business",
+    "description": "I want to start my own leather goods business in future",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "PU soles Agra",
+    "description": "PU sole moulding unit for Agra shoe makers, 2 lakh pairs capacity.",
+    "label": "accept"
+  },
+  {
+    "title": "Dairy tech",
+    "description": "revolutionary dairy machine, will disrupt the whole industry, huge demand!!",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Drone startup",
+    "description": "i want to start a drone company, looking for co founder",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Surgical gauze",
+    "description": "sterile gauze swabs for nursing homes in UP, Rs 3 per piece",
+    "label": "accept"
+  },
+  {
+    "title": "Kanpur Leather Wallets",
+    "description": "genuine buff leather wallets from Jajmau tannery, wholesale @₹180/pc to Delhi retailers",
+    "label": "accept"
+  },
+  {
+    "title": "kumkumadi face oil",
+    "description": "ayurvedic face oil, Nykaa pe list kiya hai, 30ml bottle @ ₹649",
+    "label": "accept"
+  },
+  {
+    "title": "Solar pump kits",
+    "description": "3HP solar pumps under PM-KUSUM subsidy for Vidarbha farmers",
+    "label": "accept"
+  },
+  {
+    "title": "Cycle freewheels",
+    "description": "Ludhiana-made freewheels for Hero and Avon, ₹95 each, 20k/month.",
+    "label": "accept"
+  },
+  {
+    "title": "Cycle parts",
+    "description": "cycle ke parts banayenge, 10000 piece per month target",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "School furniture",
+    "description": "we will make furniture for schools and colleges",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "EV revolution",
+    "description": "e-rickshaw ka ekdum game changer idea hai bhai, market hila dega",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Snacks brand",
+    "description": "we will make very tasty namkeen, best quality, everyone will love it",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Kisan spray drone",
+    "description": "10L spraying drone on rent for sugarcane farmers in Kolhapur, ₹400/acre",
+    "label": "accept"
+  },
+  {
+    "title": "Agarbatti unit",
+    "description": "want to set up agarbatti manufacturing, pls guide",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Guntur chilli powder",
+    "description": "stemless teja chilli, cold ground, 1kg packs for Hyderabad restaurants",
+    "label": "accept"
+  },
+  {
+    "title": "LED Streetlights",
+    "description": "30W LED streetlights for gram panchayats, 5 yr warranty, ₹1,150 landed",
+    "label": "accept"
+  },
+  {
+    "title": "3D printed jigs",
+    "description": "Nylon CF printed fixtures for Pune auto component plants, 48hr turnaround",
+    "label": "accept"
+  },
+  {
+    "title": "school benches",
+    "description": "MS pipe dual desks for govt schools via GeM portal, Rs.3,400/- per unit",
+    "label": "accept"
+  },
+  {
+    "title": "Bamboo products",
+    "description": "we make all kinds of products from bamboo",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "gravity water filter",
+    "description": "no electricity terracotta filter for rural homes, sold at haats, 850 rs",
+    "label": "accept"
+  },
+  {
+    "title": "brass items",
+    "description": "brass hardware items like hinges, handles, locks etc",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Premium cosmetics",
+    "description": "high quality premium cosmetics brand with best ingredients at affordable price",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Papad for NRIs",
+    "description": "Bikaneri moong papad, vacuum packed, shipping to Indian stores in New Jersey.",
+    "label": "accept"
+  },
+  {
+    "title": "Tirupur dyeing unit",
+    "description": "zero liquid discharge reactive dyeing for knitwear exporters, job work @ ₹22/kg",
+    "label": "accept"
+  },
+  {
+    "title": "E-rick controllers",
+    "description": "48V controllers for e-rickshaw garages in Patna, half price of chinese ones",
+    "label": "accept"
+  },
+  {
+    "title": "Bamboo toothbrush",
+    "description": "Tripura bamboo handles, sell to eco hotels in Goa, 1.2L units first order",
+    "label": "accept"
+  },
+  {
+    "title": "Water purifier",
+    "description": "we will sell water purifiers at just Rs 4999",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Cricket bats",
+    "description": "Kashmir willow bats made in Jalandhar, export to UK clubs at £45",
+    "label": "accept"
+  },
+  {
+    "title": "Business idea",
+    "description": "idea is about LED lights, will fill details later",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Milk Can Manufacturing",
+    "description": "Aluminium 40-litre milk cans supplied to Amul and Banas Dairy village collection centres.",
+    "label": "accept"
+  },
+  {
+    "title": "Footwear",
+    "description": "will sell slippers and sandals online soon",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Pet food startup",
+    "description": "planning to launch pet food brand, need help with everything",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "agarbatti brand",
+    "description": "charcoal free masala agarbati, selling thru kirana stores in mysore at rs 40 per box",
+    "label": "accept"
+  },
+  {
+    "title": "Morbi vitrified tiles",
+    "description": "600x1200 GVT tiles, dealer network in Rajasthan, ₹38 per sq ft",
+    "label": "accept"
+  },
+  {
+    "title": "Spices",
+    "description": "masala business in Kerala, good quality spices",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "Solar Pump Venture",
+    "description": "To become India's leading solar pump company within five years.",
+    "label": "reject",
+    "stage1": "reject"
+  },
+  {
+    "title": "Fresh dog food",
+    "description": "cooked chicken-rice meals for dogs in Bengaluru, subscription ₹2.8k/month, delivered daily",
+    "label": "accept"
+  },
+  {
+    "title": "ceramic mugs",
+    "description": "Nice ceramic mugs, different designs and colours, customers will like",
+    "label": "reject",
+    "stage1": "gate"
+  },
+  {
+    "title": "brass door handles",
+    "description": "Jamnagar se brass handles, IHGF Delhi fair mein stall liya, Dubai buyers target",
+    "label": "accept"
   }
 ]

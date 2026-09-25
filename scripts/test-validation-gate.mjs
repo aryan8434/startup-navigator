@@ -92,6 +92,18 @@ const CASES = [
   },
   {
     expect: "reject",
+    codes: ["too-vague"],
+    label: "one kind of detail only",
+    // Passes stage 1 (it names a material), so the AI gate must catch it:
+    // "for daily use" is a purpose, not a buyer.
+    body: {
+      title: "Steel water bottles",
+      description: "We will sell stainless steel bottles for daily use.",
+      category: "FMCG / Consumer Goods",
+    },
+  },
+  {
+    expect: "reject",
     codes: ["no-differentiation"],
     label: "headphones vs Apple, no edge",
     body: {
@@ -138,6 +150,16 @@ const CASES = [
       description: "Manufacturing tablets for the health industry at Rs 500 per pack",
       category: "BioTech / Healthcare",
       investmentTier: "₹5 Lakhs - ₹25 Lakhs",
+    },
+  },
+  {
+    expect: "accept",
+    label: "terse but specific (material + place)",
+    body: {
+      title: "Tractor seat covers",
+      description: "Rexine, Moga mandi.",
+      category: "Manufacturing",
+      investmentTier: "< ₹5 Lakhs",
     },
   },
   {
