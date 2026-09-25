@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ContinueAsGuestButton from "@/components/ContinueAsGuestButton";
 import { Lock, Mail, Rocket, ShieldAlert, User, Loader2 } from "lucide-react";
 
 export default function Register() {
@@ -134,6 +135,8 @@ export default function Register() {
               )}
             </button>
           </form>
+
+          <ContinueAsGuestButton />
 
           <p className="mt-6 text-center text-xs text-slate-500">
             Already have an account?{" "}

@@ -146,15 +146,17 @@ flowchart TD
 ### Key Feature Capabilities
 
 - **Idea Explorer Directory (`/ideas`):** Browse hardware concepts filtered by Category, Capex Tier, and Complexity. Includes upvoting, community submission, and instant AI idea generation.
+- **Guest Mode (no account needed):** AI feasibility audits and AI idea generation are open to everyone. "Continue as Guest" on the login or register page starts a 24-hour guest session that runs the exact same pipeline as a signed-in founder (validation gate, live evidence, dual-model consensus, confidence scoring) and lists every audit, idea generation and search on a guest dashboard. When a guest creates an account or signs in, that history moves to the account automatically. Guests have no admin access.
 - **1-Click AI Feasibility Transfer (`/ideas/[id]`):** Transfer parameters (Title, Sector, Capex Tier, Target Market, Description) directly from Idea Details to the Feasibility Evaluator with auto-execution.
 - AI Feasibility and Risk Evaluator (/feasibility): Evidence-grounded analysis. Every pitch is researched against live public data, assessed independently by two AI models over identical evidence, and returned with inline [n] citations, a 0-100 feasibility gauge, a separate 0-100 confidence score, a 4-vector risk matrix, and an 8-point report in Indian Rupees (INR).
 - Confidence Scoring (`lib/confidence.ts`): A second, independent score answering "how much should you trust this verdict?" - computed from evidence volume, source authority, source diversity, cross-model agreement, pitch specificity, internal knowledge overlap, and calibration against comparable past assessments. It is derived from observable facts, never asked of the model, so a confident-sounding completion cannot inflate it.
 - Cited Sources Panel: Every external source used is listed with its provider, retrieval timestamp and link, and citation markers in the report body link back to it.
 - Provider Health Endpoint (`/api/health`): Sends a real completion to each configured provider and reports the model that answered plus its latency, so a retired model id surfaces immediately instead of silently degrading to offline placeholder text.
 - Two-Stage Validation Gate (`lib/validation.ts`): Nothing expensive runs until a pitch clears both stages.
-  - Stage 1 (free, deterministic): empty input, too-short input and keyboard mashes ("fgbfg") are rejected with zero API cost.
-  - Stage 2 (one cheap grounded call, sampled twice): judges whether the concept is real at all. Catches pitches that read as valid English but are not assessable - a product its stated user cannot physically use ("headphones for fishes"), a goal rather than a product ("I want to be rich"), a head-on clone of a dominant incumbent with no stated wedge, or capital off by 10x or more in either direction (a garment unit demanding INR 100 crore, a semiconductor fab on INR 4 lakh).
+  - Stage 1 (free, deterministic): empty input, too-short input and keyboard mashes ("fgbfg") are rejected with zero API cost. A short pitch (under 20 words) must also carry at least two kinds of concrete detail - a buyer or market, a price or quantity, a material or process, or a differentiator. Length is not the test, specificity is: "Manufacturing tablets for the health industry at Rs 500" passes, "I want to start a shoe business" is rejected as too vague.
+  - Stage 2 (one cheap grounded call, sampled twice): judges whether the concept is real at all and written with genuine intent. Catches pitches that read as valid English but are not assessable - a product its stated user cannot physically use ("headphones for fishes"), a goal rather than a product ("I want to be rich"), a low-effort placeholder or hype paragraph with no concrete specifics, a head-on clone of a dominant incumbent with no stated wedge, or capital off by 10x or more in either direction (a garment unit demanding INR 100 crore, a semiconductor fab on INR 4 lakh).
   - A rejected pitch returns 0 / 100 with no financial figures at all, and the report shows which stage stopped it. Rejections resolve in ~2-6s against ~9-25s for a full assessment.
+  - A brief but specific pitch that passes gets a full report plus a "How we read your pitch" section: the fuller concept the models assessed and every assumption they made to fill gaps, so the founder can correct them and re-run.
 - RAG AI Search Assistant (/search): Retrieval-Augmented Generation indexing Articles, Manufacturing Ideas, and Feasibility Audit Reports for natural language vector query processing with citations.
 - Manufacturing Cost and ROI Calculator (/calculator): Interactive simulator for unit COGS, monthly fixed overhead, gross margin %, break-even unit volume, and payback schedules.
 - **Clean PDF Report Export:** Dedicated print stylesheet formatting AI feasibility reports as executive white-background documents.
@@ -171,8 +173,9 @@ Incoming Pitch
       ▼
 ┌───────────────────────────────────────┐
 │ Stage 1: Deterministic Screen         │  ── Reject ──►  Score: 0 / 100 | Time: ~0.001s | Cost: $0.00
-│ • Minimum word & character counts     │                 (Empty, keyboard mash "fgbfg", gibberish)
-│ • Consonant-cluster entropy checks    │
+│ • Minimum word & character counts     │                 (Empty, keyboard mash "fgbfg", gibberish,
+│ • Consonant-cluster entropy checks    │                  short pitch with no concrete detail)
+│ • Short-pitch specificity check       │
 └──────────────────┬────────────────────┘
                    │ Pass
                    ▼
@@ -198,7 +201,7 @@ Incoming Pitch
 | **Execution Engine** | Local TypeScript Regex & Heuristics | Fast LLM (Sampled 2x in Parallel) | Dual Provider (Groq 120B + Gemini 3.5 Flash) |
 | **API Cost** | **$0.00 (Zero API calls)** | **<$0.0002** (1 cheap prompt) | Standard inference cost |
 | **Resolution Latency** | **< 2 ms** | **~2 – 6 seconds** | **~9 – 25 seconds** |
-| **What It Catches** | Empty input, length < 15 chars, keyboard mashes (`fgbfg`, `asdfghjkl`) | Non-physical concepts, generic desires, clone without wedge, CapEx off by >10x | Valid hardware ventures needing deep audit |
+| **What It Catches** | Empty input, length < 15 chars, keyboard mashes (`fgbfg`, `asdfghjkl`), short pitches with fewer than two kinds of concrete detail | Non-physical concepts, generic desires, low-effort placeholders, clone without wedge, CapEx off by >10x | Valid hardware ventures needing deep audit |
 | **Verdict on Failure** | Feasibility Score: `0`, Confidence: `0` | Feasibility Score: `0`, Confidence: `0` | Calculated 0-100 based on market metrics |
 
 ---
@@ -383,7 +386,12 @@ Retrieval-Augmented Generation (RAG) search across articles, blueprints, and fea
 * **Request Body:** `{ "query": "Delaware vs India C-Corp filing", "aiModel": "groq" }`
 * **Response:** Returns ranked vector citations with similarity scores and generated summary answer.
 
-### 4. `GET /api/health`
+### 4. `POST /api/auth/guest`
+Starts a guest session (sets the `sn_session` cookie) so a visitor can run feasibility audits and idea generation with a dashboard history, without registering. An existing session is kept rather than replaced.
+
+* **Response:** `{ "user": { "id": "guest_3f9c...", "name": "Guest Founder", "email": "", "role": "guest" } }`
+
+### 5. `GET /api/health`
 Probes all AI providers with lightweight completions to detect model retirements and measure live latency.
 
 * **Response:**

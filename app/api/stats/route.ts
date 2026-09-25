@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import { getAuthenticatedUser } from "@/lib/auth";
+import { getAuthenticatedUser, GUEST_ID_PREFIX } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   try {
@@ -48,7 +48,11 @@ export async function GET(req: NextRequest) {
         id: log.id,
         query: log.query,
         timestamp: log.timestamp,
-        userName: log.userId ? userMap.get(log.userId) || "Registered User" : "Anonymous Guest"
+        userName: !log.userId
+          ? "Anonymous Visitor"
+          : log.userId.startsWith(GUEST_ID_PREFIX)
+            ? "Guest Session"
+            : userMap.get(log.userId) || "Registered User"
       }));
 
     // Construct response structure

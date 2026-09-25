@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import { verifyPassword, signToken } from "@/lib/auth";
+import { verifyPassword, signToken, getAuthenticatedUser, SESSION_MAX_AGE_SECONDS } from "@/lib/auth";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json();
 
@@ -27,6 +27,12 @@ export async function POST(req: Request) {
       name: user.name
     });
 
+    // A guest signing in keeps the audits and searches they ran as a guest.
+    const previous = getAuthenticatedUser(req);
+    if (previous?.role === "guest") {
+      await db.searchHistory.reassign(previous.id, user.id);
+    }
+
     const response = NextResponse.json({
       user: {
         id: user.id,
@@ -40,7 +46,7 @@ export async function POST(req: Request) {
     response.cookies.set("sn_session", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24, // 1 day
+      maxAge: SESSION_MAX_AGE_SECONDS,
       path: "/"
     });
 

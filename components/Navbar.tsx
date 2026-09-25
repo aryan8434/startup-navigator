@@ -3,14 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu, X, Rocket, LogOut, LayoutDashboard, Cpu } from "lucide-react";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: "admin" | "user";
-}
+import { Menu, X, Rocket, LogOut, LayoutDashboard, Cpu, UserRound, UserPlus } from "lucide-react";
+import { SESSION_CHANGE_EVENT, type SessionUser as User } from "@/lib/guest-session";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -39,6 +33,14 @@ export default function Navbar() {
   useEffect(() => {
     fetchUser();
   }, [pathname]);
+
+  // A guest session can start without a navigation (e.g. from a page banner).
+  useEffect(() => {
+    window.addEventListener(SESSION_CHANGE_EVENT, fetchUser);
+    return () => window.removeEventListener(SESSION_CHANGE_EVENT, fetchUser);
+  }, []);
+
+  const isGuest = user?.role === "guest";
 
   const handleLogout = async () => {
     try {
@@ -103,19 +105,35 @@ export default function Navbar() {
                   <div className="flex items-center space-x-2.5">
                     <Link
                       href="/dashboard"
-                      className="flex items-center space-x-1.5 text-xs font-bold text-white px-3 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-800 transition"
+                      className={`flex items-center space-x-1.5 text-xs font-bold text-white px-3 py-1.5 rounded-lg border transition ${
+                        isGuest ? "border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20" : "border-slate-700 hover:bg-slate-800"
+                      }`}
+                      title={isGuest ? "Guest mode: your audits are saved here for this session" : undefined}
                     >
-                      <LayoutDashboard className="h-3.5 w-3.5 text-indigo-400" />
-                      <span>Dashboard</span>
+                      {isGuest ? (
+                        <UserRound className="h-3.5 w-3.5 text-amber-400" />
+                      ) : (
+                        <LayoutDashboard className="h-3.5 w-3.5 text-indigo-400" />
+                      )}
+                      <span>{isGuest ? "Guest" : "Dashboard"}</span>
                     </Link>
+                    {/* Hidden at lg, where the nav links need the room; the guest banners link to sign-up too */}
+                    {isGuest && (
+                      <Link
+                        href="/register"
+                        className="inline-block lg:hidden xl:inline-block whitespace-nowrap text-xs px-3.5 py-1.5 rounded-lg text-white bg-indigo-600 hover:bg-indigo-500 font-bold transition shadow-md"
+                      >
+                        Create Account
+                      </Link>
+                    )}
                     {/* Standard non-flashy Sign Out button */}
                     <button
                       onClick={handleLogout}
                       className="flex items-center space-x-1 text-xs px-3 py-1.5 rounded-lg text-slate-300 hover:text-rose-400 border border-slate-800 hover:border-slate-700 transition cursor-pointer"
-                      title="Sign Out"
+                      title={isGuest ? "Exit guest mode" : "Sign Out"}
                     >
                       <LogOut className="h-3.5 w-3.5" />
-                      <span>Sign Out</span>
+                      <span>{isGuest ? "Exit" : "Sign Out"}</span>
                     </button>
                   </div>
                 ) : (
@@ -185,7 +203,16 @@ export default function Navbar() {
                 {user ? (
                   <>
                     <div className="text-slate-400 text-sm py-1">
-                      Logged in as: <span className="text-white font-medium">{user.name}</span>
+                      {isGuest ? (
+                        <span className="inline-flex items-center gap-1.5 text-amber-300 font-medium">
+                          <UserRound className="h-4 w-4" />
+                          Guest mode
+                        </span>
+                      ) : (
+                        <>
+                          Logged in as: <span className="text-white font-medium">{user.name}</span>
+                        </>
+                      )}
                     </div>
                     <Link
                       href="/dashboard"
@@ -193,8 +220,18 @@ export default function Navbar() {
                       className="flex items-center space-x-2 py-2 text-slate-300 hover:text-white"
                     >
                       <LayoutDashboard className="h-4 w-4" />
-                      <span>Dashboard</span>
+                      <span>{isGuest ? "Guest Dashboard" : "Dashboard"}</span>
                     </Link>
+                    {isGuest && (
+                      <Link
+                        href="/register"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center space-x-2 py-2 text-indigo-400 font-semibold"
+                      >
+                        <UserPlus className="h-4 w-4" />
+                        <span>Create Account to keep your audits</span>
+                      </Link>
+                    )}
                     <Link
                       href="/architecture"
                       onClick={() => setMobileMenuOpen(false)}
@@ -211,7 +248,7 @@ export default function Navbar() {
                       className="flex items-center justify-center space-x-2 py-2 px-4 rounded-md text-slate-300 hover:text-rose-400 border border-slate-800 cursor-pointer w-full text-center"
                     >
                       <LogOut className="h-4 w-4" />
-                      <span>Sign Out</span>
+                      <span>{isGuest ? "Exit Guest Mode" : "Sign Out"}</span>
                     </button>
                   </>
                 ) : (
